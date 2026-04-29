@@ -60,7 +60,6 @@
         .btn-action { flex: 1; border: none; border-radius: 10px; padding: 10px; font-weight: 700; cursor: pointer; transition: all 0.1s; font-size: 0.8rem; }
         .btn-action:active { transform: scale(0.95); }
 
-        /* Viewer do Drive */
         .drive-viewer { width: 100%; height: 500px; border-radius: 15px; border: 2px solid #334155; margin-top: 15px; display: none; }
 
         input, textarea, select { width: 100%; background: var(--bg-dark); border: 1px solid #334155; border-radius: 10px; padding: 12px; color: white; outline: none; box-sizing: border-box; margin-bottom: 10px; }
@@ -158,6 +157,7 @@
             </div>
             <input type="text" id="newEmpName" placeholder="Nome Completo">
             <input type="text" id="newEmpRole" placeholder="Função">
+            <input type="text" id="newEmpTime" placeholder="Horário (Ex: 08:00 às 17:00)">
             <button class="btn-save" onclick="cadastrarFuncionario()">Salvar na Lista</button>
         </div>
     </div>
@@ -244,10 +244,11 @@
         document.getElementById('lista-atas').style.display = "block";
     }
 
-    // EQUIPE (COM BOTÕES DE AÇÃO RESTAURADOS)
+    // EQUIPE (COM HORÁRIO RESTAURADO)
     function cadastrarFuncionario() {
         const nome = document.getElementById('newEmpName').value;
         const cargo = document.getElementById('newEmpRole').value;
+        const horario = document.getElementById('newEmpTime').value;
         if(!nome) return;
         
         const lista = document.getElementById('employee-list');
@@ -257,7 +258,7 @@
         div.innerHTML = `
             <div style="margin-bottom:10px">
                 <strong style="font-size:1.1rem">${nome}</strong><br>
-                <small style="color:var(--text-dim)">${cargo}</small>
+                <small style="color:var(--text-dim)">${cargo} | ${horario}</small>
             </div>
             <div style="display:flex; gap:10px;">
                 <button class="btn-action" style="background:#3b82f633; color:#60a5fa" onclick="alert('Alinhamento registrado para ${nome}')">Alinhamento</button>
@@ -268,6 +269,7 @@
         
         document.getElementById('newEmpName').value = "";
         document.getElementById('newEmpRole').value = "";
+        document.getElementById('newEmpTime').value = "";
         closeModal('modalAddEmployee');
     }
 
@@ -301,7 +303,7 @@
 
     function processarUpload(event) { alert("Arquivo: " + event.target.files[0].name); }
 
-    // AVATAR
+    // AVATAR E CARGA INICIAL
     window.onload = function() {
         const foto = localStorage.getItem('avatarCoord');
         if (foto) {
