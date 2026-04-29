@@ -123,7 +123,7 @@
         <div class="modal-content">
             <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
                 <h3 id="regTitle">Registro</h3>
-                <i class="fas fa-times" onclick="closeModal('modalRegistro')"></i>
+                <i class="fas fa-times" style="cursor:pointer" onclick="closeModal('modalRegistro')"></i>
             </div>
             <div class="input-group"><label>Data</label><input type="date" id="regDate"></div>
             <div class="input-group"><label id="regSub"></label><textarea id="regObsIndividual" rows="4"></textarea></div>
@@ -133,7 +133,10 @@
 
     <div id="modalAddEmployee" class="modal-overlay">
         <div class="modal-content">
-            <h3>Cadastrar Novo Funcionário</h3>
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                <h3>Cadastrar Novo Funcionário</h3>
+                <i class="fas fa-times" style="cursor:pointer" onclick="closeModal('modalAddEmployee')"></i>
+            </div>
             <div class="input-group"><label>Nome Completo</label><input type="text" id="newEmpName"></div>
             <div class="input-group"><label>Função</label><input type="text" id="newEmpRole"></div>
             <div style="display:flex; gap:10px">
@@ -149,7 +152,7 @@
             <div class="tabs-patri">
                 <button class="tab-btn active" id="tabNovo" onclick="switchPatriTab('novo')">Novo Registro</button>
                 <button class="tab-btn" id="tabLista" onclick="switchPatriTab('lista')">Inventário</button>
-                <i class="fas fa-times" style="margin-left:auto" onclick="closeModal('modalPatrimonio')"></i>
+                <i class="fas fa-times" style="margin-left:auto; cursor:pointer" onclick="closeModal('modalPatrimonio')"></i>
             </div>
             <div id="patriForm">
                 <div class="input-group"><label>Item</label><input type="text" id="patItem"></div>
@@ -254,17 +257,16 @@
         switchPatriTab('lista');
     }
 
-    // LÓGICA DE UPLOAD
+    // UPLOAD
     function processarUpload(event) {
         const arquivo = event.target.files[0];
         if (arquivo) {
             alert("Arquivo pronto para processamento: " + arquivo.name);
-            // Aqui você conectaria com um backend se necessário
             console.log("Arquivo carregado:", arquivo);
         }
     }
 
-    // AVATAR (Foto de Perfil)
+    // AVATAR
     window.onload = function() {
         const foto = localStorage.getItem('avatarCoord');
         if (foto) {
@@ -280,5 +282,4 @@
     }
 </script>
 </body>
- </html>
-
+</html>
