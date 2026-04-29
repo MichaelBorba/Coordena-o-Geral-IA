@@ -56,11 +56,9 @@
         
         .grid-modules { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin: 25px 0; }
 
-        .item-card { background: var(--card-bg); padding: 15px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #334155; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        .item-card { background: var(--card-bg); padding: 15px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #334155; box-shadow: 0 4px 6px rgba(0,0,0,0.2); position: relative; }
         .btn-action { flex: 1; border: none; border-radius: 10px; padding: 10px; font-weight: 700; cursor: pointer; transition: all 0.1s; font-size: 0.8rem; }
         .btn-action:active { transform: scale(0.95); }
-
-        .drive-viewer { width: 100%; height: 500px; border-radius: 15px; border: 2px solid #334155; margin-top: 15px; display: none; }
 
         input, textarea, select { width: 100%; background: var(--bg-dark); border: 1px solid #334155; border-radius: 10px; padding: 12px; color: white; outline: none; box-sizing: border-box; margin-bottom: 10px; }
         
@@ -72,6 +70,12 @@
         .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; padding: 25px; border-radius: 25px 25px 0 0; border-top: 1px solid rgba(255,255,255,0.1); }
 
         .fab-add { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer; z-index: 99; }
+
+        .card-actions { position: absolute; right: 15px; top: 15px; display: flex; gap: 12px; }
+        .card-actions i { cursor: pointer; opacity: 0.7; font-size: 1rem; }
+        .card-actions i:hover { opacity: 1; }
+
+        .drive-viewer { width: 100%; height: 500px; border-radius: 15px; border: 2px solid #334155; margin-top: 15px; display: none; }
     </style>
 </head>
 <body>
@@ -120,7 +124,7 @@
         </header>
         <input type="text" id="searchInput" placeholder="Filtrar por nome..." onkeyup="executarFiltro()" style="margin-top:10px">
         <div id="employee-list" style="margin-top:20px;"></div>
-        <button class="fab-add" onclick="openModal('modalAddEmployee')"><i class="fas fa-plus"></i></button>
+        <button class="fab-add" onclick="prepararNovoFuncionario()"><i class="fas fa-plus"></i></button>
     </div>
 
     <div id="view-atas" class="view">
@@ -133,49 +137,52 @@
         <div id="lista-atas" style="margin-top:20px;"></div>
         <iframe id="ata-viewer" class="drive-viewer" src=""></iframe>
         <button id="btn-fechar-viewer" class="btn-save" style="display:none; margin-top:10px; background:var(--accent-red); box-shadow: 0 5px 0 #991b1b;" onclick="fecharViewer()">Fechar Visualização</button>
-        <button class="fab-add" onclick="openModal('modalAddAta')"><i class="fas fa-plus"></i></button>
+        <button class="fab-add" onclick="prepararNovaAta()"><i class="fas fa-plus"></i></button>
     </div>
 
     <div id="modalAddAta" class="modal-overlay">
         <div class="modal-content">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 style="margin:0">Nova Ata (Link Drive)</h3>
+                <h3 id="tituloAtaModal" style="margin:0">Nova Ata</h3>
                 <i class="fas fa-times" style="cursor:pointer" onclick="closeModal('modalAddAta')"></i>
             </div>
+            <input type="hidden" id="editAtaIndex">
             <input type="text" id="newAtaName" placeholder="Nome da Ata">
             <input type="text" id="newAtaDate" placeholder="Data (Ex: 25/04/2026)">
             <input type="text" id="newAtaLink" placeholder="Link do Google Drive">
-            <button class="btn-save" onclick="salvarNovaAta()">Cadastrar Ata</button>
+            <button id="btnSalvarAta" class="btn-save" onclick="salvarAta()">Salvar Ata</button>
         </div>
     </div>
 
     <div id="modalAddEmployee" class="modal-overlay">
         <div class="modal-content">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 style="margin:0">Novo Funcionário</h3>
+                <h3 id="tituloEmpModal" style="margin:0">Novo Funcionário</h3>
                 <i class="fas fa-times" style="cursor:pointer" onclick="closeModal('modalAddEmployee')"></i>
             </div>
+            <input type="hidden" id="editEmpIndex">
             <input type="text" id="newEmpName" placeholder="Nome Completo">
             <input type="text" id="newEmpRole" placeholder="Função">
             <input type="text" id="newEmpTime" placeholder="Horário (Ex: 08:00 às 17:00)">
-            <button class="btn-save" onclick="cadastrarFuncionario()">Salvar na Lista</button>
+            <button id="btnSalvarEmp" class="btn-save" onclick="salvarFuncionario()">Salvar</button>
         </div>
     </div>
 
     <div id="modalPatrimonio" class="modal-overlay">
         <div class="modal-content">
             <div style="display:flex; gap:15px; border-bottom: 1px solid #334155; margin-bottom: 20px; padding-bottom: 10px;">
-                <button id="tabNovo" onclick="switchPatriTab('novo')" style="background:none; border:none; color:white; font-weight:700; cursor:pointer;">Novo Item</button>
+                <button id="tabNovo" onclick="switchPatriTab('novo')" style="background:none; border:none; color:white; font-weight:700; cursor:pointer;">Gerenciar Item</button>
                 <button id="tabLista" onclick="switchPatriTab('lista')" style="background:none; border:none; color:var(--text-dim); font-weight:700; cursor:pointer;">Inventário</button>
                 <i class="fas fa-times" style="margin-left:auto; cursor:pointer" onclick="closeModal('modalPatrimonio')"></i>
             </div>
             <div id="patriForm">
+                <input type="hidden" id="editPatIndex">
                 <input type="text" id="patItem" placeholder="Nome do Item">
                 <div style="display:flex; gap:10px;">
                     <select id="patEstado" style="flex:2"><option>Excelente</option><option>Bom</option><option>Regular</option><option>Danificado</option></select>
                     <input type="number" id="patQtd" value="1" style="flex:1">
                 </div>
-                <button class="btn-save" style="background:var(--accent-orange); box-shadow: 0 5px 0 #b45309; margin-top:10px;" onclick="salvarPatrimonio()">Cadastrar no Inventário</button>
+                <button id="btnSalvarPat" class="btn-save" style="background:var(--accent-orange); box-shadow: 0 5px 0 #b45309; margin-top:10px;" onclick="salvarPatrimonio()">Salvar no Inventário</button>
             </div>
             <div id="patriLista" style="display:none; max-height: 300px; overflow-y: auto;"><div id="itensCadastrados"></div></div>
         </div>
@@ -185,55 +192,72 @@
 </div>
 
 <script>
-    let bancoDeAtas = JSON.parse(localStorage.getItem('minhasAtas')) || [];
+    // Bancos de Dados Locais
+    let bancoAtas = JSON.parse(localStorage.getItem('bAtas')) || [];
+    let bancoEquipe = JSON.parse(localStorage.getItem('bEquipe')) || [];
+    let bancoPatri = JSON.parse(localStorage.getItem('bPatri')) || [];
 
     function changeView(id) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         if(id === 'view-atas') listarAtas();
+        if(id === 'view-employees') listarEquipe();
     }
 
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    // ATAS
-    function salvarNovaAta() {
-        const nome = document.getElementById('newAtaName').value;
-        const data = document.getElementById('newAtaDate').value;
-        let link = document.getElementById('newAtaLink').value;
-        if(!nome || !link) return;
-        if(link.includes('/view')) link = link.replace('/view', '/preview');
-        bancoDeAtas.push({ nome, data, link });
-        localStorage.setItem('minhasAtas', JSON.stringify(bancoDeAtas));
-        closeModal('modalAddAta');
-        listarAtas();
+    // --- FUNÇÕES DE ATAS ---
+    function prepararNovaAta() {
+        document.getElementById('editAtaIndex').value = "";
+        document.getElementById('newAtaName').value = "";
+        document.getElementById('newAtaDate').value = "";
+        document.getElementById('newAtaLink').value = "";
+        openModal('modalAddAta');
+    }
+
+    function salvarAta() {
+        const index = document.getElementById('editAtaIndex').value;
+        const nova = {
+            nome: document.getElementById('newAtaName').value,
+            data: document.getElementById('newAtaDate').value,
+            link: document.getElementById('newAtaLink').value.replace('/view', '/preview')
+        };
+        if(index === "") bancoAtas.push(nova); else bancoAtas[index] = nova;
+        localStorage.setItem('bAtas', JSON.stringify(bancoAtas));
+        closeModal('modalAddAta'); listarAtas();
     }
 
     function listarAtas() {
-        const container = document.getElementById('lista-atas');
-        container.innerHTML = "";
-        bancoDeAtas.forEach(ata => {
-            const div = document.createElement('div');
-            div.className = 'item-card';
-            div.style.cursor = 'pointer';
-            div.setAttribute('data-info', ata.nome + " " + ata.data);
-            div.onclick = () => abrirAta(ata.link);
-            div.innerHTML = `<strong>${ata.nome}</strong><br><small>${ata.data}</small>`;
+        const container = document.getElementById('lista-atas'); container.innerHTML = "";
+        bancoAtas.forEach((ata, i) => {
+            const div = document.createElement('div'); div.className = 'item-card';
+            div.innerHTML = `
+                <div onclick="abrirAta('${ata.link}')" style="cursor:pointer">
+                    <strong>${ata.nome}</strong><br><small>${ata.data}</small>
+                </div>
+                <div class="card-actions">
+                    <i class="fas fa-edit icon-blue" onclick="editarAta(${i})"></i>
+                    <i class="fas fa-trash-alt icon-red" style="color:var(--accent-red)" onclick="excluirAta(${i})"></i>
+                </div>`;
             container.appendChild(div);
         });
     }
 
-    function filtrarAtas() {
-        const busca = document.getElementById('ataFilter').value.toLowerCase();
-        document.querySelectorAll('#lista-atas .item-card').forEach(item => {
-            item.style.display = item.getAttribute('data-info').toLowerCase().includes(busca) ? "block" : "none";
-        });
+    function editarAta(i) {
+        const a = bancoAtas[i];
+        document.getElementById('editAtaIndex').value = i;
+        document.getElementById('newAtaName').value = a.nome;
+        document.getElementById('newAtaDate').value = a.data;
+        document.getElementById('newAtaLink').value = a.link;
+        openModal('modalAddAta');
     }
 
-    function abrirAta(link) {
-        const viewer = document.getElementById('ata-viewer');
-        viewer.src = link;
-        viewer.style.display = "block";
+    function excluirAta(i) { if(confirm("Excluir ata?")) { bancoAtas.splice(i,1); localStorage.setItem('bAtas', JSON.stringify(bancoAtas)); listarAtas(); } }
+
+    function abrirAta(link) { 
+        document.getElementById('ata-viewer').src = link; 
+        document.getElementById('ata-viewer').style.display = "block";
         document.getElementById('btn-fechar-viewer').style.display = "block";
         document.getElementById('lista-atas').style.display = "none";
     }
@@ -244,81 +268,107 @@
         document.getElementById('lista-atas').style.display = "block";
     }
 
-    // EQUIPE (COM HORÁRIO RESTAURADO)
-    function cadastrarFuncionario() {
-        const nome = document.getElementById('newEmpName').value;
-        const cargo = document.getElementById('newEmpRole').value;
-        const horario = document.getElementById('newEmpTime').value;
-        if(!nome) return;
-        
-        const lista = document.getElementById('employee-list');
-        const div = document.createElement('div');
-        div.className = 'item-card';
-        div.setAttribute('data-nome', nome);
-        div.innerHTML = `
-            <div style="margin-bottom:10px">
-                <strong style="font-size:1.1rem">${nome}</strong><br>
-                <small style="color:var(--text-dim)">${cargo} | ${horario}</small>
-            </div>
-            <div style="display:flex; gap:10px;">
-                <button class="btn-action" style="background:#3b82f633; color:#60a5fa" onclick="alert('Alinhamento registrado para ${nome}')">Alinhamento</button>
-                <button class="btn-action" style="background:#ef444433; color:#f87171" onclick="alert('Advertência registrada para ${nome}')">Advertência</button>
-            </div>
-        `;
-        lista.prepend(div);
-        
+    // --- FUNÇÕES DE EQUIPE ---
+    function prepararNovoFuncionario() {
+        document.getElementById('editEmpIndex').value = "";
         document.getElementById('newEmpName').value = "";
         document.getElementById('newEmpRole').value = "";
         document.getElementById('newEmpTime').value = "";
-        closeModal('modalAddEmployee');
+        openModal('modalAddEmployee');
     }
 
-    function executarFiltro() {
-        let busca = document.getElementById('searchInput').value.toLowerCase();
-        document.querySelectorAll('#employee-list .item-card').forEach(card => {
-            card.style.display = card.getAttribute('data-nome').toLowerCase().includes(busca) ? "block" : "none";
+    function salvarFuncionario() {
+        const index = document.getElementById('editEmpIndex').value;
+        const novo = {
+            nome: document.getElementById('newEmpName').value,
+            cargo: document.getElementById('newEmpRole').value,
+            horario: document.getElementById('newEmpTime').value
+        };
+        if(index === "") bancoEquipe.push(novo); else bancoEquipe[index] = novo;
+        localStorage.setItem('bEquipe', JSON.stringify(bancoEquipe));
+        closeModal('modalAddEmployee'); listarEquipe();
+    }
+
+    function listarEquipe() {
+        const container = document.getElementById('employee-list'); container.innerHTML = "";
+        bancoEquipe.forEach((emp, i) => {
+            const div = document.createElement('div'); div.className = 'item-card';
+            div.innerHTML = `
+                <div style="margin-bottom:10px">
+                    <strong style="font-size:1.1rem">${emp.nome}</strong><br>
+                    <small style="color:var(--text-dim)">${emp.cargo} | ${emp.horario}</small>
+                </div>
+                <div class="card-actions">
+                    <i class="fas fa-edit icon-blue" onclick="editarEmp(${i})"></i>
+                    <i class="fas fa-trash-alt icon-red" style="color:var(--accent-red)" onclick="excluirEmp(${i})"></i>
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn-action" style="background:#3b82f633; color:#60a5fa" onclick="alert('Alinhamento')">Alinhamento</button>
+                    <button class="btn-action" style="background:#ef444433; color:#f87171" onclick="alert('Advertência')">Advertência</button>
+                </div>`;
+            container.appendChild(div);
         });
     }
 
-    // PATRIMÔNIO
-    function openPatrimonio() { openModal('modalPatrimonio'); switchPatriTab('novo'); }
+    function editarEmp(i) {
+        const e = bancoEquipe[i];
+        document.getElementById('editEmpIndex').value = i;
+        document.getElementById('newEmpName').value = e.nome;
+        document.getElementById('newEmpRole').value = e.cargo;
+        document.getElementById('newEmpTime').value = e.horario;
+        openModal('modalAddEmployee');
+    }
+
+    function excluirEmp(i) { if(confirm("Remover funcionário?")) { bancoEquipe.splice(i,1); localStorage.setItem('bEquipe', JSON.stringify(bancoEquipe)); listarEquipe(); } }
+
+    // --- FUNÇÕES DE PATRIMÔNIO ---
+    function openPatrimonio() { 
+        document.getElementById('editPatIndex').value = "";
+        document.getElementById('patItem').value = "";
+        openModal('modalPatrimonio'); switchPatriTab('novo'); 
+        listarPatri();
+    }
+
+    function salvarPatrimonio() {
+        const index = document.getElementById('editPatIndex').value;
+        const novo = {
+            item: document.getElementById('patItem').value,
+            qtd: document.getElementById('patQtd').value,
+            estado: document.getElementById('patEstado').value
+        };
+        if(index === "") bancoPatri.push(novo); else bancoPatri[index] = novo;
+        localStorage.setItem('bPatri', JSON.stringify(bancoPatri));
+        document.getElementById('patItem').value = "";
+        listarPatri(); switchPatriTab('lista');
+    }
+
+    function listarPatri() {
+        const container = document.getElementById('itensCadastrados'); container.innerHTML = "";
+        bancoPatri.forEach((p, i) => {
+            const div = document.createElement('div'); div.className = 'item-card';
+            div.innerHTML = `
+                <strong>${p.item} (${p.qtd} un)</strong><br><small>Estado: ${p.estado}</small>
+                <div class="card-actions">
+                    <i class="fas fa-edit icon-gold" style="color:var(--accent-orange)" onclick="editarPatri(${i})"></i>
+                    <i class="fas fa-trash-alt icon-red" style="color:var(--accent-red)" onclick="excluirPatri(${i})"></i>
+                </div>`;
+            container.appendChild(div);
+        });
+    }
+
+    function editarPatri(i) {
+        const p = bancoPatri[i];
+        document.getElementById('editPatIndex').value = i;
+        document.getElementById('patItem').value = p.item;
+        document.getElementById('patQtd').value = p.qtd;
+        document.getElementById('patEstado').value = p.estado;
+        switchPatriTab('novo');
+    }
+
+    function excluirPatri(i) { if(confirm("Excluir item?")) { bancoPatri.splice(i,1); localStorage.setItem('bPatri', JSON.stringify(bancoPatri)); listarPatri(); } }
+
     function switchPatriTab(tab) {
         document.getElementById('patriForm').style.display = tab === 'novo' ? 'block' : 'none';
         document.getElementById('patriLista').style.display = tab === 'lista' ? 'block' : 'none';
         document.getElementById('tabNovo').style.color = tab === 'novo' ? 'white' : 'var(--text-dim)';
-        document.getElementById('tabLista').style.color = tab === 'lista' ? 'white' : 'var(--text-dim)';
-    }
-
-    function salvarPatrimonio() {
-        const item = document.getElementById('patItem').value;
-        const qtd = document.getElementById('patQtd').value;
-        if(!item) return;
-        const div = document.createElement('div');
-        div.className = 'item-card';
-        div.innerHTML = `<strong>${item} (${qtd} un)</strong><br><small>Estado: ${document.getElementById('patEstado').value}</small>`;
-        document.getElementById('itensCadastrados').prepend(div);
-        document.getElementById('patItem').value = "";
-        switchPatriTab('lista');
-    }
-
-    function processarUpload(event) { alert("Arquivo: " + event.target.files[0].name); }
-
-    // AVATAR E CARGA INICIAL
-    window.onload = function() {
-        const foto = localStorage.getItem('avatarCoord');
-        if (foto) {
-            document.getElementById('user-photo').src = foto;
-            document.getElementById('user-photo').style.display = 'block';
-            document.getElementById('placeholder-icon').style.display = 'none';
-        }
-        listarAtas();
-    };
-
-    function salvarAvatar(event) {
-        const reader = new FileReader();
-        reader.onload = function() { localStorage.setItem('avatarCoord', reader.result); location.reload(); };
-        reader.readAsDataURL(event.target.files[0]);
-    }
-</script>
-</body>
-</html>
+        document.getElementById('tabLista').style.color 
