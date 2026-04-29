@@ -57,7 +57,9 @@
         .grid-modules { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin: 25px 0; }
 
         .item-card { background: var(--card-bg); padding: 15px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #334155; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-        
+        .btn-action { flex: 1; border: none; border-radius: 10px; padding: 10px; font-weight: 700; cursor: pointer; transition: all 0.1s; font-size: 0.8rem; }
+        .btn-action:active { transform: scale(0.95); }
+
         /* Viewer do Drive */
         .drive-viewer { width: 100%; height: 500px; border-radius: 15px; border: 2px solid #334155; margin-top: 15px; display: none; }
 
@@ -156,7 +158,7 @@
             </div>
             <input type="text" id="newEmpName" placeholder="Nome Completo">
             <input type="text" id="newEmpRole" placeholder="Função">
-            <button class="btn-save" onclick="cadastrarFuncionario()">Salvar</button>
+            <button class="btn-save" onclick="cadastrarFuncionario()">Salvar na Lista</button>
         </div>
     </div>
 
@@ -167,7 +169,6 @@
                 <button id="tabLista" onclick="switchPatriTab('lista')" style="background:none; border:none; color:var(--text-dim); font-weight:700; cursor:pointer;">Inventário</button>
                 <i class="fas fa-times" style="margin-left:auto; cursor:pointer" onclick="closeModal('modalPatrimonio')"></i>
             </div>
-            
             <div id="patriForm">
                 <input type="text" id="patItem" placeholder="Nome do Item">
                 <div style="display:flex; gap:10px;">
@@ -176,10 +177,7 @@
                 </div>
                 <button class="btn-save" style="background:var(--accent-orange); box-shadow: 0 5px 0 #b45309; margin-top:10px;" onclick="salvarPatrimonio()">Cadastrar no Inventário</button>
             </div>
-
-            <div id="patriLista" style="display:none; max-height: 300px; overflow-y: auto;">
-                <div id="itensCadastrados"></div>
-            </div>
+            <div id="patriLista" style="display:none; max-height: 300px; overflow-y: auto;"><div id="itensCadastrados"></div></div>
         </div>
     </div>
 
@@ -246,15 +244,30 @@
         document.getElementById('lista-atas').style.display = "block";
     }
 
-    // EQUIPE
+    // EQUIPE (COM BOTÕES DE AÇÃO RESTAURADOS)
     function cadastrarFuncionario() {
         const nome = document.getElementById('newEmpName').value;
+        const cargo = document.getElementById('newEmpRole').value;
         if(!nome) return;
+        
+        const lista = document.getElementById('employee-list');
         const div = document.createElement('div');
         div.className = 'item-card';
         div.setAttribute('data-nome', nome);
-        div.innerHTML = `<strong>${nome}</strong>`;
-        document.getElementById('employee-list').prepend(div);
+        div.innerHTML = `
+            <div style="margin-bottom:10px">
+                <strong style="font-size:1.1rem">${nome}</strong><br>
+                <small style="color:var(--text-dim)">${cargo}</small>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-action" style="background:#3b82f633; color:#60a5fa" onclick="alert('Alinhamento registrado para ${nome}')">Alinhamento</button>
+                <button class="btn-action" style="background:#ef444433; color:#f87171" onclick="alert('Advertência registrada para ${nome}')">Advertência</button>
+            </div>
+        `;
+        lista.prepend(div);
+        
+        document.getElementById('newEmpName').value = "";
+        document.getElementById('newEmpRole').value = "";
         closeModal('modalAddEmployee');
     }
 
@@ -265,14 +278,13 @@
         });
     }
 
-    // PATRIMÔNIO (SISTEMA ORIGINAL)
+    // PATRIMÔNIO
     function openPatrimonio() { openModal('modalPatrimonio'); switchPatriTab('novo'); }
-    
     function switchPatriTab(tab) {
         document.getElementById('patriForm').style.display = tab === 'novo' ? 'block' : 'none';
         document.getElementById('patriLista').style.display = tab === 'lista' ? 'block' : 'none';
-        document.getElementById('tabNovo').style.color = tab === 'novo' ? 'var(--accent-orange)' : 'var(--text-dim)';
-        document.getElementById('tabLista').style.color = tab === 'lista' ? 'var(--accent-orange)' : 'var(--text-dim)';
+        document.getElementById('tabNovo').style.color = tab === 'novo' ? 'white' : 'var(--text-dim)';
+        document.getElementById('tabLista').style.color = tab === 'lista' ? 'white' : 'var(--text-dim)';
     }
 
     function salvarPatrimonio() {
@@ -289,6 +301,7 @@
 
     function processarUpload(event) { alert("Arquivo: " + event.target.files[0].name); }
 
+    // AVATAR
     window.onload = function() {
         const foto = localStorage.getItem('avatarCoord');
         if (foto) {
