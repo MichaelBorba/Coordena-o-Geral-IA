@@ -21,7 +21,6 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 15px; display: flex; justify-content: center; }
         .app-container { width: 100%; max-width: 450px; min-height: 95vh; position: relative; }
 
-        /* Estilo 3D dos Cartões */
         .module-card {
             background: linear-gradient(145deg, #243147, #1a2333);
             padding: 25px 15px;
@@ -35,17 +34,10 @@
             box-shadow: 0 8px 0 var(--card-shadow), 0 15px 20px rgba(0, 0, 0, 0.4);
         }
 
-        .module-card:active {
-            transform: translateY(4px);
-            box-shadow: 0 4px 0 var(--card-shadow), 0 5px 10px rgba(0, 0, 0, 0.4);
-        }
-
+        .module-card:active { transform: translateY(4px); box-shadow: 0 4px 0 var(--card-shadow), 0 5px 10px rgba(0, 0, 0, 0.4); }
         .module-card i { font-size: 2.2rem; margin-bottom: 15px; display: block; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
         .module-card span { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; opacity: 0.9; }
 
-        .icon-blue { color: #60a5fa; } .icon-lightblue { color: #93c5fd; } .icon-green { color: #4ade80; } .icon-dp { color: #cbd5e1; } .icon-gold { color: var(--accent-orange); } .icon-purple { color: var(--accent-purple); }
-
-        /* Views */
         .view { display: none; animation: fadeIn 0.3s ease; }
         .view.active { display: flex; flex-direction: column; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -57,31 +49,27 @@
         .grid-modules { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin: 25px 0; }
 
         .item-card { background: var(--card-bg); padding: 15px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #334155; box-shadow: 0 4px 6px rgba(0,0,0,0.2); position: relative; }
-        .btn-action { flex: 1; border: none; border-radius: 10px; padding: 10px; font-weight: 700; cursor: pointer; transition: all 0.1s; font-size: 0.8rem; }
+        .btn-action { flex: 1; border: none; border-radius: 10px; padding: 10px; font-weight: 700; cursor: pointer; transition: all 0.1s; font-size: 0.8rem; background: rgba(255,255,255,0.05); color: white; }
         .btn-action:active { transform: scale(0.95); }
 
         input, textarea, select { width: 100%; background: var(--bg-dark); border: 1px solid #334155; border-radius: 10px; padding: 12px; color: white; outline: none; box-sizing: border-box; margin-bottom: 10px; }
         
         .btn-save { width: 100%; background: var(--primary-blue); color: white; border: none; padding: 15px; border-radius: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 5px 0 #1d4ed8; }
-        .btn-save:active { transform: translateY(3px); box-shadow: 0 2px 0 #1d4ed8; }
 
-        /* Modais */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
-        .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; padding: 25px; border-radius: 25px 25px 0 0; border-top: 1px solid rgba(255,255,255,0.1); }
+        .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; padding: 25px; border-radius: 25px 25px 0 0; }
 
-        .fab-add { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer; z-index: 99; }
+        .fab-add { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; z-index: 99; }
 
         .card-actions { position: absolute; right: 15px; top: 15px; display: flex; gap: 12px; }
-        .card-actions i { cursor: pointer; opacity: 0.7; font-size: 1rem; }
-        .card-actions i:hover { opacity: 1; }
+        .card-actions i { cursor: pointer; opacity: 0.7; font-size: 1rem; color: #93c5fd; }
 
-        .drive-viewer { width: 100%; height: 500px; border-radius: 15px; border: 2px solid #334155; margin-top: 15px; display: none; }
+        .historico-mini { font-size: 0.7rem; color: var(--text-dim); margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 5px; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    
     <div id="view-dashboard" class="view active">
         <header>
             <div class="profile-section">
@@ -92,107 +80,34 @@
                 <span style="font-weight: 600;">Coordenação Local</span>
             </div>
         </header>
-
         <main class="grid-modules">
-            <div class="module-card" onclick="changeView('view-employees')">
-                <i class="fas fa-users icon-blue"></i><span>Funcionários</span>
-            </div>
-            <div class="module-card" onclick="changeView('view-atas')">
-                <i class="far fa-file-alt icon-lightblue"></i><span>Atas</span>
-            </div>
-            <div class="module-card">
-                <i class="fas fa-chart-line icon-green"></i><span>Relatórios</span>
-            </div>
-            <div class="module-card">
-                <i class="far fa-id-badge icon-dp"></i><span>D.P.</span>
-            </div>
-            <div class="module-card" onclick="openPatrimonio()">
-                <i class="fas fa-boxes icon-gold"></i><span>Patrimônio</span>
-            </div>
-            <div class="module-card" onclick="document.getElementById('file-upload').click()">
-                <i class="fas fa-cloud-upload-alt icon-purple"></i><span>Upload</span>
-                <input type="file" id="file-upload" style="display:none" onchange="processarUpload(event)">
-            </div>
+            <div class="module-card" onclick="changeView('view-employees')"><i class="fas fa-users" style="color:#60a5fa"></i><span>Funcionários</span></div>
+            <div class="module-card" onclick="changeView('view-atas')"><i class="far fa-file-alt" style="color:#93c5fd"></i><span>Atas</span></div>
+            <div class="module-card" onclick="alert('Funcionalidade em breve')"><i class="fas fa-chart-line" style="color:#4ade80"></i><span>Relatórios</span></div>
+            <div class="module-card" onclick="alert('Funcionalidade em breve')"><i class="far fa-id-badge" style="color:#cbd5e1"></i><span>D.P.</span></div>
+            <div class="module-card" onclick="openPatrimonio()"><i class="fas fa-boxes" style="color:var(--accent-orange)"></i><span>Patrimônio</span></div>
+            <div class="module-card" onclick="document.getElementById('file-upload').click()"><i class="fas fa-cloud-upload-alt" style="color:#a855f7"></i><span>Upload</span><input type="file" id="file-upload" style="display:none"></div>
         </main>
     </div>
 
     <div id="view-employees" class="view">
-        <header>
-            <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; font-size: 1.2rem;"><i class="fas fa-arrow-left"></i></button>
-            <span style="font-weight: 600;">Gestão de Equipe</span>
-            <div style="width:20px"></div>
-        </header>
-        <input type="text" id="searchInput" placeholder="Filtrar por nome..." onkeyup="executarFiltro()" style="margin-top:10px">
+        <header><button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white;"><i class="fas fa-arrow-left"></i></button><span style="font-weight: 600;">Gestão de Equipe</span><div style="width:20px"></div></header>
         <div id="employee-list" style="margin-top:20px;"></div>
         <button class="fab-add" onclick="prepararNovoFuncionario()"><i class="fas fa-plus"></i></button>
     </div>
 
     <div id="view-atas" class="view">
-        <header>
-            <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; font-size: 1.2rem;"><i class="fas fa-arrow-left"></i></button>
-            <span style="font-weight: 600;">Arquivo de Atas</span>
-            <div style="width:20px"></div>
-        </header>
-        <input type="text" id="ataFilter" placeholder="Filtrar data ou nome..." onkeyup="filtrarAtas()" style="margin-top:10px">
+        <header><button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white;"><i class="fas fa-arrow-left"></i></button><span style="font-weight: 600;">Arquivo de Atas</span><div style="width:20px"></div></header>
         <div id="lista-atas" style="margin-top:20px;"></div>
-        <iframe id="ata-viewer" class="drive-viewer" src=""></iframe>
-        <button id="btn-fechar-viewer" class="btn-save" style="display:none; margin-top:10px; background:var(--accent-red); box-shadow: 0 5px 0 #991b1b;" onclick="fecharViewer()">Fechar Visualização</button>
         <button class="fab-add" onclick="prepararNovaAta()"><i class="fas fa-plus"></i></button>
     </div>
 
-    <div id="modalAddAta" class="modal-overlay">
-        <div class="modal-content">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 id="tituloAtaModal" style="margin:0">Nova Ata</h3>
-                <i class="fas fa-times" style="cursor:pointer" onclick="closeModal('modalAddAta')"></i>
-            </div>
-            <input type="hidden" id="editAtaIndex">
-            <input type="text" id="newAtaName" placeholder="Nome da Ata">
-            <input type="text" id="newAtaDate" placeholder="Data (Ex: 25/04/2026)">
-            <input type="text" id="newAtaLink" placeholder="Link do Google Drive">
-            <button id="btnSalvarAta" class="btn-save" onclick="salvarAta()">Salvar Ata</button>
-        </div>
-    </div>
-
-    <div id="modalAddEmployee" class="modal-overlay">
-        <div class="modal-content">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3 id="tituloEmpModal" style="margin:0">Novo Funcionário</h3>
-                <i class="fas fa-times" style="cursor:pointer" onclick="closeModal('modalAddEmployee')"></i>
-            </div>
-            <input type="hidden" id="editEmpIndex">
-            <input type="text" id="newEmpName" placeholder="Nome Completo">
-            <input type="text" id="newEmpRole" placeholder="Função">
-            <input type="text" id="newEmpTime" placeholder="Horário (Ex: 08:00 às 17:00)">
-            <button id="btnSalvarEmp" class="btn-save" onclick="salvarFuncionario()">Salvar</button>
-        </div>
-    </div>
-
-    <div id="modalPatrimonio" class="modal-overlay">
-        <div class="modal-content">
-            <div style="display:flex; gap:15px; border-bottom: 1px solid #334155; margin-bottom: 20px; padding-bottom: 10px;">
-                <button id="tabNovo" onclick="switchPatriTab('novo')" style="background:none; border:none; color:white; font-weight:700; cursor:pointer;">Gerenciar Item</button>
-                <button id="tabLista" onclick="switchPatriTab('lista')" style="background:none; border:none; color:var(--text-dim); font-weight:700; cursor:pointer;">Inventário</button>
-                <i class="fas fa-times" style="margin-left:auto; cursor:pointer" onclick="closeModal('modalPatrimonio')"></i>
-            </div>
-            <div id="patriForm">
-                <input type="hidden" id="editPatIndex">
-                <input type="text" id="patItem" placeholder="Nome do Item">
-                <div style="display:flex; gap:10px;">
-                    <select id="patEstado" style="flex:2"><option>Excelente</option><option>Bom</option><option>Regular</option><option>Danificado</option></select>
-                    <input type="number" id="patQtd" value="1" style="flex:1">
-                </div>
-                <button id="btnSalvarPat" class="btn-save" style="background:var(--accent-orange); box-shadow: 0 5px 0 #b45309; margin-top:10px;" onclick="salvarPatrimonio()">Salvar no Inventário</button>
-            </div>
-            <div id="patriLista" style="display:none; max-height: 300px; overflow-y: auto;"><div id="itensCadastrados"></div></div>
-        </div>
-    </div>
-
+    <div id="modalAddAta" class="modal-overlay"><div class="modal-content"><h3>Ata</h3><input type="hidden" id="editAtaIndex"><input type="text" id="newAtaName" placeholder="Nome"><input type="text" id="newAtaDate" placeholder="Data"><input type="text" id="newAtaLink" placeholder="Link Drive"><button class="btn-save" onclick="salvarAta()">Salvar</button></div></div>
+    <div id="modalAddEmployee" class="modal-overlay"><div class="modal-content"><h3>Funcionário</h3><input type="hidden" id="editEmpIndex"><input type="text" id="newEmpName" placeholder="Nome"><input type="text" id="newEmpRole" placeholder="Função"><input type="text" id="newEmpTime" placeholder="Horário"><button class="btn-save" onclick="salvarFuncionario()">Salvar</button></div></div>
+    <div id="modalPatrimonio" class="modal-overlay"><div class="modal-content"><div style="display:flex; gap:15px; margin-bottom:20px;"><button onclick="switchPatriTab('novo')" style="color:white; background:none; border:none;">Gerenciar</button><button onclick="switchPatriTab('lista')" style="color:var(--text-dim); background:none; border:none;">Inventário</button></div><div id="patriForm"><input type="hidden" id="editPatIndex"><input type="text" id="patItem" placeholder="Item"><select id="patEstado"><option>Excelente</option><option>Bom</option><option>Regular</option></select><input type="number" id="patQtd" value="1"><button class="btn-save" onclick="salvarPatrimonio()">Salvar</button></div><div id="patriLista" style="display:none; max-height: 300px; overflow-y: auto;"><div id="itensCadastrados"></div></div></div></div>
     <input type="file" id="avatar-input" style="display:none" onchange="salvarAvatar(event)">
 </div>
-
 <script>
-    // Bancos de Dados Locais
     let bancoAtas = JSON.parse(localStorage.getItem('bAtas')) || [];
     let bancoEquipe = JSON.parse(localStorage.getItem('bEquipe')) || [];
     let bancoPatri = JSON.parse(localStorage.getItem('bPatri')) || [];
@@ -207,192 +122,105 @@
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    // --- FUNÇÕES DE ATAS ---
-    function prepararNovaAta() {
-        document.getElementById('editAtaIndex').value = "";
-        document.getElementById('newAtaName').value = "";
-        document.getElementById('newAtaDate').value = "";
-        document.getElementById('newAtaLink').value = "";
-        openModal('modalAddAta');
-    }
-
-    function salvarAta() {
-        const index = document.getElementById('editAtaIndex').value;
-        const nova = {
-            nome: document.getElementById('newAtaName').value,
-            data: document.getElementById('newAtaDate').value,
-            link: document.getElementById('newAtaLink').value.replace('/view', '/preview')
-        };
-        if(index === "") bancoAtas.push(nova); else bancoAtas[index] = nova;
-        localStorage.setItem('bAtas', JSON.stringify(bancoAtas));
-        closeModal('modalAddAta'); listarAtas();
-    }
-
-    function listarAtas() {
-        const container = document.getElementById('lista-atas'); container.innerHTML = "";
-        bancoAtas.forEach((ata, i) => {
-            const div = document.createElement('div'); div.className = 'item-card';
-            div.innerHTML = `
-                <div onclick="abrirAta('${ata.link}')" style="cursor:pointer">
-                    <strong>${ata.nome}</strong><br><small>${ata.data}</small>
-                </div>
-                <div class="card-actions">
-                    <i class="fas fa-edit icon-blue" onclick="editarAta(${i})"></i>
-                    <i class="fas fa-trash-alt icon-red" style="color:var(--accent-red)" onclick="excluirAta(${i})"></i>
-                </div>`;
-            container.appendChild(div);
-        });
-    }
-
-    function editarAta(i) {
-        const a = bancoAtas[i];
-        document.getElementById('editAtaIndex').value = i;
-        document.getElementById('newAtaName').value = a.nome;
-        document.getElementById('newAtaDate').value = a.data;
-        document.getElementById('newAtaLink').value = a.link;
-        openModal('modalAddAta');
-    }
-
-    function excluirAta(i) { if(confirm("Excluir ata?")) { bancoAtas.splice(i,1); localStorage.setItem('bAtas', JSON.stringify(bancoAtas)); listarAtas(); } }
-
-    function abrirAta(link) { 
-        document.getElementById('ata-viewer').src = link; 
-        document.getElementById('ata-viewer').style.display = "block";
-        document.getElementById('btn-fechar-viewer').style.display = "block";
-        document.getElementById('lista-atas').style.display = "none";
-    }
-
-    function fecharViewer() {
-        document.getElementById('ata-viewer').style.display = "none";
-        document.getElementById('btn-fechar-viewer').style.display = "none";
-        document.getElementById('lista-atas').style.display = "block";
-    }
-
-    // --- FUNÇÕES DE EQUIPE ---
-    function prepararNovoFuncionario() {
-        document.getElementById('editEmpIndex').value = "";
-        document.getElementById('newEmpName').value = "";
-        document.getElementById('newEmpRole').value = "";
-        document.getElementById('newEmpTime').value = "";
-        openModal('modalAddEmployee');
-    }
-
+    // --- FUNÇÕES DE EQUIPE (COM DESCRIÇÃO E HISTÓRICO) ---
     function salvarFuncionario() {
-        const index = document.getElementById('editEmpIndex').value;
-        const novo = {
-            nome: document.getElementById('newEmpName').value,
-            cargo: document.getElementById('newEmpRole').value,
-            horario: document.getElementById('newEmpTime').value
+        const i = document.getElementById('editEmpIndex').value;
+        const n = { 
+            nome: document.getElementById('newEmpName').value, 
+            cargo: document.getElementById('newEmpRole').value, 
+            horario: document.getElementById('newEmpTime').value,
+            historico: i !== "" ? bancoEquipe[i].historico : [] // Mantém o histórico se estiver editando
         };
-        if(index === "") bancoEquipe.push(novo); else bancoEquipe[index] = novo;
-        localStorage.setItem('bEquipe', JSON.stringify(bancoEquipe));
+        if(i === "") bancoEquipe.push(n); else bancoEquipe[i] = n;
+        localStorage.setItem('bEquipe', JSON.stringify(bancoEquipe)); 
         closeModal('modalAddEmployee'); listarEquipe();
     }
 
-    function listarEquipe() {
-        const container = document.getElementById('employee-list'); container.innerHTML = "";
-        bancoEquipe.forEach((emp, i) => {
-            const div = document.createElement('div'); div.className = 'item-card';
-            div.innerHTML = `
-                <div style="margin-bottom:10px">
-                    <strong style="font-size:1.1rem">${emp.nome}</strong><br>
-                    <small style="color:var(--text-dim)">${emp.cargo} | ${emp.horario}</small>
-                </div>
-                <div class="card-actions">
-                    <i class="fas fa-edit icon-blue" onclick="editarEmp(${i})"></i>
-                    <i class="fas fa-trash-alt icon-red" style="color:var(--accent-red)" onclick="excluirEmp(${i})"></i>
-                </div>
-                <div style="display:flex; gap:10px;">
-                    <button class="btn-action" style="background:#3b82f633; color:#60a5fa" onclick="alert('Alinhamento')">Alinhamento</button>
-                    <button class="btn-action" style="background:#ef444433; color:#f87171" onclick="alert('Advertência')">Advertência</button>
-                </div>`;
-            container.appendChild(div);
-        });
-    }
-
-    function editarEmp(i) {
-        const e = bancoEquipe[i];
-        document.getElementById('editEmpIndex').value = i;
-        document.getElementById('newEmpName').value = e.nome;
-        document.getElementById('newEmpRole').value = e.cargo;
-        document.getElementById('newEmpTime').value = e.horario;
-        openModal('modalAddEmployee');
-    }
-
-    function excluirEmp(i) { if(confirm("Remover funcionário?")) { bancoEquipe.splice(i,1); localStorage.setItem('bEquipe', JSON.stringify(bancoEquipe)); listarEquipe(); } }
-
-    // --- FUNÇÕES DE PATRIMÔNIO ---
-    function openPatrimonio() { 
-        document.getElementById('editPatIndex').value = "";
-        document.getElementById('patItem').value = "";
-        openModal('modalPatrimonio'); switchPatriTab('novo'); 
-        listarPatri();
-    }
-
-    function salvarPatrimonio() {
-        const index = document.getElementById('editPatIndex').value;
-        const novo = {
-            item: document.getElementById('patItem').value,
-            qtd: document.getElementById('patQtd').value,
-            estado: document.getElementById('patEstado').value
-        };
-        if(index === "") bancoPatri.push(novo); else bancoPatri[index] = novo;
-        localStorage.setItem('bPatri', JSON.stringify(bancoPatri));
-        document.getElementById('patItem').value = "";
-        listarPatri(); switchPatriTab('lista');
-    }
-
-    function listarPatri() {
-        const container = document.getElementById('itensCadastrados'); container.innerHTML = "";
-        bancoPatri.forEach((p, i) => {
-            const div = document.createElement('div'); div.className = 'item-card';
-            div.innerHTML = `
-                <strong>${p.item} (${p.qtd} un)</strong><br><small>Estado: ${p.estado}</small>
-                <div class="card-actions">
-                    <i class="fas fa-edit icon-gold" style="color:var(--accent-orange)" onclick="editarPatri(${i})"></i>
-                    <i class="fas fa-trash-alt icon-red" style="color:var(--accent-red)" onclick="excluirPatri(${i})"></i>
-                </div>`;
-            container.appendChild(div);
-        });
-    }
-
-    function editarPatri(i) {
-        const p = bancoPatri[i];
-        document.getElementById('editPatIndex').value = i;
-        document.getElementById('patItem').value = p.item;
-        document.getElementById('patQtd').value = p.qtd;
-        document.getElementById('patEstado').value = p.estado;
-        switchPatriTab('novo');
-    }
-
-    function excluirPatri(i) { if(confirm("Excluir item?")) { bancoPatri.splice(i,1); localStorage.setItem('bPatri', JSON.stringify(bancoPatri)); listarPatri(); } }
-
-    function switchPatriTab(tab) {
-        document.getElementById('patriForm').style.display = tab === 'novo' ? 'block' : 'none';
-        document.getElementById('patriLista').style.display = tab === 'lista' ? 'block' : 'none';
-        document.getElementById('tabNovo').style.color = tab === 'novo' ? 'white' : 'var(--text-dim)';
-        document.getElementById('tabLista').style.color = tab === 'lista' ? 'white' : 'var(--text-dim)';
-    }
-
-    // --- CARGA INICIAL ---
-    window.onload = function() {
-        const foto = localStorage.getItem('avatarCoord');
-        if (foto) {
-            document.getElementById('user-photo').src = foto;
-            document.getElementById('user-photo').style.display = 'block';
-            document.getElementById('placeholder-icon').style.display = 'none';
+    function registrarOcorrencia(index, tipo) {
+        const motivo = prompt(`Digite a descrição para o(a) ${tipo}:`);
+        if (motivo !== null && motivo.trim() !== "") {
+            const data = new Date().toLocaleDateString('pt-BR');
+            const registro = `${data} - ${tipo}: ${motivo}`;
+            
+            if(!bancoEquipe[index].historico) bancoEquipe[index].historico = [];
+            bancoEquipe[index].historico.unshift(registro); // Adiciona no topo
+            
+            localStorage.setItem('bEquipe', JSON.stringify(bancoEquipe));
+            alert("Registro salvo com sucesso!");
+            listarEquipe();
         }
+    }
+
+    function listarEquipe() {
+        const c = document.getElementById('employee-list'); c.innerHTML = "";
+        bancoEquipe.forEach((e, i) => {
+            const histHTML = e.historico && e.historico.length > 0 
+                ? `<div class="historico-mini"><strong>Última:</strong> ${e.historico[0]}</div>` 
+                : "";
+
+            const d = document.createElement('div'); d.className = 'item-card';
+            d.innerHTML = `
+                <strong>${e.nome}</strong><br><small>${e.cargo} | ${e.horario}</small>
+                <div class="card-actions"><i class="fas fa-edit" onclick="editarEmp(${i})"></i><i class="fas fa-trash-alt" style="color:var(--accent-red)" onclick="excluirEmp(${i})"></i></div>
+                ${histHTML}
+                <div style="display:flex; gap:10px; margin-top:12px;">
+                    <button class="btn-action" style="border: 1px solid #3b82f6" onclick="registrarOcorrencia(${i}, 'Alinhamento')">Alinhamento</button>
+                    <button class="btn-action" style="border: 1px solid #ef4444" onclick="registrarOcorrencia(${i}, 'Advertência')">Advertência</button>
+                </div>`;
+            c.appendChild(d);
+        });
+    }
+
+    function editarEmp(i) { const e = bancoEquipe[i]; document.getElementById('editEmpIndex').value = i; document.getElementById('newEmpName').value = e.nome; document.getElementById('newEmpRole').value = e.cargo; document.getElementById('newEmpTime').value = e.horario; openModal('modalAddEmployee'); }
+    function excluirEmp(i) { if(confirm("Remover?")) { bancoEquipe.splice(i,1); localStorage.setItem('bEquipe', JSON.stringify(bancoEquipe)); listarEquipe(); } }
+    function prepararNovoFuncionario() { document.getElementById('editEmpIndex').value = ""; document.getElementById('newEmpName').value = ""; document.getElementById('newEmpRole').value = ""; document.getElementById('newEmpTime').value = ""; openModal('modalAddEmployee'); }
+
+    // --- FUNÇÕES DE ATAS E PATRIMÔNIO (SIMPLIFICADAS) ---
+    function salvarAta() {
+        const i = document.getElementById('editAtaIndex').value;
+        const n = { nome: document.getElementById('newAtaName').value, data: document.getElementById('newAtaDate').value, link: document.getElementById('newAtaLink').value.replace('/view', '/preview') };
+        if(i === "") bancoAtas.push(n); else bancoAtas[i] = n;
+        localStorage.setItem('bAtas', JSON.stringify(bancoAtas)); closeModal('modalAddAta'); listarAtas();
+    }
+    function listarAtas() {
+        const c = document.getElementById('lista-atas'); c.innerHTML = "";
+        bancoAtas.forEach((a, i) => {
+            const d = document.createElement('div'); d.className = 'item-card';
+            d.innerHTML = `<div><strong>${a.nome}</strong><br><small>${a.data}</small></div>
+                <div class="card-actions"><i class="fas fa-edit" onclick="editarAta(${i})"></i><i class="fas fa-trash-alt" style="color:var(--accent-red)" onclick="excluirAta(${i})"></i></div>`;
+            c.appendChild(d);
+        });
+    }
+    function editarAta(i) { const a = bancoAtas[i]; document.getElementById('editAtaIndex').value = i; document.getElementById('newAtaName').value = a.nome; document.getElementById('newAtaDate').value = a.data; document.getElementById('newAtaLink').value = a.link; openModal('modalAddAta'); }
+    function excluirAta(i) { if(confirm("Excluir?")) { bancoAtas.splice(i,1); localStorage.setItem('bAtas', JSON.stringify(bancoAtas)); listarAtas(); } }
+    function prepararNovaAta() { document.getElementById('editAtaIndex').value = ""; document.getElementById('newAtaName').value = ""; document.getElementById('newAtaDate').value = ""; document.getElementById('newAtaLink').value = ""; openModal('modalAddAta'); }
+
+    function openPatrimonio() { document.getElementById('editPatIndex').value = ""; document.getElementById('patItem').value = ""; openModal('modalPatrimonio'); switchPatriTab('novo'); listarPatri(); }
+    function salvarPatrimonio() {
+        const i = document.getElementById('editPatIndex').value;
+        const n = { item: document.getElementById('patItem').value, qtd: document.getElementById('patQtd').value, estado: document.getElementById('patEstado').value };
+        if(i === "") bancoPatri.push(n); else bancoPatri[i] = n;
+        localStorage.setItem('bPatri', JSON.stringify(bancoPatri)); listarPatri(); switchPatriTab('lista');
+    }
+    function listarPatri() {
+        const c = document.getElementById('itensCadastrados'); c.innerHTML = "";
+        bancoPatri.forEach((p, i) => {
+            const d = document.createElement('div'); d.className = 'item-card';
+            d.innerHTML = `<strong>${p.item} (${p.qtd} un)</strong><br><small>${p.estado}</small>
+                <div class="card-actions"><i class="fas fa-edit" onclick="editarPatri(${i})"></i><i class="fas fa-trash-alt" style="color:var(--accent-red)" onclick="excluirPatri(${i})"></i></div>`;
+            c.appendChild(d);
+        });
+    }
+    function editarPatri(i) { const p = bancoPatri[i]; document.getElementById('editPatIndex').value = i; document.getElementById('patItem').value = p.item; document.getElementById('patQtd').value = p.qtd; document.getElementById('patEstado').value = p.estado; switchPatriTab('novo'); }
+    function excluirPatri(i) { if(confirm("Excluir?")) { bancoPatri.splice(i,1); localStorage.setItem('bPatri', JSON.stringify(bancoPatri)); listarPatri(); } }
+    function switchPatriTab(t) { document.getElementById('patriForm').style.display = t === 'novo' ? 'block' : 'none'; document.getElementById('patriLista').style.display = t === 'lista' ? 'block' : 'none'; }
+
+    window.onload = function() {
+        const f = localStorage.getItem('avatarCoord');
+        if (f) { document.getElementById('user-photo').src = f; document.getElementById('user-photo').style.display = 'block'; document.getElementById('placeholder-icon').style.display = 'none'; }
         listarAtas(); listarEquipe();
     };
-
-    function salvarAvatar(event) {
-        const reader = new FileReader();
-        reader.onload = function() { localStorage.setItem('avatarCoord', reader.result); location.reload(); };
-        reader.readAsDataURL(event.target.files[0]);
-    }
-    
-    function processarUpload(e) { alert("Upload: " + e.target.files[0].name); }
-    function executarFiltro() { /* lógica de filtro omitida para brevidade */ }
+    function salvarAvatar(e) { const r = new FileReader(); r.onload = function() { localStorage.setItem('avatarCoord', r.result); location.reload(); }; r.readAsDataURL(e.target.files[0]); }
 </script>
 </body>
 </html>
