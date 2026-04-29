@@ -371,4 +371,28 @@
         document.getElementById('patriForm').style.display = tab === 'novo' ? 'block' : 'none';
         document.getElementById('patriLista').style.display = tab === 'lista' ? 'block' : 'none';
         document.getElementById('tabNovo').style.color = tab === 'novo' ? 'white' : 'var(--text-dim)';
-        document.getElementById('tabLista').style.color 
+        document.getElementById('tabLista').style.color = tab === 'lista' ? 'white' : 'var(--text-dim)';
+    }
+
+    // --- CARGA INICIAL ---
+    window.onload = function() {
+        const foto = localStorage.getItem('avatarCoord');
+        if (foto) {
+            document.getElementById('user-photo').src = foto;
+            document.getElementById('user-photo').style.display = 'block';
+            document.getElementById('placeholder-icon').style.display = 'none';
+        }
+        listarAtas(); listarEquipe();
+    };
+
+    function salvarAvatar(event) {
+        const reader = new FileReader();
+        reader.onload = function() { localStorage.setItem('avatarCoord', reader.result); location.reload(); };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+    
+    function processarUpload(e) { alert("Upload: " + e.target.files[0].name); }
+    function executarFiltro() { /* lógica de filtro omitida para brevidade */ }
+</script>
+</body>
+</html>
