@@ -14,6 +14,7 @@
             --accent-red: #ef4444;
             --text-main: #f8fafc;
             --text-dim: #94a3b8;
+            --accent-purple: #a855f7;
         }
 
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 15px; display: flex; justify-content: center; }
@@ -30,10 +31,16 @@
 
         /* Dashboard */
         .grid-modules { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
-        .module-card { background: var(--card-bg); padding: 25px 15px; border-radius: 20px; text-align: center; border: 1px solid #334155; cursor: pointer; }
+        .module-card { background: var(--card-bg); padding: 25px 15px; border-radius: 20px; text-align: center; border: 1px solid #334155; cursor: pointer; transition: transform 0.2s; }
+        .module-card:active { transform: scale(0.95); }
         .module-card i { font-size: 1.8rem; margin-bottom: 12px; display: block; }
-        .icon-blue { color: #60a5fa; } .icon-lightblue { color: #93c5fd; } .icon-green { color: #4ade80; } .icon-dp { color: #cbd5e1; } .icon-gold { color: var(--accent-orange); }
-        .full-width { grid-column: span 2; }
+        
+        .icon-blue { color: #60a5fa; } 
+        .icon-lightblue { color: #93c5fd; } 
+        .icon-green { color: #4ade80; } 
+        .icon-dp { color: #cbd5e1; } 
+        .icon-gold { color: var(--accent-orange); }
+        .icon-purple { color: var(--accent-purple); }
 
         /* Lista de Equipe */
         .filter-bar { display: flex; gap: 10px; margin-bottom: 15px; }
@@ -85,8 +92,14 @@
             <div class="module-card"><i class="far fa-file-alt icon-lightblue"></i><span>Atas</span></div>
             <div class="module-card"><i class="fas fa-chart-line icon-green"></i><span>Relatórios</span></div>
             <div class="module-card"><i class="far fa-id-badge icon-dp"></i><span>D.P.</span></div>
-            <div class="module-card full-width" onclick="openPatrimonio()">
+            
+            <div class="module-card" onclick="openPatrimonio()">
                 <i class="fas fa-boxes icon-gold"></i><span>Patrimônio</span>
+            </div>
+
+            <div class="module-card" onclick="document.getElementById('file-upload').click()">
+                <i class="fas fa-cloud-upload-alt icon-purple"></i><span>Upload</span>
+                <input type="file" id="file-upload" style="display:none" onchange="processarUpload(event)">
             </div>
         </main>
     </div>
@@ -241,7 +254,17 @@
         switchPatriTab('lista');
     }
 
-    // AVATAR
+    // LÓGICA DE UPLOAD
+    function processarUpload(event) {
+        const arquivo = event.target.files[0];
+        if (arquivo) {
+            alert("Arquivo pronto para processamento: " + arquivo.name);
+            // Aqui você conectaria com um backend se necessário
+            console.log("Arquivo carregado:", arquivo);
+        }
+    }
+
+    // AVATAR (Foto de Perfil)
     window.onload = function() {
         const foto = localStorage.getItem('avatarCoord');
         if (foto) {
@@ -257,4 +280,5 @@
     }
 </script>
 </body>
-</html>
+ </html>
+
