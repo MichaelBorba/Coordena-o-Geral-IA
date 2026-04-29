@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Coordenação Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --primary-blue: #3b82f6;
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 15px; display: flex; justify-content: center; }
+        .app-container { width: 100%; max-width: 450px; min-height: 95vh; position: relative; }
+
+        .view { display: none; animation: fadeIn 0.3s ease; }
+        .view.active { display: flex; flex-direction: column; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        header { display: flex; align-items: center; justify-content: space-between; padding: 15px 5px; }
+        .profile-section { display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 42px; height: 42px; border-radius: 50%; background: #334155; border: 2px solid var(--primary-blue); overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Dashboard */
+        .grid-modules { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+        .module-card { background: var(--card-bg); padding: 25px 15px; border-radius: 20px; text-align: center; border: 1px solid #334155; cursor: pointer; }
+        .module-card i { font-size: 1.8rem; margin-bottom: 12px; display: block; }
+        .icon-blue { color: #60a5fa; } .icon-lightblue { color: #93c5fd; } .icon-green { color: #4ade80; } .icon-dp { color: #cbd5e1; } .icon-gold { color: var(--accent-orange); }
+        .full-width { grid-column: span 2; }
+
+        /* Lista de Equipe */
+        .filter-bar { display: flex; gap: 10px; margin-bottom: 15px; }
+        .filter-bar input { flex: 1; background: var(--card-bg); border: 1px solid #334155; border-radius: 10px; padding: 12px; color: white; outline: none; }
+        
+        .emp-card { background: var(--card-bg); padding: 15px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #334155; }
+        .emp-actions { display: flex; gap: 10px; margin-top: 15px; border-top: 1px solid #334155; padding-top: 12px; }
+        .btn-action { flex: 1; border: none; border-radius: 8px; padding: 10px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-align { background: rgba(59, 130, 246, 0.2); color: var(--primary-blue); }
+        .btn-warn { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
+
+        /* Modais */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
+        .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; padding: 25px; border-radius: 25px 25px 0 0; animation: slideUp 0.4s ease; max-height: 90vh; overflow-y: auto; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; }
+        input, textarea, select { width: 100%; background: var(--bg-dark); border: 1px solid #334155; border-radius: 10px; padding: 12px; color: white; box-sizing: border-box; outline: none; }
+        .btn-save { width: 100%; background: var(--primary-blue); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+        
+        .fab-add { position: fixed; bottom: 30px; right: 20px; width: 56px; height: 56px; background: var(--primary-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); border: none; cursor: pointer; z-index: 99; }
+        
+        /* Patrimônio Tabs */
+        .tabs-patri { display: flex; gap: 15px; border-bottom: 1px solid #334155; margin-bottom: 15px; padding-bottom: 10px; }
+        .tab-btn { background: none; border: none; color: var(--text-dim); cursor: pointer; font-weight: 600; }
+        .tab-btn.active { color: var(--accent-orange); border-bottom: 2px solid var(--accent-orange); }
+        .patri-item { background: var(--bg-dark); padding: 12px; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid var(--accent-orange); }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    
+    <div id="view-dashboard" class="view active">
+        <header>
+            <div class="profile-section">
+                <div class="avatar" onclick="document.getElementById('avatar-input').click()">
+                    <i class="fas fa-user" id="placeholder-icon"></i>
+                    <img src="" id="user-photo" style="display:none;">
+                </div>
+                <span>Coordenação Local</span>
+            </div>
+        </header>
+        <main class="grid-modules">
+            <div class="module-card" onclick="changeView('view-employees')">
+                <i class="fas fa-users icon-blue"></i><span>Funcionários</span>
+            </div>
+            <div class="module-card"><i class="far fa-file-alt icon-lightblue"></i><span>Atas</span></div>
+            <div class="module-card"><i class="fas fa-chart-line icon-green"></i><span>Relatórios</span></div>
+            <div class="module-card"><i class="far fa-id-badge icon-dp"></i><span>D.P.</span></div>
+            <div class="module-card full-width" onclick="openPatrimonio()">
+                <i class="fas fa-boxes icon-gold"></i><span>Patrimônio</span>
+            </div>
+        </main>
+    </div>
+
+    <div id="view-employees" class="view">
+        <header>
+            <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; cursor:pointer;"><i class="fas fa-arrow-left"></i></button>
+            <span>Gestão de Equipe</span>
+            <div style="width:20px"></div>
+        </header>
+        
+        <div class="filter-bar">
+            <input type="text" id="searchInput" placeholder="Filtrar por nome..." onkeyup="executarFiltro()">
+        </div>
+
+        <div id="employee-list"></div>
+        <button class="fab-add" onclick="openModal('modalAddEmployee')"><i class="fas fa-plus"></i></button>
+    </div>
+
+    <div id="modalRegistro" class="modal-overlay">
+        <div class="modal-content">
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                <h3 id="regTitle">Registro</h3>
+                <i class="fas fa-times" onclick="closeModal('modalRegistro')"></i>
+            </div>
+            <div class="input-group"><label>Data</label><input type="date" id="regDate"></div>
+            <div class="input-group"><label id="regSub"></label><textarea id="regObsIndividual" rows="4"></textarea></div>
+            <button class="btn-save" onclick="confirmarSalvamentoIndividual()">Salvar Individualmente</button>
+        </div>
+    </div>
+
+    <div id="modalAddEmployee" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Cadastrar Novo Funcionário</h3>
+            <div class="input-group"><label>Nome Completo</label><input type="text" id="newEmpName"></div>
+            <div class="input-group"><label>Função</label><input type="text" id="newEmpRole"></div>
+            <div style="display:flex; gap:10px">
+                <div class="input-group" style="flex:1"><label>Turno</label><select id="newEmpTurno"><option>Diurno</option><option>Noturno</option></select></div>
+                <div class="input-group" style="flex:1"><label>Horário</label><input type="text" id="newEmpTime" placeholder="Ex: 07h-19h"></div>
+            </div>
+            <button class="btn-save" onclick="cadastrarFuncionario()">Salvar na Lista</button>
+        </div>
+    </div>
+
+    <div id="modalPatrimonio" class="modal-overlay">
+        <div class="modal-content">
+            <div class="tabs-patri">
+                <button class="tab-btn active" id="tabNovo" onclick="switchPatriTab('novo')">Novo Registro</button>
+                <button class="tab-btn" id="tabLista" onclick="switchPatriTab('lista')">Inventário</button>
+                <i class="fas fa-times" style="margin-left:auto" onclick="closeModal('modalPatrimonio')"></i>
+            </div>
+            <div id="patriForm">
+                <div class="input-group"><label>Item</label><input type="text" id="patItem"></div>
+                <div style="display:flex; gap:10px">
+                    <div class="input-group" style="flex:2"><label>Estado</label><select id="patEstado"><option>Excelente</option><option>Bom</option><option>Regular</option><option>Danificado</option></select></div>
+                    <div class="input-group" style="flex:1"><label>Qtd</label><input type="number" id="patQtd" value="1"></div>
+                </div>
+                <div class="input-group"><label>Observações</label><textarea id="patObs" rows="2"></textarea></div>
+                <button class="btn-save" style="background:var(--accent-orange)" onclick="salvarPatrimonio()">Cadastrar Item</button>
+            </div>
+            <div id="patriLista" style="display:none">
+                <div id="itensCadastrados"></div>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="avatar-input" style="display:none" onchange="salvarAvatar(event)">
+</div>
+
+<script>
+    let registrosIndividuais = {}; 
+    let funcionarioAtual = "";
+    let tipoAtual = "";
+
+    function changeView(id) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    // FILTRO
+    function executarFiltro() {
+        let input = document.getElementById('searchInput').value.toLowerCase();
+        let cards = document.getElementsByClassName('emp-card');
+        for (let i = 0; i < cards.length; i++) {
+            let nome = cards[i].getAttribute('data-nome').toLowerCase();
+            cards[i].style.display = nome.includes(input) ? "block" : "none";
+        }
+    }
+
+    // REGISTROS EQUIPE
+    function abrirPopUpRegistro(nome, tipo) {
+        funcionarioAtual = nome; tipoAtual = tipo;
+        document.getElementById('regTitle').innerText = tipo;
+        document.getElementById('regSub').innerText = "Descrição para: " + nome;
+        document.getElementById('regDate').valueAsDate = new Date();
+        let chave = `${nome}-${tipo}`;
+        document.getElementById('regObsIndividual').value = registrosIndividuais[chave] || "";
+        openModal('modalRegistro');
+    }
+
+    function confirmarSalvamentoIndividual() {
+        let chave = `${funcionarioAtual}-${tipoAtual}`;
+        registrosIndividuais[chave] = document.getElementById('regObsIndividual').value;
+        alert("Registro individual salvo!");
+        closeModal('modalRegistro');
+    }
+
+    function cadastrarFuncionario() {
+        const nome = document.getElementById('newEmpName').value;
+        const cargo = document.getElementById('newEmpRole').value;
+        const turno = document.getElementById('newEmpTurno').value;
+        const horario = document.getElementById('newEmpTime').value;
+        if(!nome) return;
+
+        const lista = document.getElementById('employee-list');
+        const card = document.createElement('div');
+        card.className = 'emp-card';
+        card.setAttribute('data-nome', nome);
+        card.innerHTML = `
+            <h4 style="margin:0">${nome} <span style="font-size:0.6rem; opacity:0.6">[${turno}]</span></h4>
+            <p style="font-size:0.8rem; color:var(--text-dim); margin:5px 0">${cargo} • ${horario}</p>
+            <div class="emp-actions">
+                <button class="btn-action btn-align" onclick="abrirPopUpRegistro('${nome}', 'Alinhamento')"><i class="fas fa-comments"></i> Alinhamento</button>
+                <button class="btn-action btn-warn" onclick="abrirPopUpRegistro('${nome}', 'Advertência')"><i class="fas fa-exclamation-triangle"></i> Advertência</button>
+            </div>`;
+        lista.prepend(card);
+        closeModal('modalAddEmployee');
+        document.getElementById('newEmpName').value = "";
+    }
+
+    // PATRIMÔNIO
+    function openPatrimonio() { openModal('modalPatrimonio'); switchPatriTab('novo'); }
+    function switchPatriTab(tab) {
+        document.getElementById('patriForm').style.display = tab === 'novo' ? 'block' : 'none';
+        document.getElementById('patriLista').style.display = tab === 'lista' ? 'block' : 'none';
+        document.getElementById('tabNovo').classList.toggle('active', tab === 'novo');
+        document.getElementById('tabLista').classList.toggle('active', tab === 'lista');
+    }
+
+    function salvarPatrimonio() {
+        const item = document.getElementById('patItem').value;
+        const qtd = document.getElementById('patQtd').value;
+        if(!item) return;
+        const div = document.createElement('div');
+        div.className = 'patri-item';
+        div.innerHTML = `<h5>${item} (${qtd} un)</h5><p>Estado: ${document.getElementById('patEstado').value}</p>`;
+        document.getElementById('itensCadastrados').prepend(div);
+        document.getElementById('patItem').value = "";
+        switchPatriTab('lista');
+    }
+
+    // AVATAR
+    window.onload = function() {
+        const foto = localStorage.getItem('avatarCoord');
+        if (foto) {
+            document.getElementById('user-photo').src = foto;
+            document.getElementById('user-photo').style.display = 'block';
+            document.getElementById('placeholder-icon').style.display = 'none';
+        }
+    };
+    function salvarAvatar(event) {
+        const reader = new FileReader();
+        reader.onload = function() { localStorage.setItem('avatarCoord', reader.result); location.reload(); };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>
+</body>
+</html>
