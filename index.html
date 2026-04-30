@@ -19,11 +19,9 @@
 
         header { display: flex; align-items: center; justify-content: space-between; padding: 15px 5px; }
         
-        /* Avatar Coordenador */
         .avatar { width: 42px; height: 42px; border-radius: 50%; background: #334155; border: 2px solid var(--primary-blue); overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* Foto de Upload no Modal Funcionário */
         .emp-photo-container { width: 90px; height: 90px; border-radius: 50%; background: #334155; margin: 0 auto 15px; border: 3px solid var(--accent-orange); display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; }
         .emp-photo-container img { width: 100%; height: 100%; object-fit: cover; }
         .emp-photo-container i { font-size: 1.5rem; color: var(--text-dim); }
@@ -46,27 +44,37 @@
 
         .grid-modules { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin: 25px 0; }
         
+        /* CARD DE FUNCIONÁRIO ATUALIZADO */
         .item-card { 
             background: var(--card-bg); padding: 15px; border-radius: 18px; margin-bottom: 12px; 
-            border: 1px solid #334155; position: relative; display: flex; gap: 12px; align-items: center;
+            border: 1px solid #334155; display: flex; flex-direction: column; gap: 12px;
         }
-        .item-card img.thumb-emp { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; background: #0f172a; border: 2px solid #334155; }
+        .emp-info-row { display: flex; align-items: center; gap: 12px; width: 100%; }
+        .item-card img.thumb-emp { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; background: #0f172a; border: 2px solid #3b82f6; }
+        
+        .card-actions-top { margin-left: auto; display: flex; gap: 12px; color: var(--text-dim); }
+        
+        .emp-controls-footer { 
+            display: flex; gap: 8px; border-top: 1px solid #334155; padding-top: 12px; justify-content: space-between;
+        }
 
         input, textarea, select { width: 100%; background: var(--bg-dark); border: 1px solid #334155; border-radius: 10px; padding: 12px; color: white; margin-bottom: 10px; box-sizing: border-box; }
         .btn-save { width: 100%; background: var(--primary-blue); color: white; border: none; padding: 15px; border-radius: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 5px 0 #1d4ed8; }
-        .btn-action { flex: 1; border: none; border-radius: 10px; padding: 8px; font-weight: 700; cursor: pointer; font-size: 0.75rem; }
+        
+        .btn-action { 
+            flex: 1; border: none; border-radius: 8px; padding: 10px; font-weight: 700; cursor: pointer; font-size: 0.7rem; 
+            transition: transform 0.1s;
+        }
+        .btn-action:active { transform: scale(0.95); }
 
-        /* Calendário */
         .calendar-container { background: var(--card-bg); padding: 15px; border-radius: 20px; border: 1px solid #334155; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
         .calendar-day { padding: 10px 0; border-radius: 10px; cursor: pointer; font-size: 0.9rem; position: relative; }
         .calendar-day.has-event { background: var(--accent-orange); color: white; font-weight: bold; }
-        .calendar-day.today { border: 2px solid var(--primary-blue); }
 
         .fab-add { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer; z-index: 99; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
         .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; padding: 25px; border-radius: 25px 25px 0 0; max-height: 85vh; overflow-y: auto; }
-        .card-actions { position: absolute; right: 10px; top: 10px; display: flex; gap: 10px; color: var(--text-dim); }
         .historico-box { background: #0f172a; padding: 10px; border-radius: 10px; font-size: 0.85rem; margin-top: 10px; white-space: pre-wrap; border-left: 3px solid var(--primary-blue); }
     </style>
 </head>
@@ -107,10 +115,11 @@
             <span style="font-weight: 600;">Equipe</span>
             <div style="width:20px"></div>
         </header>
-        <div id="employee-list" style="margin-top:20px;"></div>
+        <div id="employee-list" style="margin-top:20px; padding-bottom: 100px;"></div>
         <button class="fab-add" onclick="prepararNovoEmp()"><i class="fas fa-plus"></i></button>
     </div>
 
+    <!-- Modais e outras views -->
     <div id="view-atas" class="view">
         <header>
             <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; cursor:pointer"><i class="fas fa-arrow-left"></i></button>
@@ -139,6 +148,7 @@
         </div>
     </div>
 
+    <!-- Modais de Formulários -->
     <div id="modalAddEmployee" class="modal-overlay"><div class="modal-content">
         <h3>Dados do Funcionário</h3>
         <div class="emp-photo-container" onclick="document.getElementById('input-foto-emp').click()">
@@ -211,6 +221,7 @@
 </div>
 
 <script>
+    // CONFIGURAÇÃO SUPABASE MANTIDA
     const _supabase = supabase.createClient('https://envuzusmubunlrrhhclu.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudnV6dXNtdWJ1bmxycmhoY2x1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NTMzMTcsImV4cCI6MjA5MzEyOTMxN30.pzepBGPOl9reoD4uLN0HUhpWaWfwv9pjLSkVdau7ntY');
 
     function changeView(id) {
@@ -224,7 +235,7 @@
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    // --- FOTO COORDENADOR (LocalStorage) ---
+    // --- FOTO COORDENADOR ---
     function uploadFotoCoord(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
@@ -238,7 +249,7 @@
         }
     }
 
-    // --- FUNCIONÁRIOS ---
+    // --- FUNCIONÁRIOS (Lógica de Renderização Atualizada) ---
     let tempFotoBase64 = "";
 
     function previewFotoEmp(input) {
@@ -259,22 +270,29 @@
         container.innerHTML = "Buscando...";
         const { data } = await _supabase.from('funcionarios').select('*').order('nome');
         container.innerHTML = "";
+        
         data?.forEach(emp => {
             const div = document.createElement('div'); div.className = 'item-card';
             div.innerHTML = `
-                <img src="${emp.foto || 'https://via.placeholder.com/50'}" class="thumb-emp">
-                <div style="flex:1">
-                    <strong>${emp.nome}</strong><br>
-                    <small>${emp.funcao} | ${emp.horario}</small>
+                <div class="emp-info-row">
+                    <img src="${emp.foto || 'https://via.placeholder.com/50'}" class="thumb-emp">
+                    <div>
+                        <strong style="font-size: 1rem; display:block;">${emp.nome}</strong>
+                        <small style="color:var(--text-dim)">${emp.funcao} | ${emp.horario}</small>
+                    </div>
+                    <div class="card-actions-top">
+                        <i class="fas fa-file-medical" style="color:var(--accent-purple); cursor:pointer" onclick="verHistorico('${emp.id}', '${emp.nome}')"></i>
+                        <i class="fas fa-edit" style="cursor:pointer" onclick="prepararEdicaoEmp('${emp.id}','${emp.nome}','${emp.funcao}','${emp.horario}','${emp.equipe}', '${emp.foto}')"></i>
+                        <i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('funcionarios','${emp.id}',listarEquipe)"></i>
+                    </div>
                 </div>
-                <div class="card-actions">
-                    <i class="fas fa-file-medical" style="color:var(--accent-purple)" onclick="verHistorico('${emp.id}', '${emp.nome}')"></i>
-                    <i class="fas fa-edit" onclick="prepararEdicaoEmp('${emp.id}','${emp.nome}','${emp.funcao}','${emp.horario}','${emp.equipe}', '${emp.foto}')"></i>
-                    <i class="fas fa-trash" style="color:var(--accent-red)" onclick="excluirItem('funcionarios','${emp.id}',listarEquipe)"></i>
-                </div>
-                <div style="position:absolute; bottom:10px; right:10px; display:flex; gap:5px;">
-                    <button class="btn-action" style="background:#3b82f622; color:#60a5fa" onclick="abrirModalRegistro('${emp.id}', 'alinhamentos')">Ali.</button>
-                    <button class="btn-action" style="background:#ef444422; color:#f87171" onclick="abrirModalRegistro('${emp.id}', 'advertencias')">Adv.</button>
+                <div class="emp-controls-footer">
+                    <button class="btn-action" style="background:#3b82f622; color:#60a5fa" onclick="abrirModalRegistro('${emp.id}', 'alinhamentos')">
+                        <i class="fas fa-comments"></i> ALINHAMENTO
+                    </button>
+                    <button class="btn-action" style="background:#ef444422; color:#f87171" onclick="abrirModalRegistro('${emp.id}', 'advertencias')">
+                        <i class="fas fa-exclamation-triangle"></i> ADVERTÊNCIA
+                    </button>
                 </div>`;
             container.appendChild(div);
         });
@@ -297,6 +315,9 @@
     function prepararNovoEmp() {
         document.getElementById('editEmpId').value = "";
         document.getElementById('newEmpName').value = "";
+        document.getElementById('newEmpRole').value = "";
+        document.getElementById('newEmpTime').value = "";
+        document.getElementById('newEmpEquipe').value = "";
         document.getElementById('preview-foto-emp').style.display = 'none';
         document.getElementById('icon-camera-emp').style.display = 'block';
         tempFotoBase64 = "";
@@ -402,7 +423,7 @@
         data?.forEach(ata => {
             const div = document.createElement('div'); div.className = 'item-card';
             div.innerHTML = `<div onclick="abrirAta('${ata.link_drive}')" style="cursor:pointer; flex:1"><strong>${ata.nome}</strong><br><small>${ata.data_ata}</small></div>
-            <i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('atas','${ata.id}',listarAtas)"></i>`;
+            <div style="display:flex; gap:10px;"><i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('atas','${ata.id}',listarAtas)"></i></div>`;
             container.appendChild(div);
         });
     }
@@ -451,7 +472,7 @@
         if(confirm("Excluir definitivamente?")) { 
             await _supabase.from(tab).delete().eq('id', id); 
             if(cb) cb(); 
-            document.getElementById('event-panel').style.display = 'none';
+            if(tab === 'eventos') document.getElementById('event-panel').style.display = 'none';
         } 
     }
 
