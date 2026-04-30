@@ -23,7 +23,7 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 15px; display: flex; justify-content: center; }
         .app-container { width: 100%; max-width: 450px; min-height: 95vh; position: relative; }
 
-        /* Estilo 3D dos Botões Principais */
+        /* Estilo 3D Original dos Módulos */
         .module-card {
             background: linear-gradient(145deg, #243147, #1a2333);
             padding: 25px 15px;
@@ -53,15 +53,14 @@
         .item-card { background: var(--card-bg); padding: 15px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #334155; box-shadow: 0 4px 6px rgba(0,0,0,0.2); position: relative; }
         .btn-action { flex: 1; border: none; border-radius: 10px; padding: 10px; font-weight: 700; cursor: pointer; transition: all 0.1s; font-size: 0.8rem; }
         
-        input, textarea, select { width: 100%; background: var(--bg-dark); border: 1px solid #334155; border-radius: 10px; padding: 12px; color: white; margin-bottom: 10px; }
+        input, textarea, select { width: 100%; background: var(--bg-dark); border: 1px solid #334155; border-radius: 10px; padding: 12px; color: white; margin-bottom: 10px; box-sizing: border-box; }
         .btn-save { width: 100%; background: var(--primary-blue); color: white; border: none; padding: 15px; border-radius: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 5px 0 #1d4ed8; }
         .btn-save:active { transform: translateY(3px); box-shadow: 0 2px 0 #1d4ed8; }
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
-        .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; padding: 25px; border-radius: 25px 25px 0 0; }
+        .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; padding: 25px; border-radius: 25px 25px 0 0; max-height: 85vh; overflow-y: auto; }
         .fab-add { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer; z-index: 99; }
         .card-actions { position: absolute; right: 15px; top: 15px; display: flex; gap: 12px; color: var(--text-dim); }
-        .btn-export { background: #10b981; color: white; border: none; padding: 8px 12px; border-radius: 10px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #059669; font-size: 0.7rem; }
         .drive-viewer { width: 100%; height: 500px; border-radius: 15px; display: none; margin-top: 15px; border: 1px solid #334155; }
     </style>
 </head>
@@ -91,9 +90,9 @@
 
     <div id="view-employees" class="view">
         <header>
-            <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white;"><i class="fas fa-arrow-left"></i></button>
+            <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer"><i class="fas fa-arrow-left"></i></button>
             <span style="font-weight: 600;">Equipe</span>
-            <button class="btn-export" onclick="exportarCSV('funcionarios')">CSV</button>
+            <div style="width:20px"></div>
         </header>
         <div id="employee-list" style="margin-top:20px;"></div>
         <button class="fab-add" onclick="prepararNovoEmp()"><i class="fas fa-plus"></i></button>
@@ -101,28 +100,28 @@
 
     <div id="view-atas" class="view">
         <header>
-            <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white;"><i class="fas fa-arrow-left"></i></button>
+            <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer"><i class="fas fa-arrow-left"></i></button>
             <span style="font-weight: 600;">Atas</span>
-            <div style="width:40px"></div>
+            <div style="width:20px"></div>
         </header>
         <div id="lista-atas" style="margin-top:20px;"></div>
         <iframe id="ata-viewer" class="drive-viewer"></iframe>
-        <button id="btn-fechar-viewer" class="btn-save" style="display:none; background:var(--accent-red); box-shadow:0 5px 0 #991b1b; margin-top: 10px;" onclick="fecharViewer()">Fechar Visualização</button>
+        <button id="btn-fechar-viewer" class="btn-save" style="display:none; background:var(--accent-red); box-shadow:0 5px 0 #991b1b; margin-top: 10px;" onclick="fecharViewer()">Fechar</button>
         <button class="fab-add" onclick="openModal('modalAddAta')"><i class="fas fa-plus"></i></button>
     </div>
 
     <div id="modalPatrimonio" class="modal-overlay">
         <div class="modal-content">
             <div style="display:flex; gap:15px; margin-bottom: 20px;">
-                <button id="tablancar" onclick="switchPatriTab('novo')" style="background:none; border:none; color:white; font-weight:700; cursor:pointer;">Lançar</button>
-                <button id="tabinvent" onclick="switchPatriTab('lista')" style="background:none; border:none; color:var(--text-dim); font-weight:700; cursor:pointer;">Inventário</button>
+                <button onclick="switchPatriTab('novo')" style="background:none; border:none; color:white; font-weight:700; cursor:pointer">Lançar</button>
+                <button onclick="switchPatriTab('lista')" style="background:none; border:none; color:var(--text-dim); font-weight:700; cursor:pointer">Inventário</button>
                 <i class="fas fa-times" style="margin-left:auto; cursor:pointer" onclick="closeModal('modalPatrimonio')"></i>
             </div>
             <div id="patriForm">
                 <input type="text" id="patItem" placeholder="Nome do Item">
-                <input type="number" id="patQtd" value="1" placeholder="Quantidade">
+                <input type="number" id="patQtd" value="1">
                 <select id="patEstado"><option>Excelente</option><option>Bom</option><option>Regular</option><option>Danificado</option></select>
-                <button class="btn-save" style="background:var(--accent-orange); box-shadow:0 5px 0 #b45309" onclick="salvarPatrimonio()">Salvar no Banco</button>
+                <button class="btn-save" style="background:var(--accent-orange); box-shadow:0 5px 0 #b45309" onclick="salvarPatrimonio()">Salvar</button>
             </div>
             <div id="patriLista" style="display:none; max-height: 350px; overflow-y: auto;"><div id="itensCadastrados"></div></div>
         </div>
@@ -130,36 +129,48 @@
 
     <div id="modalAddEmployee" class="modal-overlay">
         <div class="modal-content">
-            <h3 style="margin-top:0">Funcionário</h3>
+            <h3>Dados do Funcionário</h3>
             <input type="hidden" id="editEmpId">
             <input type="text" id="newEmpName" placeholder="Nome">
             <input type="text" id="newEmpRole" placeholder="Função">
             <input type="text" id="newEmpTime" placeholder="Horário">
-            <button class="btn-save" onclick="salvarFuncionario()">Confirmar</button>
+            <select id="newEmpEquipe">
+                <option value="">Selecione a Equipe</option>
+                <option value="Equipe 1 Diurna">Equipe 1 Diurna</option>
+                <option value="Equipe 2 Diurna">Equipe 2 Diurna</option>
+                <option value="Equipe 1 Noturna">Equipe 1 Noturna</option>
+                <option value="Equipe 2 Noturna">Equipe 2 Noturna</option>
+            </select>
+            <button class="btn-save" onclick="salvarFuncionario()">Salvar</button>
             <button onclick="closeModal('modalAddEmployee')" style="background:none; border:none; color:var(--text-dim); width:100%; margin-top:15px; cursor:pointer">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="modalRegistro" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="tituloRegistro">Registrar</h3>
+            <input type="hidden" id="regEmpId"><input type="hidden" id="regTipo">
+            <textarea id="regTexto" rows="4" placeholder="Descreva o motivo..."></textarea>
+            <button class="btn-save" onclick="confirmarRegistro()">Salvar Motivo</button>
+            <button onclick="closeModal('modalRegistro')" style="background:none; border:none; color:var(--text-dim); width:100%; margin-top:15px; cursor:pointer">Voltar</button>
         </div>
     </div>
 
     <div id="modalAddAta" class="modal-overlay">
         <div class="modal-content">
-            <h3 style="margin-top:0">Nova Ata</h3>
-            <input type="text" id="newAtaName" placeholder="Título da Ata">
-            <input type="text" id="newAtaDate" placeholder="Data (Ex: 25/04/2026)">
-            <input type="text" id="newAtaLink" placeholder="Link do Google Drive">
-            <button class="btn-save" onclick="salvarAta()">Salvar no Banco</button>
+            <h3>Nova Ata</h3>
+            <input type="text" id="newAtaName" placeholder="Título">
+            <input type="text" id="newAtaDate" placeholder="Data">
+            <input type="text" id="newAtaLink" placeholder="Link do Drive">
+            <button class="btn-save" onclick="salvarAta()">Salvar</button>
             <button onclick="closeModal('modalAddAta')" style="background:none; border:none; color:var(--text-dim); width:100%; margin-top:15px; cursor:pointer">Cancelar</button>
         </div>
     </div>
 </div>
 
 <script>
-    // --- CONFIGURAÇÃO SUPABASE ---
-    const _supabase = supabase.createClient(
-        'https://envuzusmubunlrrhhclu.supabase.co', 
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudnV6dXNtdWJ1bmxycmhoY2x1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NTMzMTcsImV4cCI6MjA5MzEyOTMxN30.pzepBGPOl9reoD4uLN0HUhpWaWfwv9pjLSkVdau7ntY'
-    );
+    const _supabase = supabase.createClient('https://envuzusmubunlrrhhclu.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudnV6dXNtdWJ1bmxycmhoY2x1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NTMzMTcsImV4cCI6MjA5MzEyOTMxN30.pzepBGPOl9reoD4uLN0HUhpWaWfwv9pjLSkVdau7ntY');
 
-    // Navegação
     function changeView(id) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.getElementById(id).classList.add('active');
@@ -169,153 +180,111 @@
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    // --- LÓGICA DE FUNCIONÁRIOS ---
+    // --- FUNCIONÁRIOS ---
     async function listarEquipe() {
         const container = document.getElementById('employee-list');
-        container.innerHTML = "<p style='text-align:center'>Buscando...</p>";
-        const { data, error } = await _supabase.from('funcionarios').select('*').order('nome');
-        if (error) return console.error(error);
-        
+        container.innerHTML = "Buscando...";
+        const { data } = await _supabase.from('funcionarios').select('*').order('nome');
         container.innerHTML = "";
         data?.forEach(emp => {
             const div = document.createElement('div'); div.className = 'item-card';
             div.innerHTML = `
                 <div style="margin-bottom:10px">
-                    <strong>${emp.nome}</strong><br><small>${emp.funcao} | ${emp.horario}</small><br>
-                    <small style="color:var(--accent-orange)">Alinhamentos: ${emp.alinhamentos} | Advertências: ${emp.advertencias}</small>
+                    <strong>${emp.nome}</strong> 
+                    <span style="font-size:0.65rem; background:#3b82f644; padding:2px 5px; border-radius:4px; margin-left:5px">${emp.equipe || ''}</span><br>
+                    <small>${emp.funcao} | ${emp.horario}</small>
                 </div>
                 <div class="card-actions">
-                    <i class="fas fa-edit" style="cursor:pointer" onclick="prepararEdicaoEmp('${emp.id}','${emp.nome}','${emp.funcao}','${emp.horario}')"></i>
-                    <i class="fas fa-trash" style="cursor:pointer" onclick="excluirItem('funcionarios','${emp.id}',listarEquipe)"></i>
+                    <i class="fas fa-edit" onclick="prepararEdicaoEmp('${emp.id}','${emp.nome}','${emp.funcao}','${emp.horario}','${emp.equipe}')"></i>
+                    <i class="fas fa-trash" style="color:var(--accent-red)" onclick="excluirItem('funcionarios','${emp.id}',listarEquipe)"></i>
                 </div>
                 <div style="display:flex; gap:10px;">
-                    <button class="btn-action" style="background:#3b82f622; color:#60a5fa" onclick="updateContador('${emp.id}','alinhamentos',${emp.alinhamentos})">+ Alinhamento</button>
-                    <button class="btn-action" style="background:#ef444422; color:#f87171" onclick="updateContador('${emp.id}','advertencias',${emp.advertencias})">+ Advertência</button>
+                    <button class="btn-action" style="background:#3b82f622; color:#60a5fa" onclick="abrirModalRegistro('${emp.id}', 'alinhamentos')">Alinhamento</button>
+                    <button class="btn-action" style="background:#ef444422; color:#f87171" onclick="abrirModalRegistro('${emp.id}', 'advertencias')">Advertência</button>
                 </div>`;
             container.appendChild(div);
         });
     }
+
     async function salvarFuncionario() {
         const id = document.getElementById('editEmpId').value;
         const payload = { 
             nome: document.getElementById('newEmpName').value, 
             funcao: document.getElementById('newEmpRole').value, 
-            horario: document.getElementById('newEmpTime').value 
+            horario: document.getElementById('newEmpTime').value,
+            equipe: document.getElementById('newEmpEquipe').value
         };
-        const { error } = id ? await _supabase.from('funcionarios').update(payload).eq('id', id) : await _supabase.from('funcionarios').insert([payload]);
-        if (error) alert("Erro ao salvar: " + error.message);
-        else { closeModal('modalAddEmployee'); listarEquipe(); }
+        if(id) await _supabase.from('funcionarios').update(payload).eq('id', id);
+        else await _supabase.from('funcionarios').insert([payload]);
+        closeModal('modalAddEmployee'); listarEquipe();
     }
-    async function updateContador(id, campo, val) { await _supabase.from('funcionarios').update({[campo]: val + 1}).eq('id', id); listarEquipe(); }
-    function prepararNovoEmp() { document.getElementById('editEmpId').value = ""; document.getElementById('newEmpName').value=""; document.getElementById('newEmpRole').value=""; document.getElementById('newEmpTime').value=""; openModal('modalAddEmployee'); }
-    function prepararEdicaoEmp(id,n,f,h) { document.getElementById('editEmpId').value=id; document.getElementById('newEmpName').value=n; document.getElementById('newEmpRole').value=f; document.getElementById('newEmpTime').value=h; openModal('modalAddEmployee'); }
 
-    // --- LÓGICA DE ATAS ---
+    function abrirModalRegistro(id, tipo) {
+        document.getElementById('regEmpId').value = id;
+        document.getElementById('regTipo').value = tipo;
+        document.getElementById('regTexto').value = "";
+        document.getElementById('tituloRegistro').innerText = tipo === 'alinhamentos' ? "Novo Alinhamento" : "Nova Advertência";
+        openModal('modalRegistro');
+    }
+
+    async function confirmarRegistro() {
+        const id = document.getElementById('regEmpId').value;
+        const tipo = document.getElementById('regTipo').value;
+        const textoNovo = document.getElementById('regTexto').value;
+        if(!textoNovo) return alert("Descreva o motivo.");
+
+        const { data } = await _supabase.from('funcionarios').select(tipo).eq('id', id).single();
+        const dataAtu = new Date().toLocaleDateString('pt-BR');
+        const historico = (data[tipo] || "") + `\n[${dataAtu}]: ${textoNovo}`;
+
+        await _supabase.from('funcionarios').update({ [tipo]: historico }).eq('id', id);
+        closeModal('modalRegistro'); listarEquipe();
+    }
+
+    // --- ATAS ---
     async function listarAtas() {
-        const container = document.getElementById('lista-atas'); 
-        container.innerHTML = "<p style='text-align:center'>Carregando...</p>";
-        const { data, error } = await _supabase.from('atas').select('*').order('created_at', {ascending: false});
-        if (error) return console.error(error);
-        
-        container.innerHTML = "";
+        const container = document.getElementById('lista-atas'); container.innerHTML = "";
+        const { data } = await _supabase.from('atas').select('*').order('created_at', {ascending: false});
         data?.forEach(ata => {
             const div = document.createElement('div'); div.className = 'item-card';
-            div.innerHTML = `
-                <div onclick="abrirAta('${ata.link_drive}')" style="cursor:pointer">
-                    <strong>${ata.nome}</strong><br><small>${ata.data_ata || 'Sem data'}</small>
-                </div>
-                <div class="card-actions"><i class="fas fa-trash" style="cursor:pointer" onclick="excluirItem('atas','${ata.id}',listarAtas)"></i></div>`;
+            div.innerHTML = `<div onclick="abrirAta('${ata.link_drive}')" style="cursor:pointer"><strong>${ata.nome}</strong><br><small>${ata.data_ata}</small></div>
+            <div class="card-actions"><i class="fas fa-trash" style="color:var(--accent-red)" onclick="excluirItem('atas','${ata.id}',listarAtas)"></i></div>`;
             container.appendChild(div);
         });
     }
     async function salvarAta() {
-        const payload = { 
-            nome: document.getElementById('newAtaName').value, 
-            data_ata: document.getElementById('newAtaDate').value, 
-            link_drive: document.getElementById('newAtaLink').value.replace('/view', '/preview') 
-        };
-        const { error } = await _supabase.from('atas').insert([payload]);
-        if (error) alert("Erro ao salvar Ata: " + error.message);
-        else { closeModal('modalAddAta'); listarAtas(); }
+        await _supabase.from('atas').insert([{ nome: document.getElementById('newAtaName').value, data_ata: document.getElementById('newAtaDate').value, link_drive: document.getElementById('newAtaLink').value.replace('/view', '/preview') }]);
+        closeModal('modalAddAta'); listarAtas();
     }
-    function abrirAta(l) { 
-        if(!l) return alert("Link não disponível");
-        document.getElementById('ata-viewer').src=l; 
-        document.getElementById('ata-viewer').style.display='block'; 
-        document.getElementById('btn-fechar-viewer').style.display='block'; 
-        document.getElementById('lista-atas').style.display='none'; 
-    }
-    function fecharViewer() { 
-        document.getElementById('ata-viewer').style.display='none'; 
-        document.getElementById('btn-fechar-viewer').style.display='none'; 
-        document.getElementById('lista-atas').style.display='block'; 
-    }
+    function abrirAta(l) { document.getElementById('ata-viewer').src=l; document.getElementById('ata-viewer').style.display='block'; document.getElementById('btn-fechar-viewer').style.display='block'; document.getElementById('lista-atas').style.display='none'; }
+    function fecharViewer() { document.getElementById('ata-viewer').style.display='none'; document.getElementById('btn-fechar-viewer').style.display='none'; document.getElementById('lista-atas').style.display='block'; }
 
-    // --- LÓGICA DE PATRIMÔNIO ---
-    function openPatrimonio() { openModal('modalPatrimonio'); switchPatriTab('novo'); listarPatri(); }
-    
+    // --- PATRIMÔNIO ---
+    function openPatrimonio() { openModal('modalPatrimonio'); listarPatri(); }
     async function listarPatri() {
-        const container = document.getElementById('itensCadastrados'); 
-        container.innerHTML = "<p style='text-align:center'>Buscando...</p>";
-        const { data, error } = await _supabase.from('patrimonio').select('*').order('item');
-        if (error) return console.error(error);
-
-        container.innerHTML = "";
+        const container = document.getElementById('itensCadastrados'); container.innerHTML = "";
+        const { data } = await _supabase.from('patrimonio').select('*').order('item');
         data?.forEach(p => {
             const div = document.createElement('div'); div.className = 'item-card';
-            div.innerHTML = `
-                <strong>${p.item} (${p.quantidade} un)</strong><br><small>Estado: ${p.estado}</small>
-                <div class="card-actions"><i class="fas fa-trash" style="cursor:pointer" onclick="excluirItem('patrimonio','${p.id}',listarPatri)"></i></div>`;
+            div.innerHTML = `<strong>${p.item} (${p.quantidade})</strong><br><small>${p.estado}</small>
+            <div class="card-actions"><i class="fas fa-trash" style="color:var(--accent-red)" onclick="excluirItem('patrimonio','${p.id}',listarPatri)"></i></div>`;
             container.appendChild(div);
         });
     }
-
     async function salvarPatrimonio() {
-        const payload = { 
-            item: document.getElementById('patItem').value, 
-            quantidade: parseInt(document.getElementById('patQtd').value), 
-            estado: document.getElementById('patEstado').value 
-        };
-        const { error } = await _supabase.from('patrimonio').insert([payload]);
-        if (error) alert("Erro ao salvar Patrimônio: " + error.message);
-        else { 
-            document.getElementById('patItem').value = "";
-            listarPatri(); 
-            switchPatriTab('lista'); 
-        }
+        await _supabase.from('patrimonio').insert([{ item: document.getElementById('patItem').value, quantidade: document.getElementById('patQtd').value, estado: document.getElementById('patEstado').value }]);
+        listarPatri(); switchPatriTab('lista');
     }
-    function switchPatriTab(t) { 
-        document.getElementById('patriForm').style.display = t==='novo'?'block':'none'; 
-        document.getElementById('patriLista').style.display = t==='lista'?'block':'none'; 
-        document.getElementById('tablancar').style.color = t==='novo'?'white':'var(--text-dim)';
-        document.getElementById('tabinvent').style.color = t==='lista'?'white':'var(--text-dim)';
-    }
+    function switchPatriTab(t) { document.getElementById('patriForm').style.display = t==='novo'?'block':'none'; document.getElementById('patriLista').style.display = t==='lista'?'block':'none'; }
 
-    // --- FUNÇÕES GERAIS ---
-    async function excluirItem(tabela, id, callback) { 
-        if(confirm("Tem certeza que deseja excluir?")) { 
-            const { error } = await _supabase.from(tabela).delete().eq('id', id); 
-            if (error) alert("Erro ao excluir");
-            else callback(); 
-        } 
-    }
-    
-    async function exportarCSV(tabela) {
-        const { data } = await _supabase.from(tabela).select('*');
-        if(!data || !data.length) return alert("Sem dados para exportar");
-        const csv = [Object.keys(data[0]).join(','), ...data.map(row => Object.values(row).join(','))].join('\n');
-        const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url; a.download = `${tabela}.csv`; a.click();
-    }
-
-    // Registro Service Worker (PWA)
-    if ('serviceWorker' in navigator) { 
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').catch(()=>{}); 
-        });
+    // --- AUXILIARES ---
+    async function excluirItem(tab, id, cb) { if(confirm("Excluir item?")) { await _supabase.from(tab).delete().eq('id', id); cb(); } }
+    function prepararNovoEmp() { document.getElementById('editEmpId').value=""; openModal('modalAddEmployee'); }
+    function prepararEdicaoEmp(id,n,f,h,e) { 
+        document.getElementById('editEmpId').value=id; document.getElementById('newEmpName').value=n; 
+        document.getElementById('newEmpRole').value=f; document.getElementById('newEmpTime').value=h;
+        document.getElementById('newEmpEquipe').value=e || ""; openModal('modalAddEmployee'); 
     }
 </script>
 </body>
-    </html>
-    
+</html>
