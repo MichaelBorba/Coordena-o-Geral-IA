@@ -23,7 +23,7 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 15px; display: flex; justify-content: center; }
         .app-container { width: 100%; max-width: 450px; min-height: 95vh; position: relative; }
 
-        /* Estilo 3D Original dos Módulos */
+        /* Estilo 3D dos Botões Principais */
         .module-card {
             background: linear-gradient(145deg, #243147, #1a2333);
             padding: 25px 15px;
@@ -61,7 +61,10 @@
         .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; padding: 25px; border-radius: 25px 25px 0 0; max-height: 85vh; overflow-y: auto; }
         .fab-add { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer; z-index: 99; }
         .card-actions { position: absolute; right: 15px; top: 15px; display: flex; gap: 12px; color: var(--text-dim); }
+        .card-actions i { cursor: pointer; }
         .drive-viewer { width: 100%; height: 500px; border-radius: 15px; display: none; margin-top: 15px; border: 1px solid #334155; }
+        
+        .historico-box { background: #0f172a; padding: 10px; border-radius: 10px; font-size: 0.85rem; margin-top: 10px; white-space: pre-wrap; border-left: 3px solid var(--primary-blue); }
     </style>
 </head>
 <body>
@@ -90,7 +93,7 @@
 
     <div id="view-employees" class="view">
         <header>
-            <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer"><i class="fas fa-arrow-left"></i></button>
+            <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; cursor:pointer"><i class="fas fa-arrow-left"></i></button>
             <span style="font-weight: 600;">Equipe</span>
             <div style="width:20px"></div>
         </header>
@@ -100,13 +103,13 @@
 
     <div id="view-atas" class="view">
         <header>
-            <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer"><i class="fas fa-arrow-left"></i></button>
+            <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; cursor:pointer"><i class="fas fa-arrow-left"></i></button>
             <span style="font-weight: 600;">Atas</span>
             <div style="width:20px"></div>
         </header>
         <div id="lista-atas" style="margin-top:20px;"></div>
         <iframe id="ata-viewer" class="drive-viewer"></iframe>
-        <button id="btn-fechar-viewer" class="btn-save" style="display:none; background:var(--accent-red); box-shadow:0 5px 0 #991b1b; margin-top: 10px;" onclick="fecharViewer()">Fechar</button>
+        <button id="btn-fechar-viewer" class="btn-save" style="display:none; background:var(--accent-red); margin-top:10px;" onclick="fecharViewer()">Fechar</button>
         <button class="fab-add" onclick="openModal('modalAddAta')"><i class="fas fa-plus"></i></button>
     </div>
 
@@ -118,12 +121,12 @@
                 <i class="fas fa-times" style="margin-left:auto; cursor:pointer" onclick="closeModal('modalPatrimonio')"></i>
             </div>
             <div id="patriForm">
-                <input type="text" id="patItem" placeholder="Nome do Item">
+                <input type="text" id="patItem" placeholder="Item">
                 <input type="number" id="patQtd" value="1">
                 <select id="patEstado"><option>Excelente</option><option>Bom</option><option>Regular</option><option>Danificado</option></select>
-                <button class="btn-save" style="background:var(--accent-orange); box-shadow:0 5px 0 #b45309" onclick="salvarPatrimonio()">Salvar</button>
+                <button class="btn-save" style="background:var(--accent-orange)" onclick="salvarPatrimonio()">Salvar</button>
             </div>
-            <div id="patriLista" style="display:none; max-height: 350px; overflow-y: auto;"><div id="itensCadastrados"></div></div>
+            <div id="patriLista" style="display:none; max-height:300px; overflow-y:auto;"><div id="itensCadastrados"></div></div>
         </div>
     </div>
 
@@ -146,9 +149,17 @@
         </div>
     </div>
 
+    <div id="modalHistorico" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="histNome">Prontuário</h3>
+            <div id="histConteudo"></div>
+            <button onclick="closeModal('modalHistorico')" class="btn-save" style="margin-top:20px; background:#334155">Fechar</button>
+        </div>
+    </div>
+
     <div id="modalRegistro" class="modal-overlay">
         <div class="modal-content">
-            <h3 id="tituloRegistro">Registrar</h3>
+            <h3 id="tituloRegistro">Novo Registro</h3>
             <input type="hidden" id="regEmpId"><input type="hidden" id="regTipo">
             <textarea id="regTexto" rows="4" placeholder="Descreva o motivo..."></textarea>
             <button class="btn-save" onclick="confirmarRegistro()">Salvar Motivo</button>
@@ -161,7 +172,7 @@
             <h3>Nova Ata</h3>
             <input type="text" id="newAtaName" placeholder="Título">
             <input type="text" id="newAtaDate" placeholder="Data">
-            <input type="text" id="newAtaLink" placeholder="Link do Drive">
+            <input type="text" id="newAtaLink" placeholder="Link Drive">
             <button class="btn-save" onclick="salvarAta()">Salvar</button>
             <button onclick="closeModal('modalAddAta')" style="background:none; border:none; color:var(--text-dim); width:100%; margin-top:15px; cursor:pointer">Cancelar</button>
         </div>
@@ -195,6 +206,7 @@
                     <small>${emp.funcao} | ${emp.horario}</small>
                 </div>
                 <div class="card-actions">
+                    <i class="fas fa-file-medical" title="Prontuário" style="color:var(--accent-purple)" onclick="verHistorico('${emp.id}', '${emp.nome}')"></i>
                     <i class="fas fa-edit" onclick="prepararEdicaoEmp('${emp.id}','${emp.nome}','${emp.funcao}','${emp.horario}','${emp.equipe}')"></i>
                     <i class="fas fa-trash" style="color:var(--accent-red)" onclick="excluirItem('funcionarios','${emp.id}',listarEquipe)"></i>
                 </div>
@@ -208,15 +220,21 @@
 
     async function salvarFuncionario() {
         const id = document.getElementById('editEmpId').value;
-        const payload = { 
-            nome: document.getElementById('newEmpName').value, 
-            funcao: document.getElementById('newEmpRole').value, 
-            horario: document.getElementById('newEmpTime').value,
-            equipe: document.getElementById('newEmpEquipe').value
-        };
+        const payload = { nome: document.getElementById('newEmpName').value, funcao: document.getElementById('newEmpRole').value, horario: document.getElementById('newEmpTime').value, equipe: document.getElementById('newEmpEquipe').value };
         if(id) await _supabase.from('funcionarios').update(payload).eq('id', id);
         else await _supabase.from('funcionarios').insert([payload]);
         closeModal('modalAddEmployee'); listarEquipe();
+    }
+
+    async function verHistorico(id, nome) {
+        document.getElementById('histNome').innerText = "Histórico: " + nome;
+        const { data } = await _supabase.from('funcionarios').select('alinhamentos, advertencias').eq('id', id).single();
+        document.getElementById('histConteudo').innerHTML = `
+            <small style="color:var(--primary-blue)"><b>ALINHAMENTOS:</b></small>
+            <div class="historico-box">${data.alinhamentos || 'Sem registros.'}</div>
+            <br><small style="color:var(--accent-red)"><b>ADVERTÊNCIAS:</b></small>
+            <div class="historico-box" style="border-left-color:var(--accent-red)">${data.advertencias || 'Sem registros.'}</div>`;
+        openModal('modalHistorico');
     }
 
     function abrirModalRegistro(id, tipo) {
@@ -231,13 +249,10 @@
         const id = document.getElementById('regEmpId').value;
         const tipo = document.getElementById('regTipo').value;
         const textoNovo = document.getElementById('regTexto').value;
-        if(!textoNovo) return alert("Descreva o motivo.");
-
+        if(!textoNovo) return alert("Digite o motivo.");
         const { data } = await _supabase.from('funcionarios').select(tipo).eq('id', id).single();
-        const dataAtu = new Date().toLocaleDateString('pt-BR');
-        const historico = (data[tipo] || "") + `\n[${dataAtu}]: ${textoNovo}`;
-
-        await _supabase.from('funcionarios').update({ [tipo]: historico }).eq('id', id);
+        const novoHist = (data[tipo] || "") + `\n[${new Date().toLocaleDateString('pt-BR')}]: ${textoNovo}`;
+        await _supabase.from('funcionarios').update({ [tipo]: novoHist }).eq('id', id);
         closeModal('modalRegistro'); listarEquipe();
     }
 
