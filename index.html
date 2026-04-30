@@ -4,40 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel de Coordenação Pro</title>
-    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-dark: #0f172a;
-            --card-bg: #1e293b;
-            --primary-blue: #3b82f6;
-            --accent-orange: #f59e0b;
-            --accent-red: #ef4444;
-            --text-main: #f8fafc;
-            --text-dim: #94a3b8;
-            --accent-purple: #a855f7;
-            --card-shadow: #020617;
+            --bg-dark: #0f172a; --card-bg: #1e293b; --primary-blue: #3b82f6;
+            --accent-orange: #f59e0b; --accent-red: #ef4444; --text-main: #f8fafc;
+            --text-dim: #94a3b8; --accent-purple: #a855f7; --card-shadow: #020617;
+            --accent-green: #22c55e;
         }
 
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 15px; display: flex; justify-content: center; }
         .app-container { width: 100%; max-width: 450px; min-height: 95vh; position: relative; }
 
+        header { display: flex; align-items: center; justify-content: space-between; padding: 15px 5px; }
+        
+        /* Avatar Coordenador */
+        .avatar { width: 42px; height: 42px; border-radius: 50%; background: #334155; border: 2px solid var(--primary-blue); overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Foto de Upload no Modal Funcionário */
+        .emp-photo-container { width: 90px; height: 90px; border-radius: 50%; background: #334155; margin: 0 auto 15px; border: 3px solid var(--accent-orange); display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; }
+        .emp-photo-container img { width: 100%; height: 100%; object-fit: cover; }
+        .emp-photo-container i { font-size: 1.5rem; color: var(--text-dim); }
+
         .module-card {
             background: linear-gradient(145deg, #243147, #1a2333);
-            padding: 25px 15px;
-            border-radius: 24px;
-            text-align: center;
-            cursor: pointer;
-            position: relative;
-            transition: all 0.1s ease;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-top: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 25px 15px; border-radius: 24px; text-align: center; cursor: pointer;
+            transition: all 0.1s ease; border: 1px solid rgba(255, 255, 255, 0.05);
             box-shadow: 0 8px 0 var(--card-shadow), 0 15px 20px rgba(0, 0, 0, 0.4);
         }
-        .module-card:active { transform: translateY(4px); box-shadow: 0 4px 0 var(--card-shadow), 0 5px 10px rgba(0, 0, 0, 0.4); }
-        .module-card i { font-size: 2.2rem; margin-bottom: 15px; display: block; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
-        .module-card span { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; opacity: 0.9; }
+        .module-card:active { transform: translateY(4px); box-shadow: 0 4px 0 var(--card-shadow); }
+        .module-card i { font-size: 2.2rem; margin-bottom: 15px; display: block; }
+        .module-card span { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; }
 
         .icon-blue { color: #60a5fa; } .icon-lightblue { color: #93c5fd; } .icon-green { color: #4ade80; } .icon-dp { color: #cbd5e1; } .icon-gold { color: var(--accent-orange); } .icon-purple { color: var(--accent-purple); }
 
@@ -45,44 +44,49 @@
         .view.active { display: flex; flex-direction: column; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        header { display: flex; align-items: center; justify-content: space-between; padding: 15px 5px; }
-        
-        /* Ajuste do Avatar para suportar foto */
-        .avatar { width: 42px; height: 42px; border-radius: 50%; background: #334155; border: 2px solid var(--primary-blue); overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
-        .avatar img { width: 100%; height: 100%; object-fit: cover; display: none; }
-        
         .grid-modules { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin: 25px 0; }
-        .item-card { background: var(--card-bg); padding: 15px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #334155; box-shadow: 0 4px 6px rgba(0,0,0,0.2); position: relative; }
-        .btn-action { flex: 1; border: none; border-radius: 10px; padding: 10px; font-weight: 700; cursor: pointer; transition: all 0.1s; font-size: 0.8rem; }
         
+        .item-card { 
+            background: var(--card-bg); padding: 15px; border-radius: 18px; margin-bottom: 12px; 
+            border: 1px solid #334155; position: relative; display: flex; gap: 12px; align-items: center;
+        }
+        .item-card img.thumb-emp { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; background: #0f172a; border: 2px solid #334155; }
+
         input, textarea, select { width: 100%; background: var(--bg-dark); border: 1px solid #334155; border-radius: 10px; padding: 12px; color: white; margin-bottom: 10px; box-sizing: border-box; }
         .btn-save { width: 100%; background: var(--primary-blue); color: white; border: none; padding: 15px; border-radius: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 5px 0 #1d4ed8; }
-        .btn-save:active { transform: translateY(3px); box-shadow: 0 2px 0 #1d4ed8; }
+        .btn-action { flex: 1; border: none; border-radius: 10px; padding: 8px; font-weight: 700; cursor: pointer; font-size: 0.75rem; }
 
+        /* Calendário */
+        .calendar-container { background: var(--card-bg); padding: 15px; border-radius: 20px; border: 1px solid #334155; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
+        .calendar-day { padding: 10px 0; border-radius: 10px; cursor: pointer; font-size: 0.9rem; position: relative; }
+        .calendar-day.has-event { background: var(--accent-orange); color: white; font-weight: bold; }
+        .calendar-day.today { border: 2px solid var(--primary-blue); }
+
+        .fab-add { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer; z-index: 99; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
         .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; padding: 25px; border-radius: 25px 25px 0 0; max-height: 85vh; overflow-y: auto; }
-        .fab-add { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer; z-index: 99; }
-        .card-actions { position: absolute; right: 15px; top: 15px; display: flex; gap: 12px; color: var(--text-dim); }
-        .card-actions i { cursor: pointer; }
-        .drive-viewer { width: 100%; height: 500px; border-radius: 15px; display: none; margin-top: 15px; border: 1px solid #334155; }
-        
+        .card-actions { position: absolute; right: 10px; top: 10px; display: flex; gap: 10px; color: var(--text-dim); }
         .historico-box { background: #0f172a; padding: 10px; border-radius: 10px; font-size: 0.85rem; margin-top: 10px; white-space: pre-wrap; border-left: 3px solid var(--primary-blue); }
     </style>
 </head>
 <body>
 
 <div class="app-container">
+    
     <div id="view-dashboard" class="view active">
         <header>
             <div style="display:flex; align-items:center; gap:12px;">
-                <div class="avatar" onclick="document.getElementById('input-foto-perfil').click()">
-                    <i class="fas fa-user" id="icon-padrao"></i>
-                    <img id="foto-exibicao" src="">
-                    <input type="file" id="input-foto-perfil" accept="image/*" style="display:none" onchange="processarFoto(this)">
+                <div class="avatar" onclick="document.getElementById('input-foto-coord').click()">
+                    <img id="foto-coord-display" style="display:none">
+                    <i class="fas fa-user" id="icon-coord-padrao"></i>
+                    <input type="file" id="input-foto-coord" accept="image/*" style="display:none" onchange="uploadFotoCoord(this)">
                 </div>
                 <span style="font-weight: 600;">Coordenação Local</span>
             </div>
+            <i class="fas fa-calendar-alt" style="font-size: 1.5rem; color: var(--primary-blue); cursor: pointer;" onclick="changeView('view-calendar')"></i>
         </header>
+        
         <main class="grid-modules">
             <div class="module-card" onclick="changeView('view-employees')">
                 <i class="fas fa-users icon-blue"></i><span>Funcionários</span>
@@ -114,75 +118,96 @@
             <div style="width:20px"></div>
         </header>
         <div id="lista-atas" style="margin-top:20px;"></div>
-        <iframe id="ata-viewer" class="drive-viewer"></iframe>
+        <iframe id="ata-viewer" style="width:100%; height:500px; display:none; border-radius:15px; border:1px solid #334155; margin-top:10px;"></iframe>
         <button id="btn-fechar-viewer" class="btn-save" style="display:none; background:var(--accent-red); margin-top:10px;" onclick="fecharViewer()">Fechar</button>
         <button class="fab-add" onclick="openModal('modalAddAta')"><i class="fas fa-plus"></i></button>
     </div>
 
-    <div id="modalPatrimonio" class="modal-overlay">
-        <div class="modal-content">
-            <div style="display:flex; gap:15px; margin-bottom: 20px;">
-                <button onclick="switchPatriTab('novo')" style="background:none; border:none; color:white; font-weight:700; cursor:pointer">Lançar</button>
-                <button onclick="switchPatriTab('lista')" style="background:none; border:none; color:var(--text-dim); font-weight:700; cursor:pointer">Inventário</button>
-                <i class="fas fa-times" style="margin-left:auto; cursor:pointer" onclick="closeModal('modalPatrimonio')"></i>
-            </div>
-            <div id="patriForm">
-                <input type="text" id="patItem" placeholder="Item">
-                <input type="number" id="patQtd" value="1">
-                <select id="patEstado"><option>Excelente</option><option>Bom</option><option>Regular</option><option>Danificado</option></select>
-                <button class="btn-save" style="background:var(--accent-orange)" onclick="salvarPatrimonio()">Salvar</button>
-            </div>
-            <div id="patriLista" style="display:none; max-height:300px; overflow-y:auto;"><div id="itensCadastrados"></div></div>
+    <div id="view-calendar" class="view">
+        <header>
+            <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; cursor:pointer"><i class="fas fa-arrow-left"></i></button>
+            <span style="font-weight: 600;">Eventos</span>
+            <button onclick="openModal('modalEvento')" style="background:var(--accent-green); border:none; color:white; padding:5px 10px; border-radius:8px; font-weight:bold; cursor:pointer">+ Novo</button>
+        </header>
+        <div class="calendar-container">
+            <div id="mes-atual" style="text-align:center; font-weight:bold; margin-bottom:15px; color:var(--primary-blue)"></div>
+            <div class="calendar-grid" id="calendario-dias"></div>
+        </div>
+        <div id="event-panel" style="margin-top:15px; background:#0f172a; padding:15px; border-radius:15px; display:none;">
+            <h4 id="panel-data" style="margin:0 0 10px 0; color:var(--accent-orange)">Eventos</h4>
+            <div id="lista-eventos-dia"></div>
         </div>
     </div>
 
-    <div id="modalAddEmployee" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Dados do Funcionário</h3>
-            <input type="hidden" id="editEmpId">
-            <input type="text" id="newEmpName" placeholder="Nome">
-            <input type="text" id="newEmpRole" placeholder="Função">
-            <input type="text" id="newEmpTime" placeholder="Horário">
-            <select id="newEmpEquipe">
-                <option value="">Selecione a Equipe</option>
-                <option value="Equipe 1 Diurna">Equipe 1 Diurna</option>
-                <option value="Equipe 2 Diurna">Equipe 2 Diurna</option>
-                <option value="Equipe 1 Noturna">Equipe 1 Noturna</option>
-                <option value="Equipe 2 Noturna">Equipe 2 Noturna</option>
-            </select>
-            <button class="btn-save" onclick="salvarFuncionario()">Salvar</button>
-            <button onclick="closeModal('modalAddEmployee')" style="background:none; border:none; color:var(--text-dim); width:100%; margin-top:15px; cursor:pointer">Cancelar</button>
+    <div id="modalAddEmployee" class="modal-overlay"><div class="modal-content">
+        <h3>Dados do Funcionário</h3>
+        <div class="emp-photo-container" onclick="document.getElementById('input-foto-emp').click()">
+            <img id="preview-foto-emp" style="display:none">
+            <i class="fas fa-camera" id="icon-camera-emp"></i>
+            <input type="file" id="input-foto-emp" accept="image/*" style="display:none" onchange="previewFotoEmp(this)">
         </div>
-    </div>
+        <input type="hidden" id="editEmpId">
+        <input type="text" id="newEmpName" placeholder="Nome">
+        <input type="text" id="newEmpRole" placeholder="Função">
+        <input type="text" id="newEmpTime" placeholder="Horário">
+        <select id="newEmpEquipe">
+            <option value="">Selecione a Equipe</option>
+            <option value="Equipe 1 Diurna">Equipe 1 Diurna</option>
+            <option value="Equipe 2 Diurna">Equipe 2 Diurna</option>
+            <option value="Equipe 1 Noturna">Equipe 1 Noturna</option>
+            <option value="Equipe 2 Noturna">Equipe 2 Noturna</option>
+        </select>
+        <button class="btn-save" onclick="salvarFuncionario()">Salvar</button>
+        <button onclick="closeModal('modalAddEmployee')" style="background:none; border:none; color:var(--text-dim); width:100%; margin-top:15px; cursor:pointer">Cancelar</button>
+    </div></div>
 
-    <div id="modalHistorico" class="modal-overlay">
-        <div class="modal-content">
-            <h3 id="histNome">Prontuário</h3>
-            <div id="histConteudo"></div>
-            <button onclick="closeModal('modalHistorico')" class="btn-save" style="margin-top:20px; background:#334155">Fechar</button>
-        </div>
-    </div>
+    <div id="modalEvento" class="modal-overlay"><div class="modal-content">
+        <h3>Agendar Evento</h3>
+        <input type="text" id="eventTitulo" placeholder="Título do Evento">
+        <input type="date" id="eventData">
+        <input type="time" id="eventHora">
+        <button class="btn-save" onclick="salvarEvento()">Salvar Evento</button>
+        <button onclick="closeModal('modalEvento')" style="background:none; border:none; color:var(--text-dim); width:100%; margin-top:15px; cursor:pointer">Cancelar</button>
+    </div></div>
 
-    <div id="modalRegistro" class="modal-overlay">
-        <div class="modal-content">
-            <h3 id="tituloRegistro">Novo Registro</h3>
-            <input type="hidden" id="regEmpId"><input type="hidden" id="regTipo">
-            <textarea id="regTexto" rows="4" placeholder="Descreva o motivo..."></textarea>
-            <button class="btn-save" onclick="confirmarRegistro()">Salvar Motivo</button>
-            <button onclick="closeModal('modalRegistro')" style="background:none; border:none; color:var(--text-dim); width:100%; margin-top:15px; cursor:pointer">Voltar</button>
-        </div>
-    </div>
+    <div id="modalAddAta" class="modal-overlay"><div class="modal-content">
+        <h3>Nova Ata</h3>
+        <input type="text" id="newAtaName" placeholder="Título">
+        <input type="text" id="newAtaDate" placeholder="Data">
+        <input type="text" id="newAtaLink" placeholder="Link Drive">
+        <button class="btn-save" onclick="salvarAta()">Salvar</button>
+        <button onclick="closeModal('modalAddAta')" style="background:none; border:none; color:var(--text-dim); width:100%; margin-top:15px; cursor:pointer">Cancelar</button>
+    </div></div>
 
-    <div id="modalAddAta" class="modal-overlay">
-        <div class="modal-content">
-            <h3>Nova Ata</h3>
-            <input type="text" id="newAtaName" placeholder="Título">
-            <input type="text" id="newAtaDate" placeholder="Data">
-            <input type="text" id="newAtaLink" placeholder="Link Drive">
-            <button class="btn-save" onclick="salvarAta()">Salvar</button>
-            <button onclick="closeModal('modalAddAta')" style="background:none; border:none; color:var(--text-dim); width:100%; margin-top:15px; cursor:pointer">Cancelar</button>
+    <div id="modalPatrimonio" class="modal-overlay"><div class="modal-content">
+        <div style="display:flex; gap:15px; margin-bottom: 20px;">
+            <button onclick="switchPatriTab('novo')" style="background:none; border:none; color:white; font-weight:700; cursor:pointer">Lançar</button>
+            <button onclick="switchPatriTab('lista')" style="background:none; border:none; color:var(--text-dim); font-weight:700; cursor:pointer">Inventário</button>
+            <i class="fas fa-times" style="margin-left:auto; cursor:pointer" onclick="closeModal('modalPatrimonio')"></i>
         </div>
-    </div>
+        <div id="patriForm">
+            <input type="text" id="patItem" placeholder="Item">
+            <input type="number" id="patQtd" value="1">
+            <select id="patEstado"><option>Excelente</option><option>Bom</option><option>Regular</option><option>Danificado</option></select>
+            <button class="btn-save" style="background:var(--accent-orange)" onclick="salvarPatrimonio()">Salvar</button>
+        </div>
+        <div id="patriLista" style="display:none; max-height:300px; overflow-y:auto;"><div id="itensCadastrados"></div></div>
+    </div></div>
+
+    <div id="modalHistorico" class="modal-overlay"><div class="modal-content">
+        <h3 id="histNome">Prontuário</h3>
+        <div id="histConteudo"></div>
+        <button onclick="closeModal('modalHistorico')" class="btn-save" style="margin-top:20px; background:#334155">Fechar</button>
+    </div></div>
+
+    <div id="modalRegistro" class="modal-overlay"><div class="modal-content">
+        <h3 id="tituloRegistro">Registro</h3>
+        <input type="hidden" id="regEmpId"><input type="hidden" id="regTipo">
+        <textarea id="regTexto" rows="4" placeholder="Descreva o motivo..."></textarea>
+        <button class="btn-save" onclick="confirmarRegistro()">Salvar Motivo</button>
+        <button onclick="closeModal('modalRegistro')" style="background:none; border:none; color:var(--text-dim); width:100%; margin-top:15px; cursor:pointer">Voltar</button>
+    </div></div>
+
 </div>
 
 <script>
@@ -191,14 +216,44 @@
     function changeView(id) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if(id === 'view-atas') listarAtas();
         if(id === 'view-employees') listarEquipe();
+        if(id === 'view-calendar') initCalendar();
+        if(id === 'view-atas') listarAtas();
     }
     
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
+    // --- FOTO COORDENADOR (LocalStorage) ---
+    function uploadFotoCoord(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                document.getElementById('foto-coord-display').src = e.target.result;
+                document.getElementById('foto-coord-display').style.display = 'block';
+                document.getElementById('icon-coord-padrao').style.display = 'none';
+                localStorage.setItem('coord_img', e.target.result);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
     // --- FUNCIONÁRIOS ---
+    let tempFotoBase64 = "";
+
+    function previewFotoEmp(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                document.getElementById('preview-foto-emp').src = e.target.result;
+                document.getElementById('preview-foto-emp').style.display = 'block';
+                document.getElementById('icon-camera-emp').style.display = 'none';
+                tempFotoBase64 = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
     async function listarEquipe() {
         const container = document.getElementById('employee-list');
         container.innerHTML = "Buscando...";
@@ -207,19 +262,19 @@
         data?.forEach(emp => {
             const div = document.createElement('div'); div.className = 'item-card';
             div.innerHTML = `
-                <div style="margin-bottom:10px">
-                    <strong>${emp.nome}</strong> 
-                    <span style="font-size:0.65rem; background:#3b82f644; padding:2px 5px; border-radius:4px; margin-left:5px">${emp.equipe || ''}</span><br>
+                <img src="${emp.foto || 'https://via.placeholder.com/50'}" class="thumb-emp">
+                <div style="flex:1">
+                    <strong>${emp.nome}</strong><br>
                     <small>${emp.funcao} | ${emp.horario}</small>
                 </div>
                 <div class="card-actions">
-                    <i class="fas fa-file-medical" title="Prontuário" style="color:var(--accent-purple)" onclick="verHistorico('${emp.id}', '${emp.nome}')"></i>
-                    <i class="fas fa-edit" onclick="prepararEdicaoEmp('${emp.id}','${emp.nome}','${emp.funcao}','${emp.horario}','${emp.equipe}')"></i>
+                    <i class="fas fa-file-medical" style="color:var(--accent-purple)" onclick="verHistorico('${emp.id}', '${emp.nome}')"></i>
+                    <i class="fas fa-edit" onclick="prepararEdicaoEmp('${emp.id}','${emp.nome}','${emp.funcao}','${emp.horario}','${emp.equipe}', '${emp.foto}')"></i>
                     <i class="fas fa-trash" style="color:var(--accent-red)" onclick="excluirItem('funcionarios','${emp.id}',listarEquipe)"></i>
                 </div>
-                <div style="display:flex; gap:10px;">
-                    <button class="btn-action" style="background:#3b82f622; color:#60a5fa" onclick="abrirModalRegistro('${emp.id}', 'alinhamentos')">Alinhamento</button>
-                    <button class="btn-action" style="background:#ef444422; color:#f87171" onclick="abrirModalRegistro('${emp.id}', 'advertencias')">Advertência</button>
+                <div style="position:absolute; bottom:10px; right:10px; display:flex; gap:5px;">
+                    <button class="btn-action" style="background:#3b82f622; color:#60a5fa" onclick="abrirModalRegistro('${emp.id}', 'alinhamentos')">Ali.</button>
+                    <button class="btn-action" style="background:#ef444422; color:#f87171" onclick="abrirModalRegistro('${emp.id}', 'advertencias')">Adv.</button>
                 </div>`;
             container.appendChild(div);
         });
@@ -227,10 +282,40 @@
 
     async function salvarFuncionario() {
         const id = document.getElementById('editEmpId').value;
-        const payload = { nome: document.getElementById('newEmpName').value, funcao: document.getElementById('newEmpRole').value, horario: document.getElementById('newEmpTime').value, equipe: document.getElementById('newEmpEquipe').value };
+        const payload = { 
+            nome: document.getElementById('newEmpName').value, 
+            funcao: document.getElementById('newEmpRole').value, 
+            horario: document.getElementById('newEmpTime').value, 
+            equipe: document.getElementById('newEmpEquipe').value,
+            foto: tempFotoBase64
+        };
         if(id) await _supabase.from('funcionarios').update(payload).eq('id', id);
         else await _supabase.from('funcionarios').insert([payload]);
         closeModal('modalAddEmployee'); listarEquipe();
+    }
+
+    function prepararNovoEmp() {
+        document.getElementById('editEmpId').value = "";
+        document.getElementById('newEmpName').value = "";
+        document.getElementById('preview-foto-emp').style.display = 'none';
+        document.getElementById('icon-camera-emp').style.display = 'block';
+        tempFotoBase64 = "";
+        openModal('modalAddEmployee');
+    }
+
+    function prepararEdicaoEmp(id, n, f, h, e, foto) {
+        document.getElementById('editEmpId').value = id;
+        document.getElementById('newEmpName').value = n;
+        document.getElementById('newEmpRole').value = f;
+        document.getElementById('newEmpTime').value = h;
+        document.getElementById('newEmpEquipe').value = e || "";
+        if(foto) {
+            document.getElementById('preview-foto-emp').src = foto;
+            document.getElementById('preview-foto-emp').style.display = 'block';
+            document.getElementById('icon-camera-emp').style.display = 'none';
+            tempFotoBase64 = foto;
+        }
+        openModal('modalAddEmployee');
     }
 
     async function verHistorico(id, nome) {
@@ -263,23 +348,82 @@
         closeModal('modalRegistro'); listarEquipe();
     }
 
+    // --- CALENDÁRIO ---
+    let eventosCache = [];
+    async function initCalendar() {
+        const agora = new Date();
+        const nomesMeses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+        document.getElementById('mes-atual').innerText = `${nomesMeses[agora.getMonth()]} ${agora.getFullYear()}`;
+        const { data } = await _supabase.from('eventos').select('*');
+        eventosCache = data || [];
+        renderizarCalendario(agora.getMonth(), agora.getFullYear());
+    }
+
+    function renderizarCalendario(mes, ano) {
+        const grid = document.getElementById('calendario-dias'); grid.innerHTML = "";
+        ["D", "S", "T", "Q", "Q", "S", "S"].forEach(d => grid.innerHTML += `<div style="font-size:0.7rem; color:var(--text-dim); padding-bottom:5px;">${d}</div>`);
+        const primeiroDia = new Date(ano, mes, 1).getDay();
+        const totalDias = new Date(ano, mes + 1, 0).getDate();
+        for(let i = 0; i < primeiroDia; i++) grid.innerHTML += `<div></div>`;
+        for(let dia = 1; dia <= totalDias; dia++) {
+            const dataISO = `${ano}-${String(mes+1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+            const temEvento = eventosCache.some(e => e.data_evento === dataISO);
+            grid.innerHTML += `<div class="calendar-day ${temEvento ? 'has-event' : ''}" onclick="verEventosDia('${dataISO}', ${dia})">${dia}</div>`;
+        }
+    }
+
+    function verEventosDia(dataISO, dia) {
+        const lista = document.getElementById('lista-eventos-dia');
+        const eventosDia = eventosCache.filter(e => e.data_evento === dataISO);
+        document.getElementById('panel-data').innerText = `Dia ${dia}`;
+        document.getElementById('event-panel').style.display = 'block';
+        lista.innerHTML = eventosDia.length ? "" : "<small>Sem compromissos.</small>";
+        eventosDia.forEach(e => {
+            lista.innerHTML += `<div style="padding:8px 0; border-bottom:1px solid #334155; display:flex; justify-content:space-between">
+                <span><b>${e.titulo}</b><br><small>${e.hora_evento}</small></span>
+                <i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('eventos','${e.id}',initCalendar)"></i>
+            </div>`;
+        });
+    }
+
+    async function salvarEvento() {
+        await _supabase.from('eventos').insert([{ 
+            titulo: document.getElementById('eventTitulo').value, 
+            data_evento: document.getElementById('eventData').value, 
+            hora_evento: document.getElementById('eventHora').value 
+        }]);
+        closeModal('modalEvento'); initCalendar();
+    }
+
     // --- ATAS ---
     async function listarAtas() {
         const container = document.getElementById('lista-atas'); container.innerHTML = "";
         const { data } = await _supabase.from('atas').select('*').order('created_at', {ascending: false});
         data?.forEach(ata => {
             const div = document.createElement('div'); div.className = 'item-card';
-            div.innerHTML = `<div onclick="abrirAta('${ata.link_drive}')" style="cursor:pointer"><strong>${ata.nome}</strong><br><small>${ata.data_ata}</small></div>
-            <div class="card-actions"><i class="fas fa-trash" style="color:var(--accent-red)" onclick="excluirItem('atas','${ata.id}',listarAtas)"></i></div>`;
+            div.innerHTML = `<div onclick="abrirAta('${ata.link_drive}')" style="cursor:pointer; flex:1"><strong>${ata.nome}</strong><br><small>${ata.data_ata}</small></div>
+            <i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('atas','${ata.id}',listarAtas)"></i>`;
             container.appendChild(div);
         });
     }
     async function salvarAta() {
-        await _supabase.from('atas').insert([{ nome: document.getElementById('newAtaName').value, data_ata: document.getElementById('newAtaDate').value, link_drive: document.getElementById('newAtaLink').value.replace('/view', '/preview') }]);
+        await _supabase.from('atas').insert([{ 
+            nome: document.getElementById('newAtaName').value, 
+            data_ata: document.getElementById('newAtaDate').value, 
+            link_drive: document.getElementById('newAtaLink').value.replace('/view', '/preview') 
+        }]);
         closeModal('modalAddAta'); listarAtas();
     }
-    function abrirAta(l) { document.getElementById('ata-viewer').src=l; document.getElementById('ata-viewer').style.display='block'; document.getElementById('btn-fechar-viewer').style.display='block'; document.getElementById('lista-atas').style.display='none'; }
-    function fecharViewer() { document.getElementById('ata-viewer').style.display='none'; document.getElementById('btn-fechar-viewer').style.display='none'; document.getElementById('lista-atas').style.display='block'; }
+    function abrirAta(l) { 
+        const v = document.getElementById('ata-viewer'); v.src=l; v.style.display='block'; 
+        document.getElementById('btn-fechar-viewer').style.display='block'; 
+        document.getElementById('lista-atas').style.display='none'; 
+    }
+    function fecharViewer() { 
+        document.getElementById('ata-viewer').style.display='none'; 
+        document.getElementById('btn-fechar-viewer').style.display='none'; 
+        document.getElementById('lista-atas').style.display='block'; 
+    }
 
     // --- PATRIMÔNIO ---
     function openPatrimonio() { openModal('modalPatrimonio'); listarPatri(); }
@@ -288,8 +432,8 @@
         const { data } = await _supabase.from('patrimonio').select('*').order('item');
         data?.forEach(p => {
             const div = document.createElement('div'); div.className = 'item-card';
-            div.innerHTML = `<strong>${p.item} (${p.quantidade})</strong><br><small>${p.estado}</small>
-            <div class="card-actions"><i class="fas fa-trash" style="color:var(--accent-red)" onclick="excluirItem('patrimonio','${p.id}',listarPatri)"></i></div>`;
+            div.innerHTML = `<div style="flex:1"><strong>${p.item} (${p.quantidade})</strong><br><small>${p.estado}</small></div>
+            <i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('patrimonio','${p.id}',listarPatri)"></i>`;
             container.appendChild(div);
         });
     }
@@ -297,46 +441,28 @@
         await _supabase.from('patrimonio').insert([{ item: document.getElementById('patItem').value, quantidade: document.getElementById('patQtd').value, estado: document.getElementById('patEstado').value }]);
         listarPatri(); switchPatriTab('lista');
     }
-    function switchPatriTab(t) { document.getElementById('patriForm').style.display = t==='novo'?'block':'none'; document.getElementById('patriLista').style.display = t==='lista'?'block':'none'; }
+    function switchPatriTab(t) { 
+        document.getElementById('patriForm').style.display = t==='novo'?'block':'none'; 
+        document.getElementById('patriLista').style.display = t==='lista'?'block':'none'; 
+    }
 
     // --- AUXILIARES ---
-    async function excluirItem(tab, id, cb) { if(confirm("Excluir item?")) { await _supabase.from(tab).delete().eq('id', id); cb(); } }
-    function prepararNovoEmp() { document.getElementById('editEmpId').value=""; openModal('modalAddEmployee'); }
-    function prepararEdicaoEmp(id,n,f,h,e) { 
-        document.getElementById('editEmpId').value=id; document.getElementById('newEmpName').value=n; 
-        document.getElementById('newEmpRole').value=f; document.getElementById('newEmpTime').value=h;
-        document.getElementById('newEmpEquipe').value=e || ""; openModal('modalAddEmployee'); 
+    async function excluirItem(tab, id, cb) { 
+        if(confirm("Excluir definitivamente?")) { 
+            await _supabase.from(tab).delete().eq('id', id); 
+            if(cb) cb(); 
+            document.getElementById('event-panel').style.display = 'none';
+        } 
     }
 
-    // --- LÓGICA DA FOTO (LocalStorage) ---
-    function processarFoto(input) {
-        if (input.files && input.files[0]) {
-            const leitor = new FileReader();
-            leitor.onload = function(e) {
-                const img = document.getElementById('foto-exibicao');
-                const icone = document.getElementById('icon-padrao');
-                img.src = e.target.result;
-                img.style.display = 'block';
-                icone.style.display = 'none';
-                localStorage.setItem('user_avatar_base64', e.target.result);
-            };
-            leitor.readAsDataURL(input.files[0]);
+    window.onload = () => {
+        const salva = localStorage.getItem('coord_img');
+        if(salva) {
+            document.getElementById('foto-coord-display').src = salva;
+            document.getElementById('foto-coord-display').style.display = 'block';
+            document.getElementById('icon-coord-padrao').style.display = 'none';
         }
-    }
-
-    // Carregar foto ao iniciar sem quebrar o código
-    window.addEventListener('DOMContentLoaded', () => {
-        const fotoSalva = localStorage.getItem('user_avatar_base64');
-        if (fotoSalva) {
-            const img = document.getElementById('foto-exibicao');
-            const icone = document.getElementById('icon-padrao');
-            if(img && icone) {
-                img.src = fotoSalva;
-                img.style.display = 'block';
-                icone.style.display = 'none';
-            }
-        }
-    });
+    };
 </script>
 </body>
 </html>
