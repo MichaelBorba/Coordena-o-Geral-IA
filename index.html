@@ -13,65 +13,35 @@
             --text-dim: #94a3b8; --accent-purple: #a855f7; --card-shadow: #020617;
             --accent-green: #22c55e;
         }
-
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 15px; display: flex; justify-content: center; }
         .app-container { width: 100%; max-width: 450px; min-height: 95vh; position: relative; }
-
         header { display: flex; align-items: center; justify-content: space-between; padding: 15px 5px; }
-        
         .avatar { width: 42px; height: 42px; border-radius: 50%; background: #334155; border: 2px solid var(--primary-blue); overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
-
         .emp-photo-container { width: 90px; height: 90px; border-radius: 50%; background: #334155; margin: 0 auto 15px; border: 3px solid var(--accent-orange); display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; }
         .emp-photo-container img { width: 100%; height: 100%; object-fit: cover; }
         .emp-photo-container i { font-size: 1.5rem; color: var(--text-dim); }
-
-        .module-card {
-            background: linear-gradient(145deg, #243147, #1a2333);
-            padding: 25px 15px; border-radius: 24px; text-align: center; cursor: pointer;
-            transition: all 0.1s ease; border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 8px 0 var(--card-shadow), 0 15px 20px rgba(0, 0, 0, 0.4);
-        }
+        .module-card { background: linear-gradient(145deg, #243147, #1a2333); padding: 25px 15px; border-radius: 24px; text-align: center; cursor: pointer; transition: all 0.1s ease; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 8px 0 var(--card-shadow), 0 15px 20px rgba(0, 0, 0, 0.4); }
         .module-card:active { transform: translateY(4px); box-shadow: 0 4px 0 var(--card-shadow); }
         .module-card i { font-size: 2.2rem; margin-bottom: 15px; display: block; }
         .module-card span { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; }
-
         .icon-blue { color: #60a5fa; } .icon-lightblue { color: #93c5fd; } .icon-green { color: #4ade80; } .icon-dp { color: #cbd5e1; } .icon-gold { color: var(--accent-orange); } .icon-purple { color: var(--accent-purple); }
-
         .view { display: none; animation: fadeIn 0.3s ease; }
         .view.active { display: flex; flex-direction: column; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
         .grid-modules { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin: 25px 0; }
-        
-        /* CARD DE FUNCIONÁRIO ATUALIZADO */
-        .item-card { 
-            background: var(--card-bg); padding: 15px; border-radius: 18px; margin-bottom: 12px; 
-            border: 1px solid #334155; display: flex; flex-direction: column; gap: 12px;
-        }
+        .item-card { background: var(--card-bg); padding: 15px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #334155; display: flex; flex-direction: column; gap: 12px; }
         .emp-info-row { display: flex; align-items: center; gap: 12px; width: 100%; }
         .item-card img.thumb-emp { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; background: #0f172a; border: 2px solid #3b82f6; }
-        
         .card-actions-top { margin-left: auto; display: flex; gap: 12px; color: var(--text-dim); }
-        
-        .emp-controls-footer { 
-            display: flex; gap: 8px; border-top: 1px solid #334155; padding-top: 12px; justify-content: space-between;
-        }
-
+        .emp-controls-footer { display: flex; gap: 8px; border-top: 1px solid #334155; padding-top: 12px; justify-content: space-between; }
         input, textarea, select { width: 100%; background: var(--bg-dark); border: 1px solid #334155; border-radius: 10px; padding: 12px; color: white; margin-bottom: 10px; box-sizing: border-box; }
         .btn-save { width: 100%; background: var(--primary-blue); color: white; border: none; padding: 15px; border-radius: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 5px 0 #1d4ed8; }
-        
-        .btn-action { 
-            flex: 1; border: none; border-radius: 8px; padding: 10px; font-weight: 700; cursor: pointer; font-size: 0.7rem; 
-            transition: transform 0.1s;
-        }
-        .btn-action:active { transform: scale(0.95); }
-
+        .btn-action { flex: 1; border: none; border-radius: 8px; padding: 10px; font-weight: 700; cursor: pointer; font-size: 0.7rem; transition: transform 0.1s; }
         .calendar-container { background: var(--card-bg); padding: 15px; border-radius: 20px; border: 1px solid #334155; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
         .calendar-day { padding: 10px 0; border-radius: 10px; cursor: pointer; font-size: 0.9rem; position: relative; }
         .calendar-day.has-event { background: var(--accent-orange); color: white; font-weight: bold; }
-
         .fab-add { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer; z-index: 99; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
         .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; padding: 25px; border-radius: 25px 25px 0 0; max-height: 85vh; overflow-y: auto; }
@@ -81,7 +51,6 @@
 <body>
 
 <div class="app-container">
-    
     <div id="view-dashboard" class="view active">
         <header>
             <div style="display:flex; align-items:center; gap:12px;">
@@ -96,19 +65,16 @@
         </header>
         
         <main class="grid-modules">
-            <div class="module-card" onclick="changeView('view-employees')">
-                <i class="fas fa-users icon-blue"></i><span>Funcionários</span>
-            </div>
-            <div class="module-card" onclick="changeView('view-atas')">
-                <i class="far fa-file-alt icon-lightblue"></i><span>Atas</span>
-            </div>
+            <div class="module-card" onclick="changeView('view-employees')"><i class="fas fa-users icon-blue"></i><span>Funcionários</span></div>
+            <div class="module-card" onclick="changeView('view-atas')"><i class="far fa-file-alt icon-lightblue"></i><span>Atas</span></div>
             <div class="module-card"><i class="fas fa-chart-line icon-green"></i><span>Relatórios</span></div>
-            <div class="module-card"><i class="far fa-id-badge icon-dp"></i><span>D.P.</span></div>
+            <div class="module-card" onclick="abrirModuloDP()"><i class="far fa-id-badge icon-dp"></i><span>D.P.</span></div>
             <div class="module-card" onclick="openPatrimonio()"><i class="fas fa-boxes icon-gold"></i><span>Patrimônio</span></div>
             <div class="module-card"><i class="fas fa-cloud-upload-alt icon-purple"></i><span>Upload</span></div>
         </main>
     </div>
 
+    <!-- VIEW EQUIPE -->
     <div id="view-employees" class="view">
         <header>
             <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; cursor:pointer"><i class="fas fa-arrow-left"></i></button>
@@ -119,19 +85,46 @@
         <button class="fab-add" onclick="prepararNovoEmp()"><i class="fas fa-plus"></i></button>
     </div>
 
-    <!-- Modais e outras views -->
-    <div id="view-atas" class="view">
-        <header>
-            <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; cursor:pointer"><i class="fas fa-arrow-left"></i></button>
-            <span style="font-weight: 600;">Atas</span>
-            <div style="width:20px"></div>
-        </header>
-        <div id="lista-atas" style="margin-top:20px;"></div>
-        <iframe id="ata-viewer" style="width:100%; height:500px; display:none; border-radius:15px; border:1px solid #334155; margin-top:10px;"></iframe>
-        <button id="btn-fechar-viewer" class="btn-save" style="display:none; background:var(--accent-red); margin-top:10px;" onclick="fecharViewer()">Fechar</button>
-        <button class="fab-add" onclick="openModal('modalAddAta')"><i class="fas fa-plus"></i></button>
+    <!-- MODAL CADASTRO -->
+    <div id="modalAddEmployee" class="modal-overlay"><div class="modal-content">
+        <h3>Dados do Funcionário</h3>
+        <div class="emp-photo-container" onclick="document.getElementById('input-foto-emp').click()">
+            <img id="preview-foto-emp" style="display:none">
+            <i class="fas fa-camera" id="icon-camera-emp"></i>
+            <input type="file" id="input-foto-emp" accept="image/*" style="display:none" onchange="previewFotoEmp(this)">
+        </div>
+        <input type="hidden" id="editEmpId">
+        <input type="text" id="newEmpName" placeholder="Nome">
+        <input type="text" id="newEmpRole" placeholder="Função">
+        <input type="text" id="newEmpTime" placeholder="Horário">
+        
+        <select id="newEmpEquipe">
+            <option value="">Selecione a Equipe</option>
+            <option value="Equipe 1 Diurna">Equipe 1 Diurna</option>
+            <option value="Equipe 2 Diurna">Equipe 2 Diurna</option>
+            <option value="Equipe 1 Noturna">Equipe 1 Noturna</option>
+            <option value="Equipe 2 Noturna">Equipe 2 Noturna</option>
+        </select>
+
+        <label style="font-size: 0.8rem; color: var(--text-dim); display:block; margin-bottom:5px; text-align:left;">Data de Admissão:</label>
+        <input type="date" id="newEmpAdm">
+
+        <button class="btn-save" onclick="salvarFuncionario()">Salvar</button>
+        <button onclick="closeModal('modalAddEmployee')" style="background:none; border:none; color:var(--text-dim); width:100%; margin-top:15px; cursor:pointer">Cancelar</button>
+    </div></div>
+
+    <!-- MODAL D.P. -->
+    <div id="modalDP" class="modal-overlay">
+        <div class="modal-content">
+            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin:0">Gestão D.P. / Contratos</h3>
+                <i class="fas fa-times" onclick="closeModal('modalDP')" style="cursor:pointer"></i>
+            </div>
+            <div id="lista-dp-funcionarios" style="display: flex; flex-direction: column; gap: 15px;"></div>
+        </div>
     </div>
 
+    <!-- OUTRAS VIEWS E MODAIS -->
     <div id="view-calendar" class="view">
         <header>
             <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; cursor:pointer"><i class="fas fa-arrow-left"></i></button>
@@ -148,28 +141,16 @@
         </div>
     </div>
 
-    <!-- Modais de Formulários -->
-    <div id="modalAddEmployee" class="modal-overlay"><div class="modal-content">
-        <h3>Dados do Funcionário</h3>
-        <div class="emp-photo-container" onclick="document.getElementById('input-foto-emp').click()">
-            <img id="preview-foto-emp" style="display:none">
-            <i class="fas fa-camera" id="icon-camera-emp"></i>
-            <input type="file" id="input-foto-emp" accept="image/*" style="display:none" onchange="previewFotoEmp(this)">
-        </div>
-        <input type="hidden" id="editEmpId">
-        <input type="text" id="newEmpName" placeholder="Nome">
-        <input type="text" id="newEmpRole" placeholder="Função">
-        <input type="text" id="newEmpTime" placeholder="Horário">
-        <select id="newEmpEquipe">
-            <option value="">Selecione a Equipe</option>
-            <option value="Equipe 1 Diurna">Equipe 1 Diurna</option>
-            <option value="Equipe 2 Diurna">Equipe 2 Diurna</option>
-            <option value="Equipe 1 Noturna">Equipe 1 Noturna</option>
-            <option value="Equipe 2 Noturna">Equipe 2 Noturna</option>
-        </select>
-        <button class="btn-save" onclick="salvarFuncionario()">Salvar</button>
-        <button onclick="closeModal('modalAddEmployee')" style="background:none; border:none; color:var(--text-dim); width:100%; margin-top:15px; cursor:pointer">Cancelar</button>
-    </div></div>
+    <div id="view-atas" class="view">
+        <header>
+            <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; cursor:pointer"><i class="fas fa-arrow-left"></i></button>
+            <span style="font-weight: 600;">Atas</span>
+        </header>
+        <div id="lista-atas" style="margin-top:20px;"></div>
+        <iframe id="ata-viewer" style="width:100%; height:500px; display:none; border-radius:15px; border:1px solid #334155; margin-top:10px;"></iframe>
+        <button id="btn-fechar-viewer" class="btn-save" style="display:none; background:var(--accent-red); margin-top:10px;" onclick="fecharViewer()">Fechar</button>
+        <button class="fab-add" onclick="openModal('modalAddAta')"><i class="fas fa-plus"></i></button>
+    </div>
 
     <div id="modalEvento" class="modal-overlay"><div class="modal-content">
         <h3>Agendar Evento</h3>
@@ -221,7 +202,6 @@
 </div>
 
 <script>
-    // CONFIGURAÇÃO SUPABASE MANTIDA
     const _supabase = supabase.createClient('https://envuzusmubunlrrhhclu.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudnV6dXNtdWJ1bmxycmhoY2x1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NTMzMTcsImV4cCI6MjA5MzEyOTMxN30.pzepBGPOl9reoD4uLN0HUhpWaWfwv9pjLSkVdau7ntY');
 
     function changeView(id) {
@@ -235,7 +215,6 @@
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    // --- FOTO COORDENADOR ---
     function uploadFotoCoord(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
@@ -249,7 +228,6 @@
         }
     }
 
-    // --- FUNCIONÁRIOS (Lógica de Renderização Atualizada) ---
     let tempFotoBase64 = "";
 
     function previewFotoEmp(input) {
@@ -282,7 +260,7 @@
                     </div>
                     <div class="card-actions-top">
                         <i class="fas fa-file-medical" style="color:var(--accent-purple); cursor:pointer" onclick="verHistorico('${emp.id}', '${emp.nome}')"></i>
-                        <i class="fas fa-edit" style="cursor:pointer" onclick="prepararEdicaoEmp('${emp.id}','${emp.nome}','${emp.funcao}','${emp.horario}','${emp.equipe}', '${emp.foto}')"></i>
+                        <i class="fas fa-edit" style="cursor:pointer" onclick="prepararEdicaoEmp('${emp.id}','${emp.nome}','${emp.funcao}','${emp.horario}','${emp.equipe}', '${emp.foto}', '${emp.data_admissa}')"></i>
                         <i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('funcionarios','${emp.id}',listarEquipe)"></i>
                     </div>
                 </div>
@@ -305,11 +283,17 @@
             funcao: document.getElementById('newEmpRole').value, 
             horario: document.getElementById('newEmpTime').value, 
             equipe: document.getElementById('newEmpEquipe').value,
+            data_admissa: document.getElementById('newEmpAdm').value, // Nome da coluna corrigido[cite: 1]
             foto: tempFotoBase64
         };
-        if(id) await _supabase.from('funcionarios').update(payload).eq('id', id);
-        else await _supabase.from('funcionarios').insert([payload]);
-        closeModal('modalAddEmployee'); listarEquipe();
+        
+        if(id) {
+            await _supabase.from('funcionarios').update(payload).eq('id', id);
+        } else {
+            await _supabase.from('funcionarios').insert([payload]);
+        }
+        closeModal('modalAddEmployee'); 
+        listarEquipe();
     }
 
     function prepararNovoEmp() {
@@ -318,70 +302,98 @@
         document.getElementById('newEmpRole').value = "";
         document.getElementById('newEmpTime').value = "";
         document.getElementById('newEmpEquipe').value = "";
+        document.getElementById('newEmpAdm').value = "";
         document.getElementById('preview-foto-emp').style.display = 'none';
         document.getElementById('icon-camera-emp').style.display = 'block';
         tempFotoBase64 = "";
         openModal('modalAddEmployee');
     }
 
-    function prepararEdicaoEmp(id, n, f, h, e, foto) {
+    function prepararEdicaoEmp(id, n, f, h, e, foto, adm) {
         document.getElementById('editEmpId').value = id;
         document.getElementById('newEmpName').value = n;
         document.getElementById('newEmpRole').value = f;
         document.getElementById('newEmpTime').value = h;
         document.getElementById('newEmpEquipe').value = e || "";
+        document.getElementById('newEmpAdm').value = adm || "";
         if(foto) {
             document.getElementById('preview-foto-emp').src = foto;
             document.getElementById('preview-foto-emp').style.display = 'block';
             document.getElementById('icon-camera-emp').style.display = 'none';
             tempFotoBase64 = foto;
+        } else {
+            document.getElementById('preview-foto-emp').style.display = 'none';
+            document.getElementById('icon-camera-emp').style.display = 'block';
+            tempFotoBase64 = "";
         }
         openModal('modalAddEmployee');
     }
 
-    async function verHistorico(id, nome) {
-        document.getElementById('histNome').innerText = "Histórico: " + nome;
-        const { data } = await _supabase.from('funcionarios').select('alinhamentos, advertencias').eq('id', id).single();
-        document.getElementById('histConteudo').innerHTML = `
-            <small style="color:var(--primary-blue)"><b>ALINHAMENTOS:</b></small>
-            <div class="historico-box">${data.alinhamentos || 'Sem registros.'}</div>
-            <br><small style="color:var(--accent-red)"><b>ADVERTÊNCIAS:</b></small>
-            <div class="historico-box" style="border-left-color:var(--accent-red)">${data.advertencias || 'Sem registros.'}</div>`;
-        openModal('modalHistorico');
+    async function abrirModuloDP() {
+        openModal('modalDP');
+        const container = document.getElementById('lista-dp-funcionarios');
+        container.innerHTML = "Processando...";
+        const { data } = await _supabase.from('funcionarios').select('*').order('nome');
+        container.innerHTML = "";
+
+        data?.forEach(emp => {
+            let tempoCasa = "N/D";
+            let faltam90 = "---";
+            if(emp.data_admissa) {
+                const adm = new Date(emp.data_admissa);
+                const hoje = new Date();
+                const dias = Math.ceil((hoje - adm) / (1000 * 60 * 60 * 24));
+                tempoCasa = `${dias} dias`;
+                faltam90 = (90 - dias) > 0 ? `${90 - dias} dias` : "Efetivado";
+            }
+
+            const div = document.createElement('div'); div.className = 'item-card';
+            // Aspas do botão corrigidas para garantir funcionamento do clique[cite: 1]
+            div.innerHTML = `
+                <div style="display:flex; justify-content:space-between;">
+                    <div>
+                        <strong>${emp.nome}</strong><br>
+                        <small>Tempo: ${tempoCasa} | Exp: ${faltam90}</small>
+                    </div>
+                    <button onclick="enviarZapDP('${emp.nome.replace(/'/g, "\\'")}', '${tempoCasa}', '${faltam90}')" style="background:#25d366; border:none; color:white; padding:5px 8px; border-radius:5px; font-size:0.65rem; cursor:pointer">WhatsApp</button>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-top:8px; font-size:0.7rem;">
+                    <label><input type="checkbox" ${emp.check_docs?'checked':''} onchange="atualizarCheck('${emp.id}','check_docs',this.checked)"> Docs</label>
+                    <label><input type="checkbox" ${emp.check_aso?'checked':''} onchange="atualizarCheck('${emp.id}','check_aso',this.checked)"> ASO</label>
+                    <label><input type="checkbox" ${emp.check_contrato?'checked':''} onchange="atualizarCheck('${emp.id}','check_contrato',this.checked)"> Contrato</label>
+                    <label><input type="checkbox" ${emp.check_uniforme?'checked':''} onchange="atualizarCheck('${emp.id}','check_uniforme',this.checked)"> Uniforme</label>
+                </div>
+            `;
+            container.appendChild(div);
+        });
     }
 
-    function abrirModalRegistro(id, tipo) {
-        document.getElementById('regEmpId').value = id;
-        document.getElementById('regTipo').value = tipo;
-        document.getElementById('regTexto').value = "";
-        document.getElementById('tituloRegistro').innerText = tipo === 'alinhamentos' ? "Novo Alinhamento" : "Nova Advertência";
-        openModal('modalRegistro');
+    async function atualizarCheck(id, campo, valor) {
+        await _supabase.from('funcionarios').update({ [campo]: valor }).eq('id', id);
     }
 
-    async function confirmarRegistro() {
-        const id = document.getElementById('regEmpId').value;
-        const tipo = document.getElementById('regTipo').value;
-        const textoNovo = document.getElementById('regTexto').value;
-        if(!textoNovo) return alert("Digite o motivo.");
-        const { data } = await _supabase.from('funcionarios').select(tipo).eq('id', id).single();
-        const novoHist = (data[tipo] || "") + `\n[${new Date().toLocaleDateString('pt-BR')}]: ${textoNovo}`;
-        await _supabase.from('funcionarios').update({ [tipo]: novoHist }).eq('id', id);
-        closeModal('modalRegistro'); listarEquipe();
+    function enviarZapDP(nome, tempo, vence) {
+        const texto = `*INFO D.P.*\n*Colaborador:* ${nome}\n*Tempo de Casa:* ${tempo}\n*Experiência:* ${vence}`;
+        const mensagemFormatada = encodeURIComponent(texto);
+        const url = `https://wa.me/?text=${mensagemFormatada}`;
+        const win = window.open(url, '_blank');
+        if (!win) { window.location.href = url; }
     }
 
-    // --- CALENDÁRIO ---
     let eventosCache = [];
     async function initCalendar() {
         const agora = new Date();
         const nomesMeses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-        document.getElementById('mes-atual').innerText = `${nomesMeses[agora.getMonth()]} ${agora.getFullYear()}`;
+        const mesDiv = document.getElementById('mes-atual');
+        if(mesDiv) mesDiv.innerText = `${nomesMeses[agora.getMonth()]} ${agora.getFullYear()}`;
         const { data } = await _supabase.from('eventos').select('*');
         eventosCache = data || [];
         renderizarCalendario(agora.getMonth(), agora.getFullYear());
     }
 
     function renderizarCalendario(mes, ano) {
-        const grid = document.getElementById('calendario-dias'); grid.innerHTML = "";
+        const grid = document.getElementById('calendario-dias'); if(!grid) return;
+        grid.innerHTML = "";
         ["D", "S", "T", "Q", "Q", "S", "S"].forEach(d => grid.innerHTML += `<div style="font-size:0.7rem; color:var(--text-dim); padding-bottom:5px;">${d}</div>`);
         const primeiroDia = new Date(ano, mes, 1).getDay();
         const totalDias = new Date(ano, mes + 1, 0).getDate();
@@ -416,9 +428,9 @@
         closeModal('modalEvento'); initCalendar();
     }
 
-    // --- ATAS ---
     async function listarAtas() {
-        const container = document.getElementById('lista-atas'); container.innerHTML = "";
+        const container = document.getElementById('lista-atas'); if(!container) return;
+        container.innerHTML = "";
         const { data } = await _supabase.from('atas').select('*').order('created_at', {ascending: false});
         data?.forEach(ata => {
             const div = document.createElement('div'); div.className = 'item-card';
@@ -427,6 +439,7 @@
             container.appendChild(div);
         });
     }
+
     async function salvarAta() {
         await _supabase.from('atas').insert([{ 
             nome: document.getElementById('newAtaName').value, 
@@ -435,21 +448,22 @@
         }]);
         closeModal('modalAddAta'); listarAtas();
     }
-    function abrirAta(l) { 
-        const v = document.getElementById('ata-viewer'); v.src=l; v.style.display='block'; 
-        document.getElementById('btn-fechar-viewer').style.display='block'; 
-        document.getElementById('lista-atas').style.display='none'; 
-    }
-    function fecharViewer() { 
-        document.getElementById('ata-viewer').style.display='none'; 
-        document.getElementById('btn-fechar-viewer').style.display='none'; 
-        document.getElementById('lista-atas').style.display='block'; 
-    }
 
-    // --- PATRIMÔNIO ---
+    function abrirAta(l) { 
+         const v = document.getElementById('ata-viewer'); v.src=l; v.style.display='block'; 
+         document.getElementById('btn-fechar-viewer').style.display='block'; 
+         document.getElementById('lista-atas').style.display='none'; 
+     }
+    function fecharViewer() { 
+         document.getElementById('ata-viewer').style.display='none'; 
+         document.getElementById('btn-fechar-viewer').style.display='none'; 
+         document.getElementById('lista-atas').style.display='block'; 
+     }
+
     function openPatrimonio() { openModal('modalPatrimonio'); listarPatri(); }
     async function listarPatri() {
-        const container = document.getElementById('itensCadastrados'); container.innerHTML = "";
+        const container = document.getElementById('itensCadastrados'); if(!container) return;
+        container.innerHTML = "";
         const { data } = await _supabase.from('patrimonio').select('*').order('item');
         data?.forEach(p => {
             const div = document.createElement('div'); div.className = 'item-card';
@@ -463,25 +477,58 @@
         listarPatri(); switchPatriTab('lista');
     }
     function switchPatriTab(t) { 
-        document.getElementById('patriForm').style.display = t==='novo'?'block':'none'; 
-        document.getElementById('patriLista').style.display = t==='lista'?'block':'none'; 
+         document.getElementById('patriForm').style.display = t==='novo'?'block':'none'; 
+         document.getElementById('patriLista').style.display = t==='lista'?'block':'none'; 
+     }
+
+    async function verHistorico(id, nome) {
+        document.getElementById('histNome').innerText = "Histórico: " + nome;
+        const { data } = await _supabase.from('funcionarios').select('alinhamentos, advertencias').eq('id', id).single();
+        document.getElementById('histConteudo').innerHTML = `
+            <small style="color:var(--primary-blue)"><b>ALINHAMENTOS:</b></small>
+            <div class="historico-box">${data.alinhamentos || 'Sem registros.'}</div>
+            <br><small style="color:var(--accent-red)"><b>ADVERTÊNCIAS:</b></small>
+            <div class="historico-box" style="border-left-color:var(--accent-red)">${data.advertencias || 'Sem registros.'}</div>`;
+        openModal('modalHistorico');
     }
 
-    // --- AUXILIARES ---
-    async function excluirItem(tab, id, cb) { 
-        if(confirm("Excluir definitivamente?")) { 
-            await _supabase.from(tab).delete().eq('id', id); 
-            if(cb) cb(); 
-            if(tab === 'eventos') document.getElementById('event-panel').style.display = 'none';
-        } 
+    function abrirModalRegistro(id, tipo) {
+        document.getElementById('regEmpId').value = id;
+        document.getElementById('regTipo').value = tipo;
+        document.getElementById('regTexto').value = "";
+        document.getElementById('tituloRegistro').innerText = tipo === 'alinhamentos' ? "Novo Alinhamento" : "Nova Advertência";
+        openModal('modalRegistro');
     }
+
+    async function confirmarRegistro() {
+        const id = document.getElementById('regEmpId').value;
+        const tipo = document.getElementById('regTipo').value;
+        const textoNovo = document.getElementById('regTexto').value;
+        if(!textoNovo) return alert("Digite o motivo.");
+        const { data } = await _supabase.from('funcionarios').select(tipo).eq('id', id).single();
+        const novoHist = (data[tipo] || "") + `\n[${new Date().toLocaleDateString('pt-BR')}]: ${textoNovo}`;
+        await _supabase.from('funcionarios').update({ [tipo]: novoHist }).eq('id', id);
+        closeModal('modalRegistro'); listarEquipe();
+    }
+
+    async function excluirItem(tab, id, cb) { 
+         if(confirm("Excluir definitivamente?")) { 
+             await _supabase.from(tab).delete().eq('id', id); 
+             if(cb) cb(); 
+             if(tab === 'eventos') document.getElementById('event-panel').style.display = 'none';
+        } 
+     }
 
     window.onload = () => {
         const salva = localStorage.getItem('coord_img');
         if(salva) {
-            document.getElementById('foto-coord-display').src = salva;
-            document.getElementById('foto-coord-display').style.display = 'block';
-            document.getElementById('icon-coord-padrao').style.display = 'none';
+            const display = document.getElementById('foto-coord-display');
+            const icon = document.getElementById('icon-coord-padrao');
+            if(display && icon) {
+                display.src = salva;
+                display.style.display = 'block';
+                icon.style.display = 'none';
+            }
         }
     };
 </script>
