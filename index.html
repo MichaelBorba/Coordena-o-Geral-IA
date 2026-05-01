@@ -46,6 +46,7 @@
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
         .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; padding: 25px; border-radius: 25px 25px 0 0; max-height: 85vh; overflow-y: auto; }
         .historico-box { background: #0f172a; padding: 10px; border-radius: 10px; font-size: 0.85rem; margin-top: 10px; white-space: pre-wrap; border-left: 3px solid var(--primary-blue); }
+        .dp-input-small { padding: 8px !important; font-size: 0.7rem !important; margin-bottom: 5px !important; }
     </style>
 </head>
 <body>
@@ -283,7 +284,7 @@
             funcao: document.getElementById('newEmpRole').value, 
             horario: document.getElementById('newEmpTime').value, 
             equipe: document.getElementById('newEmpEquipe').value,
-            data_admissa: document.getElementById('newEmpAdm').value, // Nome da coluna corrigido[cite: 1]
+            data_admissa: document.getElementById('newEmpAdm').value, 
             foto: tempFotoBase64
         };
         
@@ -332,36 +333,55 @@
     async function abrirModuloDP() {
         openModal('modalDP');
         const container = document.getElementById('lista-dp-funcionarios');
-        container.innerHTML = "Processando...";
+        container.innerHTML = "Buscando dados...";
         const { data } = await _supabase.from('funcionarios').select('*').order('nome');
         container.innerHTML = "";
 
         data?.forEach(emp => {
             let tempoCasa = "N/D";
-            let faltam90 = "---";
+            let statusExp = "Data não informada";
+            let dataAdmFormat = emp.data_admissa ? new Date(emp.data_admissa).toLocaleDateString('pt-BR') : "N/D";
+
             if(emp.data_admissa) {
                 const adm = new Date(emp.data_admissa);
                 const hoje = new Date();
                 const dias = Math.ceil((hoje - adm) / (1000 * 60 * 60 * 24));
                 tempoCasa = `${dias} dias`;
-                faltam90 = (90 - dias) > 0 ? `${90 - dias} dias` : "Efetivado";
+                
+                if(dias < 45) {
+                    statusExp = `Faltam ${45 - dias} dias p/ 1ª fase (45d)`;
+                } else if(dias < 90) {
+                    statusExp = `Faltam ${90 - dias} dias p/ efetivação (90d)`;
+                } else {
+                    statusExp = "Experiência concluída";
+                }
             }
 
             const div = document.createElement('div'); div.className = 'item-card';
-            // Aspas do botão corrigidas para garantir funcionamento do clique[cite: 1]
+            div.style.borderLeft = "4px solid var(--primary-blue)";
             div.innerHTML = `
-                <div style="display:flex; justify-content:space-between;">
-                    <div>
-                        <strong>${emp.nome}</strong><br>
-                        <small>Tempo: ${tempoCasa} | Exp: ${faltam90}</small>
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div style="flex:1">
+                        <strong style="color:var(--primary-blue)">${emp.nome}</strong><br>
+                        <small>Admissão: ${dataAdmFormat}</small><br>
+                        <small>Tempo: ${tempoCasa} | Exp: ${statusExp}</small>
                     </div>
-                    <button onclick="enviarZapDP('${emp.nome.replace(/'/g, "\\'")}', '${tempoCasa}', '${faltam90}')" style="background:#25d366; border:none; color:white; padding:5px 8px; border-radius:5px; font-size:0.65rem; cursor:pointer">WhatsApp</button>
+                    <button onclick="enviarZapDPCompleto('${emp.id}', '${emp.nome.replace(/'/g, "\\'")}', '${tempoCasa}', '${statusExp}')" style="background:#25d366; border:none; color:white; padding:8px 12px; border-radius:8px; font-size:0.8rem; cursor:pointer"><i class="fab fa-whatsapp"></i> Enviar</button>
                 </div>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-top:8px; font-size:0.7rem;">
-                    <label><input type="checkbox" ${emp.check_docs?'checked':''} onchange="atualizarCheck('${emp.id}','check_docs',this.checked)"> Docs</label>
-                    <label><input type="checkbox" ${emp.check_aso?'checked':''} onchange="atualizarCheck('${emp.id}','check_aso',this.checked)"> ASO</label>
-                    <label><input type="checkbox" ${emp.check_contrato?'checked':''} onchange="atualizarCheck('${emp.id}','check_contrato',this.checked)"> Contrato</label>
-                    <label><input type="checkbox" ${emp.check_uniforme?'checked':''} onchange="atualizarCheck('${emp.id}','check_uniforme',this.checked)"> Uniforme</label>
+                
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:10px; font-size:0.75rem; background:rgba(255,255,255,0.03); padding:10px; border-radius:10px;">
+                    <label><input type="checkbox" id="chk-docs-${emp.id}" ${emp.check_docs?'checked':''} onchange="atualizarCheck('${emp.id}','check_docs',this.checked)"> Documentos</label>
+                    <label><input type="checkbox" id="chk-contrato-${emp.id}" ${emp.check_contrato?'checked':''} onchange="atualizarCheck('${emp.id}','check_contrato',this.checked)"> Contrato</label>
+                    <label><input type="checkbox" id="chk-aso-${emp.id}" ${emp.check_aso?'checked':''} onchange="atualizarCheck('${emp.id}','check_aso',this.checked)"> ASO</label>
+                    <label><input type="checkbox" id="chk-epi-${emp.id}" ${emp.check_epi?'checked':''} onchange="atualizarCheck('${emp.id}','check_epi',this.checked)"> EPI</label>
+                    <label><input type="checkbox" id="chk-vt-${emp.id}" ${emp.check_vt?'checked':''} onchange="atualizarCheck('${emp.id}','check_vt',this.checked)"> Cartão VT</label>
+                    <label><input type="checkbox" id="chk-cracha-${emp.id}" ${emp.check_cracha?'checked':''} onchange="atualizarCheck('${emp.id}','check_cracha',this.checked)"> Crachá</label>
+                </div>
+
+                <div style="margin-top:10px; display:flex; flex-direction:column; gap:5px;">
+                    <input type="text" id="tam-uni-${emp.id}" class="dp-input-small" placeholder="Tamanho Uniforme" value="${emp.tamanho_uniforme || ''}" onblur="atualizarValor('${emp.id}','tamanho_uniforme',this.value)">
+                    <input type="text" id="link-zap-${emp.id}" class="dp-input-small" placeholder="Link de Envio" value="${emp.ultimo_envio_zap || ''}" onblur="atualizarValor('${emp.id}','ultimo_envio_zap',this.value)">
+                    <input type="date" id="data-zap-${emp.id}" class="dp-input-small" value="${emp.data_zap || ''}" onblur="atualizarValor('${emp.id}','data_zap',this.value)">
                 </div>
             `;
             container.appendChild(div);
@@ -372,12 +392,27 @@
         await _supabase.from('funcionarios').update({ [campo]: valor }).eq('id', id);
     }
 
-    function enviarZapDP(nome, tempo, vence) {
-        const texto = `*INFO D.P.*\n*Colaborador:* ${nome}\n*Tempo de Casa:* ${tempo}\n*Experiência:* ${vence}`;
-        const mensagemFormatada = encodeURIComponent(texto);
-        const url = `https://wa.me/?text=${mensagemFormatada}`;
-        const win = window.open(url, '_blank');
-        if (!win) { window.location.href = url; }
+    async function atualizarValor(id, campo, valor) {
+        await _supabase.from('funcionarios').update({ [campo]: valor }).eq('id', id);
+    }
+
+    function enviarZapDPCompleto(id, nome, tempo, status) {
+        const check = (elId) => document.getElementById(elId).checked ? '✅' : '❌';
+        const val = (elId) => document.getElementById(elId).value || 'Não informado';
+        
+        const texto = `*GESTÃO D.P. - ${nome}*\n` +
+                      `*Tempo de Empresa:* ${tempo}\n` +
+                      `*Situação:* ${status}\n\n` +
+                      `*CHECKLIST DOCUMENTOS:*\n` +
+                      `${check('chk-docs-'+id)} Docs | ${check('chk-contrato-'+id)} Contrato\n` +
+                      `${check('chk-aso-'+id)} ASO | ${check('chk-epi-'+id)} EPI\n` +
+                      `${check('chk-vt-'+id)} VT | ${check('chk-cracha-'+id)} Crachá\n\n` +
+                      `*INFORMAÇÕES ADICIONAIS:*\n` +
+                      `👕 *Uniforme:* ${val('tam-uni-'+id)}\n` +
+                      `📅 *Data do Envio:* ${val('data-zap-'+id)}\n` +
+                      `🔗 *Link:* ${val('link-zap-'+id)}`;
+
+        window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
     }
 
     let eventosCache = [];
