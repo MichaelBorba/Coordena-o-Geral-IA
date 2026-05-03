@@ -717,6 +717,73 @@ function toggleMapaQuartos() {
     }
 }
     
+ let notasParaProcessar = [];
+
+function openFinanceiro() {
+    openModal('modalFinanceiro');
+}
+
+function handleFinanceiroUpload(input) {
+    const files = Array.from(input.files);
+    const visor = document.getElementById('visor-notas');
+    const formContainer = document.getElementById('form-notas-container');
+    
+    visor.innerHTML = '';
+    formContainer.innerHTML = '';
+    notasParaProcessar = [];
+
+    files.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            // Criar Imagem no Visor
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.style = "width: 90%; margin-bottom: 20px; border-radius: 10px; border: 2px solid transparent;";
+            img.id = `nota-img-${index}`;
+            visor.appendChild(img);
+
+            // Criar Campos no Formulário
+            const div = document.createElement('div');
+            div.className = 'historico-box';
+            div.style = "margin-bottom: 10px; padding: 10px;";
+            div.innerHTML = `
+                <small>Nota ${index + 1}</small>
+                <input type="number" placeholder="Valor R$" class="input-financeiro" data-index="${index}" onfocus="focarNota(${index})" oninput="calcularTotalRemessa()" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; margin-top: 5px;">
+                <select class="cat-financeiro" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; margin-top: 5px;">
+                    <option>Alimentação</option>
+                    <option>EPI</option>
+                    <option>Combustível</option>
+                    <option>Outros</option>
+                </select>
+            `;
+            formContainer.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function focarNota(index) {
+    // Scroll suave para a nota correspondente
+    const img = document.getElementById(`nota-img-${index}`);
+    img.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // Destacar a nota focada
+    document.querySelectorAll('#visor-notas img').forEach(i => i.style.borderColor = 'transparent');
+    img.style.borderColor = 'var(--primary-blue)';
+}
+
+function calcularTotalRemessa() {
+    const inputs = document.querySelectorAll('.input-financeiro');
+    let total = 0;
+    inputs.forEach(i => total += Number(i.value || 0));
+    document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
+}
+
+function enviarParaDP() {
+    const total = document.getElementById('total-remessa').innerText;
+    const msg = `Resumo Financeiro - Remessa:%0A*Total: ${total}*%0AAs notas foram processadas e enviadas para o sistema.`;
+    window.open(`https://wa.me/?text=${msg}`);
+        }
     
 </script>
 </body>
