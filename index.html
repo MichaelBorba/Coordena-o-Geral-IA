@@ -201,8 +201,7 @@
         <button class="btn-save" onclick="confirmarRegistro()">Salvar Motivo</button>
         <button onclick="closeModal('modalRegistro')" style="background:none; border:none; color:var(--text-dim); width:100%; margin-top:15px; cursor:pointer">Voltar</button>
     </div></div>
-<div id="modalAcolhidos" class="modal-overlay">
-    <div class="modal-content">
+<div id="modalAcolhidos" class="modal-overlay" style="display: none;"> <div class="modal-content">
         <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <h3 style="margin:0">Gestão de Acolhidos</h3>
             <i class="fas fa-times" onclick="closeModal('modalAcolhidos')" style="cursor:pointer"></i>
@@ -221,22 +220,20 @@
 
         <div style="display:flex; gap:10px; margin-bottom:15px;">
             <button class="btn-save" style="flex:1; padding:10px;" onclick="document.getElementById('input-excel').click()">
-                <i class="fas fa-file-import"></i> Acrescentar (Excel)
+                <i class="fas fa-file-import"></i> Acrescentar
             </button>
             <button class="btn-save" style="flex:1; padding:10px; background:var(--accent-purple); box-shadow: 0 5px 0 #7e22ce;" onclick="toggleMapaQuartos()">
-                <i class="fas fa-door-open"></i> Mapa de Quartos
+                <i class="fas fa-door-open"></i> Mapa
             </button>
         </div>
         
         <input type="file" id="input-excel" accept=".xlsx, .xls" style="display:none" onchange="importarExcel(this)">
         
-        <div id="lista-acolhidos" style="max-height:400px; overflow-y:auto;">
-            </div>
-
-        <div id="mapa-quartos" style="display:none; margin-top:15px;">
-            </div>
+        <div id="lista-acolhidos" style="max-height:400px; overflow-y:auto;"></div>
+        <div id="mapa-quartos" style="display:none; margin-top:15px;"></div>
     </div>
 </div>
+
     
         
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
@@ -632,6 +629,20 @@
             }
         }
     };
+// Garante a abertura correta do popup e limpa estados anteriores
+async function openAcolhidos() {
+    // Reset de visualização: mostra a lista e esconde o mapa ao abrir
+    document.getElementById('lista-acolhidos').style.display = 'block';
+    document.getElementById('mapa-quartos').style.display = 'none';
+    
+    openModal('modalAcolhidos'); // Chama a função que você já tem no código
+    renderizarAcolhidos(); // Carrega os dados do Supabase
+}
+
+// Se os botões ainda aparecerem "soltos" na tela, 
+// verifique se você não esqueceu de fechar alguma </div> anterior no código.
+
+    
 </script>
 </body>
 </html>
