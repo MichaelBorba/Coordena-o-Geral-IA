@@ -613,8 +613,66 @@ async function openAcolhidos() {
 }
 
 // Se os botões ainda aparecerem "soltos" na tela, 
+    
 // verifique se você não esqueceu de fechar alguma </div> anterior no código.
+// Cole estas funções no final da sua tag <script>
+async function renderizarAcolhidos() {
+    const { data, error } = await _supabase.from('acolhidos').select('*').order('quarto');
+    if (error) return;
 
+    const container = document.getElementById('lista-acolhidos');
+    // Filtra quem não está com nome "Livre" ou vazio
+    const ocupados = data.filter(a => a.nome && a.nome.trim().toLowerCase() !== 'livre');
+    const livres = data.filter(a => !a.nome || a.nome.trim().toLowerCase() === 'livre');
+
+    document.getElementById('count-acolhidos').innerText = ocupados.length;
+    document.getElementById('count-livres').innerText = livres.length;
+    
+    container.innerHTML = data.map(a => `
+        <div class="item-card" style="padding:10px; margin-bottom:8px; border-left: 4px solid ${a.nome.toLowerCase() === 'livre' ? '#22c55e' : '#3b82f6'}">
+            <strong style="display:block">${a.nome}</strong>
+            <small style="color:var(--text-dim)">Quarto: ${a.quarto} | Cama: ${a.cama} (${a.tipo})</small>
+        </div>
+    `).join('');
+}
+
+async function importarExcel(input) {
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(sheet);
+
+        const formatado = json.map(row => ({
+            nome: row.Nome || row.nome || 'Livre',
+            quarto: row.Quarto || row.quarto || '?',
+            cama: row.Cama || row.cama || '?',
+            tipo: row.Tipo || row.tipo || 'S/T'
+        }));
+
+        const { error } = await _supabase.from('acolhidos').insert(formatado);
+        if (!error) {
+            alert("Dados importados com sucesso!");
+            renderizarAcolhidos();
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function toggleMapaQuartos() {
+    const lista = document.getElementById('lista-acolhidos');
+    const mapa = document.getElementById('mapa-quartos');
+    if (mapa.style.display === 'none') {
+        lista.style.display = 'none';
+        mapa.style.display = 'block';
+    } else {
+        lista.style.display = 'block';
+        mapa.style.display = 'none';
+    }
+}
+    
     
 </script>
 </body>
