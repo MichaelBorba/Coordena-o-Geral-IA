@@ -602,20 +602,75 @@
             }
         }
     };
-// Garante a abertura correta do popup e limpa estados anteriores
-async function openAcolhidos() {
-    // Reset de visualização: mostra a lista e esconde o mapa ao abrir
-    document.getElementById('lista-acolhidos').style.display = 'block';
-    document.getElementById('mapa-quartos').style.display = 'none';
+async function renderizarAcolhidos() {
+    const { data, error } = await _supabase.from('acolhidos').select('*').order('quarto');
+    const container = document.getElementById('lista-acolhidos');
+    const countAcolhidos = document.getElementById('count-acolhidos');
+    const countLivres = document.getElementById('count-livres');
     
-    openModal('modalAcolhidos'); // Chama a função que você já tem no código
-    renderizarAcolhidos(); // Carrega os dados do Supabase
+    if (data) {
+        // Filtra considerando que "Livre" (independente de maiúsculas) conta como vaga
+        const ocupados = data.filter(a => a.nome && a.nome.trim().toLowerCase() !== 'livre');
+        const livres = data.filter(a => !a.nome || a.nome.trim().toLowerCase() === 'livre');
+
+        countAcolhidos.innerText = ocupados.length;
+        countLivres.innerText = livres.length;
+        
+        container.innerHTML = data.map(a => `
+            <div class="item-card" style="padding:10px; font-size:0.85rem; border-left: 3px solid ${a.nome.toLowerCase() === 'livre' ? 'var(--accent-green)' : 'var(--primary-blue)'}">
+                <strong>${a.nome}</strong>
+                <small style="display:block; color:var(--text-dim)">${a.quarto} - Cama ${a.cama} (${a.tipo})</small>
+            </div>
+        `).join('');
+    }
 }
 
-// Se os botões ainda aparecerem "soltos" na tela, 
-// verifique se você não esqueceu de fechar alguma </div> anterior no código.
-
+function importarExcel(input) {
+    if (!input.files || !input.files[0]) return;
     
+    const file = input.files[0];
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+            if (jsonData.length === 0) {
+                alert("A planilha parece estar vazia.");
+                return;
+            }
+
+            // Mapeamento flexível para aceitar "Nome" ou "nome", etc.
+            const acolhidosFormatados = jsonData.map(row => ({
+                nome: (row.Nome || row.nome || "Livre").toString(),
+                quarto: (row.Quarto || row.quarto || "S/Q").toString(),
+                cama: (row.Cama || row.cama || "0").toString(),
+                tipo: (row.Tipo || row.tipo || "Geral").toString()
+            }));
+
+            // Limpa a tabela antes de acrescentar (opcional, dependendo da sua regra de negócio)
+            // await _supabase.from('acolhidos').delete().neq('id', 0); 
+
+            const { error } = await _supabase.from('acolhidos').insert(acolhidosFormatados);
+            
+            if (error) throw error;
+
+            alert("Planilha importada! Atualizando contagem...");
+            await renderizarAcolhidos(); // Força a atualização da interface
+            
+        } catch (err) {
+            console.error(err);
+            alert("Erro ao processar Excel: " + err.message);
+        } finally {
+            input.value = ""; // Limpa o input para permitir nova carga
+        }
+    };
+    reader.readAsArrayBuffer(file);
+                                                }
+                
 </script>
 </body>
 </html>
