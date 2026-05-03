@@ -232,6 +232,37 @@
         
         <div id="lista-acolhidos" style="max-height:400px; overflow-y:auto;">
             </div>
+
+        <div id="mapa-quartos" style="display:none; margin-top:15px;">
+            </div>
+    </div>
+</div>
+    
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
+            <div class="historico-box" style="text-align:center; margin:0;">
+                <small>Total Acolhidos</small><br>
+                <strong id="count-acolhidos" style="font-size:1.2rem; color:var(--primary-blue)">0</strong>
+            </div>
+            <div class="historico-box" style="text-align:center; margin:0; border-left-color: var(--accent-green);">
+                <small>Camas Livres</small><br>
+                <strong id="count-livres" style="font-size:1.2rem; color:var(--accent-green)">0</strong>
+            </div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-bottom:15px;">
+            <button class="btn-save" style="flex:1; padding:10px;" onclick="document.getElementById('input-excel').click()">
+                <i class="fas fa-file-import"></i> Acrescentar (Excel)
+            </button>
+            <button class="btn-save" style="flex:1; padding:10px; background:var(--accent-purple); box-shadow: 0 5px 0 #7e22ce;" onclick="toggleMapaQuartos()">
+                <i class="fas fa-door-open"></i> Mapa de Quartos
+            </button>
+        </div>
+        
+        <input type="file" id="input-excel" accept=".xlsx, .xls" style="display:none" onchange="importarExcel(this)">
+        
+        <div id="lista-acolhidos" style="max-height:400px; overflow-y:auto;">
+            </div>
     </div>
 </div>
 
