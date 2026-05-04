@@ -773,19 +773,27 @@ function handleFinanceiroUpload(input) {
     });
 }
 
+// Variável global para controle
 window.arquivosAtuais = [];
 
 function handleFinanceiroUpload(input) {
     const files = Array.from(input.files);
     if (files.length === 0) return;
 
+    // Se for a primeira carga de uma nova remessa, limpamos o visor
+    const visor = document.getElementById('visor-notas');
+    if (window.arquivosAtuais.length === 0) {
+        visor.innerHTML = '';
+    }
+
     files.forEach((file) => {
         const reader = new FileReader();
         reader.onload = (e) => {
-            window.arquivosAtuais.push({ 
+            const itemNota = { 
                 id: Date.now() + Math.random(), 
                 src: e.target.result 
-            });
+            };
+            window.arquivosAtuais.push(itemNota);
             renderizarListaFinanceiro();
         };
         reader.readAsDataURL(file);
@@ -793,52 +801,65 @@ function handleFinanceiroUpload(input) {
 }
 
 function renderizarListaFinanceiro() {
-    const vazio = document.getElementById('conteudo-visor-vazio');
-    const lista = document.getElementById('container-fotos-lista');
+    const visor = document.getElementById('visor-notas');
     const formContainer = document.getElementById('form-notas-container');
     
+    // Se esvaziar, volta ao layout original com o botão "Carregar Notas"
     if (window.arquivosAtuais.length === 0) {
-        vazio.style.display = 'flex';
-        lista.innerHTML = '';
-        formContainer.innerHTML = '<p style="color: #94a3b8; padding: 20px;">Selecione as notas para começar.</p>';
-        document.getElementById('upload-lote').value = ""; // Destrava o input
-        document.getElementById('total-remessa').innerText = "R$ 0,00";
+        resetarLayoutOriginal();
         return;
     }
 
-    // Esconde o botão de carregar inicial
-    vazio.style.display = 'none';
-    lista.innerHTML = ''; 
+    visor.innerHTML = ''; 
     formContainer.innerHTML = '';
 
     window.arquivosAtuais.forEach((item, index) => {
-        // Foto no Visor
+        // Layout Original da Imagem com o botão de excluir (X)
         const imgDiv = document.createElement('div');
-        imgDiv.style = "position: relative; margin-bottom: 20px; text-align: center;";
+        imgDiv.style = "position: relative; width: 90%; margin-bottom: 20px;";
         imgDiv.innerHTML = `
-            <img src="${item.src}" id="nota-img-${index}" style="width: 90%; border-radius: 10px; border: 2px solid transparent;">
-            <button type="button" onclick="removerNota(${index})" style="position: absolute; top: 5px; right: 20px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; z-index: 10;">X</button>
+            <img src="${item.src}" id="nota-img-${index}" style="width: 100%; border-radius: 10px; border: 2px solid transparent;">
+            <button type="button" onclick="removerNota(${index})" style="position: absolute; top: 10px; right: 10px; background: var(--accent-red); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 10;">X</button>
         `;
-        lista.appendChild(imgDiv);
+        visor.appendChild(imgDiv);
 
-        // Formulário
-        const formDiv = document.createElement('div');
-        formDiv.className = 'historico-box';
-        formDiv.style = "margin-bottom: 15px; padding: 12px; border-left: 4px solid #f59e0b; background: #1e293b;";
-        formDiv.innerHTML = `
+        // Layout Original do Formulário com campo de Data e Valor Individual
+        const div = document.createElement('div');
+        div.className = 'historico-box';
+        div.style = "margin-bottom: 10px; padding: 10px;";
+        div.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <small style="color:#f59e0b">NOTA ${index+1}</small>
-                <i class="fas fa-trash" onclick="removerNota(${index})" style="cursor:pointer; color:#ef4444"></i>
+                <small>Nota ${index + 1}</small>
+                <i class="fas fa-trash-alt" style="color:var(--accent-red); cursor:pointer; font-size:0.8rem" onclick="removerNota(${index})"></i>
             </div>
-            <input type="date" class="data-financeiro" style="width:100%; margin-top:5px; background:#0f172a; color:white; border:1px solid #334155; border-radius:4px; padding:5px;">
-            <input type="number" placeholder="Valor R$" class="input-financeiro" onfocus="focarNota(${index})" oninput="calcularTotalRemessa()" style="width:100%; margin-top:5px; background:#0f172a; color:white; border:1px solid #334155; border-radius:4px; padding:5px;">
-            <select class="cat-financeiro" style="width:100%; margin-top:5px; background:#0f172a; color:white; border:1px solid #334155; border-radius:4px; padding:5px;">
-                <option>Alimentação</option><option>EPI</option><option>Combustível</option><option>Outros</option>
+            <input type="date" class="data-financeiro" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; margin-top: 5px; font-size:0.8rem;">
+            <input type="number" placeholder="Valor R$" class="input-financeiro" data-index="${index}" onfocus="focarNota(${index})" oninput="calcularTotalRemessa()" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; margin-top: 5px;">
+            <select class="cat-financeiro" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; margin-top: 5px;">
+                <option>Alimentação</option>
+                <option>EPI</option>
+                <option>Combustível</option>
+                <option>Manutenção</option>
+                <option>Outros</option>
             </select>
         `;
-        formContainer.appendChild(formDiv);
+        formContainer.appendChild(div);
     });
     calcularTotalRemessa();
+}
+
+function resetarLayoutOriginal() {
+    window.arquivosAtuais = [];
+    document.getElementById('upload-lote').value = ""; // DESTRAVA O BOTÃO
+    document.getElementById('total-remessa').innerText = "R$ 0,00";
+    document.getElementById('form-notas-container').innerHTML = '';
+    
+    // Volta exatamente o HTML que você tinha antes
+    document.getElementById('visor-notas').innerHTML = `
+        <div id="placeholder-notas" style="margin: auto; text-align: center; color: var(--text-dim);">
+            <i class="fas fa-images fa-3x"></i><br><br>
+            <button class="btn-save" onclick="document.getElementById('upload-lote').click()">Carregar Notas</button>
+        </div>
+    `;
 }
 
 function removerNota(index) {
@@ -847,43 +868,46 @@ function removerNota(index) {
 }
 
 function enviarParaDP() {
-    if (window.arquivosAtuais.length === 0) return alert("Adicione fotos.");
+    if (window.arquivosAtuais.length === 0) return alert("Selecione as notas primeiro.");
 
     const inputs = document.querySelectorAll('.input-financeiro');
     const datas = document.querySelectorAll('.data-financeiro');
-    const cats = document.querySelectorAll('.cat-financeiro');
+    const categorias = document.querySelectorAll('.cat-financeiro');
+    const total = document.getElementById('total-remessa').innerText;
     
     let detalhamento = "";
-    inputs.forEach((inp, i) => {
-        const v = parseFloat(inp.value || 0).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
-        const d = datas[i].value ? datas[i].value.split('-').reverse().join('/') : "S/D";
-        detalhamento += `🔹 *Nota ${i+1}:* ${v} (${cats[i].value}) - Data: ${d}%0A`;
+    inputs.forEach((input, i) => {
+        const valor = parseFloat(input.value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const dataNota = datas[i].value ? datas[i].value.split('-').reverse().join('/') : "S/ Data";
+        detalhamento += `🔹 *Nota ${i+1}:* ${valor} (${categorias[i].value}) | Data: ${dataNota}%0A`;
     });
 
-    const msg = `🧾 *CONFERÊNCIA*%0A%0A${detalhamento}%0A💰 *TOTAL: ${document.getElementById('total-remessa').innerText}*`;
-    window.open(`https://wa.me/?text=${msg}`, '_blank');
+    const msg = `🧾 *RESUMO FINANCEIRO*%0A%0A${detalhamento}%0A━━━━━━━━━━━━━━━━━━%0A💰 *TOTAL DA REMESSA: ${total}*`;
+    
+    window.open(`https://wa.me/?text=${msg}`);
 
     setTimeout(() => {
-        if(confirm("Limpar dados para nova conferência?")) {
-            window.arquivosAtuais = [];
-            renderizarListaFinanceiro();
+        if(confirm("Deseja limpar o painel para uma nova conferência?")) {
+            resetarLayoutOriginal();
         }
     }, 1000);
 }
 
-// Funções de apoio (Manter as mesmas)
+// Funções de Estilo (Focar e Calcular)
 function focarNota(index) {
     const img = document.getElementById(`nota-img-${index}`);
     if(img) {
         img.scrollIntoView({ behavior: 'smooth', block: 'center' });
         document.querySelectorAll('#visor-notas img').forEach(i => i.style.borderColor = 'transparent');
-        img.style.borderColor = '#3b82f6';
+        img.style.borderColor = 'var(--primary-blue)';
     }
 }
+
 function calcularTotalRemessa() {
-    let t = 0;
-    document.querySelectorAll('.input-financeiro').forEach(i => t += Number(i.value || 0));
-    document.getElementById('total-remessa').innerText = `R$ ${t.toFixed(2)}`;
+    const inputs = document.querySelectorAll('.input-financeiro');
+    let total = 0;
+    inputs.forEach(i => total += Number(i.value || 0));
+    document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
 }
 </script>
 </body>
