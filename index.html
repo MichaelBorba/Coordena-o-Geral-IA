@@ -255,11 +255,13 @@
 
         <div style="display: flex; flex: 1; overflow: hidden; gap: 15px; margin-top: 15px;">
             
-            <div id="visor-notas" style="flex: 1.2; background: #0f172a; border-radius: 15px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding: 10px;">
-                <div id="placeholder-notas" style="margin: auto; text-align: center; color: var(--text-dim);">
-                    <i class="fas fa-images fa-3x"></i><br><br>
-                    <button class="btn-save" onclick="document.getElementById('upload-lote').click()">Carregar Notas</button>
-                </div>
+            <div id="visor-notas" style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; align-items: center; background: #020617; border-radius: 10px; position: relative;">
+    <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8; display: flex; flex-direction: column; align-items: center;">
+        <i class="fas fa-images fa-3x"></i><br>
+        <button type="button" class="btn-save" onclick="document.getElementById('upload-lote').click()">Carregar Notas</button>
+    </div>
+    <div id="container-fotos-lista" style="width: 100%;"></div>
+</div>
                 <input type="file" id="upload-lote" multiple accept="image/*, application/pdf" style="display:none" onchange="handleFinanceiroUpload(this)">
             </div>
 
@@ -771,8 +773,7 @@ function handleFinanceiroUpload(input) {
     });
 }
 
-// Variável para armazenar as notas em memória
-window.arquivosAtuais = window.arquivosAtuais || [];
+window.arquivosAtuais = [];
 
 function handleFinanceiroUpload(input) {
     const files = Array.from(input.files);
@@ -781,12 +782,10 @@ function handleFinanceiroUpload(input) {
     files.forEach((file) => {
         const reader = new FileReader();
         reader.onload = (e) => {
-            const itemNota = { 
+            window.arquivosAtuais.push({ 
                 id: Date.now() + Math.random(), 
-                src: e.target.result, 
-                file: file 
-            };
-            window.arquivosAtuais.push(itemNota);
+                src: e.target.result 
+            });
             renderizarListaFinanceiro();
         };
         reader.readAsDataURL(file);
@@ -794,48 +793,50 @@ function handleFinanceiroUpload(input) {
 }
 
 function renderizarListaFinanceiro() {
-    const visor = document.getElementById('visor-notas');
+    const vazio = document.getElementById('conteudo-visor-vazio');
+    const lista = document.getElementById('container-fotos-lista');
     const formContainer = document.getElementById('form-notas-container');
     
-    // Se não houver nada, reseta a interface para o estado inicial
     if (window.arquivosAtuais.length === 0) {
-        resetarInterfaceFinanceiro();
+        vazio.style.display = 'flex';
+        lista.innerHTML = '';
+        formContainer.innerHTML = '<p style="color: #94a3b8; padding: 20px;">Selecione as notas para começar.</p>';
+        document.getElementById('upload-lote').value = ""; // Destrava o input
+        document.getElementById('total-remessa').innerText = "R$ 0,00";
         return;
     }
 
-    visor.innerHTML = ''; 
+    // Esconde o botão de carregar inicial
+    vazio.style.display = 'none';
+    lista.innerHTML = ''; 
     formContainer.innerHTML = '';
 
     window.arquivosAtuais.forEach((item, index) => {
-        // Criar o visualizador da imagem com botão X
-        const imgContainer = document.createElement('div');
-        imgContainer.style = "position: relative; width: 95%; margin-bottom: 20px; display: inline-block;";
-        imgContainer.innerHTML = `
-            <img src="${item.src}" id="nota-img-${index}" style="width: 100%; border-radius: 10px; border: 2px solid transparent;">
-            <button type="button" onclick="removerNota(${index})" style="position: absolute; top: 10px; right: 10px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 100;">X</button>
+        // Foto no Visor
+        const imgDiv = document.createElement('div');
+        imgDiv.style = "position: relative; margin-bottom: 20px; text-align: center;";
+        imgDiv.innerHTML = `
+            <img src="${item.src}" id="nota-img-${index}" style="width: 90%; border-radius: 10px; border: 2px solid transparent;">
+            <button type="button" onclick="removerNota(${index})" style="position: absolute; top: 5px; right: 20px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; z-index: 10;">X</button>
         `;
-        visor.appendChild(imgContainer);
+        lista.appendChild(imgDiv);
 
-        // Criar o formulário lateral
-        const div = document.createElement('div');
-        div.className = 'historico-box';
-        div.style = "margin-bottom: 15px; padding: 12px; border-left: 4px solid #f59e0b; background: #1e293b;";
-        div.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-                <small style="color: #f59e0b; font-weight: bold;">NOTA ${index + 1}</small>
-                <i class="fas fa-trash-alt" style="color:#ef4444; cursor:pointer;" onclick="removerNota(${index})"></i>
+        // Formulário
+        const formDiv = document.createElement('div');
+        formDiv.className = 'historico-box';
+        formDiv.style = "margin-bottom: 15px; padding: 12px; border-left: 4px solid #f59e0b; background: #1e293b;";
+        formDiv.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <small style="color:#f59e0b">NOTA ${index+1}</small>
+                <i class="fas fa-trash" onclick="removerNota(${index})" style="cursor:pointer; color:#ef4444"></i>
             </div>
-            <label style="font-size: 0.7rem; color: #94a3b8; display:block;">Data da Nota:</label>
-            <input type="date" class="data-financeiro" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; margin-bottom: 8px;">
-            
-            <label style="font-size: 0.7rem; color: #94a3b8; display:block;">Valor R$:</label>
-            <input type="number" placeholder="0.00" class="input-financeiro" onfocus="focarNota(${index})" oninput="calcularTotalRemessa()" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px;">
-            
-            <select class="cat-financeiro" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; margin-top: 8px;">
-                <option>Alimentação</option><option>EPI</option><option>Combustível</option><option>Manutenção</option><option>Outros</option>
+            <input type="date" class="data-financeiro" style="width:100%; margin-top:5px; background:#0f172a; color:white; border:1px solid #334155; border-radius:4px; padding:5px;">
+            <input type="number" placeholder="Valor R$" class="input-financeiro" onfocus="focarNota(${index})" oninput="calcularTotalRemessa()" style="width:100%; margin-top:5px; background:#0f172a; color:white; border:1px solid #334155; border-radius:4px; padding:5px;">
+            <select class="cat-financeiro" style="width:100%; margin-top:5px; background:#0f172a; color:white; border:1px solid #334155; border-radius:4px; padding:5px;">
+                <option>Alimentação</option><option>EPI</option><option>Combustível</option><option>Outros</option>
             </select>
         `;
-        formContainer.appendChild(div);
+        formContainer.appendChild(formDiv);
     });
     calcularTotalRemessa();
 }
@@ -845,57 +846,32 @@ function removerNota(index) {
     renderizarListaFinanceiro();
 }
 
-function resetarInterfaceFinanceiro() {
-    window.arquivosAtuais = [];
-    
-    // Limpa o input de ficheiro (Isso destrava o botão de carregar)
-    const fileInput = document.getElementById('upload-lote');
-    if(fileInput) fileInput.value = "";
-    
-    document.getElementById('total-remessa').innerText = "R$ 0,00";
-    document.getElementById('form-notas-container').innerHTML = '<p style="color: #94a3b8; padding: 20px;">Selecione as notas para começar.</p>';
-    
-    // Força a volta do botão central
-    document.getElementById('visor-notas').innerHTML = `
-        <div style="margin: auto; text-align: center; color: #94a3b8;">
-            <i class="fas fa-images fa-3x"></i><br><br>
-            <button type="button" class="btn-save" onclick="document.getElementById('upload-lote').click()">Carregar Notas</button>
-        </div>
-    `;
-}
-
 function enviarParaDP() {
+    if (window.arquivosAtuais.length === 0) return alert("Adicione fotos.");
+
     const inputs = document.querySelectorAll('.input-financeiro');
     const datas = document.querySelectorAll('.data-financeiro');
-    const categorias = document.querySelectorAll('.cat-financeiro');
-    const total = document.getElementById('total-remessa').innerText;
+    const cats = document.querySelectorAll('.cat-financeiro');
     
-    if (window.arquivosAtuais.length === 0) {
-        alert("Nenhuma nota selecionada.");
-        return;
-    }
-
     let detalhamento = "";
-    inputs.forEach((input, i) => {
-        const valorNum = parseFloat(input.value || 0);
-        const valorFormatado = valorNum.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        const dataNota = datas[i].value ? datas[i].value.split('-').reverse().join('/') : "Sem Data";
-        detalhamento += `🔹 *Nota ${i+1}:* ${valorFormatado} (${categorias[i].value}) - Data: ${dataNota}%0A`;
+    inputs.forEach((inp, i) => {
+        const v = parseFloat(inp.value || 0).toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+        const d = datas[i].value ? datas[i].value.split('-').reverse().join('/') : "S/D";
+        detalhamento += `🔹 *Nota ${i+1}:* ${v} (${cats[i].value}) - Data: ${d}%0A`;
     });
 
-    const msg = `🧾 *CONFERÊNCIA DE NOTAS*%0A%0A${detalhamento}%0A💰 *TOTAL GERAL: ${total}*`;
-    
-    // Abre o WhatsApp numa nova aba
+    const msg = `🧾 *CONFERÊNCIA*%0A%0A${detalhamento}%0A💰 *TOTAL: ${document.getElementById('total-remessa').innerText}*`;
     window.open(`https://wa.me/?text=${msg}`, '_blank');
 
-    // Pergunta se deseja limpar
     setTimeout(() => {
-        if(confirm("Os dados foram enviados. Deseja limpar o painel para uma nova conferência?")) {
-            resetarInterfaceFinanceiro();
+        if(confirm("Limpar dados para nova conferência?")) {
+            window.arquivosAtuais = [];
+            renderizarListaFinanceiro();
         }
-    }, 800);
+    }, 1000);
 }
 
+// Funções de apoio (Manter as mesmas)
 function focarNota(index) {
     const img = document.getElementById(`nota-img-${index}`);
     if(img) {
@@ -904,12 +880,10 @@ function focarNota(index) {
         img.style.borderColor = '#3b82f6';
     }
 }
-
 function calcularTotalRemessa() {
-    const inputs = document.querySelectorAll('.input-financeiro');
-    let total = 0;
-    inputs.forEach(i => total += Number(i.value || 0));
-    document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
+    let t = 0;
+    document.querySelectorAll('.input-financeiro').forEach(i => t += Number(i.value || 0));
+    document.getElementById('total-remessa').innerText = `R$ ${t.toFixed(2)}`;
 }
 </script>
 </body>
