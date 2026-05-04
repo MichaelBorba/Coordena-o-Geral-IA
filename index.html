@@ -771,8 +771,8 @@ function handleFinanceiroUpload(input) {
     });
 }
 
-// 1. Garantir que a variável global exista
-if (!window.arquivosAtuais) window.arquivosAtuais = [];
+// Variável para armazenar as notas em memória
+window.arquivosAtuais = window.arquivosAtuais || [];
 
 function handleFinanceiroUpload(input) {
     const files = Array.from(input.files);
@@ -797,7 +797,7 @@ function renderizarListaFinanceiro() {
     const visor = document.getElementById('visor-notas');
     const formContainer = document.getElementById('form-notas-container');
     
-    // Se a lista esvaziar, volta ao estado inicial
+    // Se não houver nada, reseta a interface para o estado inicial
     if (window.arquivosAtuais.length === 0) {
         resetarInterfaceFinanceiro();
         return;
@@ -807,29 +807,29 @@ function renderizarListaFinanceiro() {
     formContainer.innerHTML = '';
 
     window.arquivosAtuais.forEach((item, index) => {
-        // Container da Imagem
+        // Criar o visualizador da imagem com botão X
         const imgContainer = document.createElement('div');
-        imgContainer.style = "position: relative; width: 95%; margin-bottom: 20px;";
+        imgContainer.style = "position: relative; width: 95%; margin-bottom: 20px; display: inline-block;";
         imgContainer.innerHTML = `
-            <img src="${item.src}" id="nota-img-${index}" style="width: 100%; border-radius: 10px; border: 2px solid transparent; transition: 0.3s;">
-            <button type="button" onclick="removerNota(${index})" style="position: absolute; top: 10px; right: 10px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-weight: bold; z-index: 10; display: flex; align-items: center; justify-content: center;">X</button>
+            <img src="${item.src}" id="nota-img-${index}" style="width: 100%; border-radius: 10px; border: 2px solid transparent;">
+            <button type="button" onclick="removerNota(${index})" style="position: absolute; top: 10px; right: 10px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; z-index: 100;">X</button>
         `;
         visor.appendChild(imgContainer);
 
-        // Campos do Formulário
+        // Criar o formulário lateral
         const div = document.createElement('div');
         div.className = 'historico-box';
-        div.style = "margin-bottom: 15px; padding: 12px; border-left: 3px solid #f59e0b;";
+        div.style = "margin-bottom: 15px; padding: 12px; border-left: 4px solid #f59e0b; background: #1e293b;";
         div.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
                 <small style="color: #f59e0b; font-weight: bold;">NOTA ${index + 1}</small>
                 <i class="fas fa-trash-alt" style="color:#ef4444; cursor:pointer;" onclick="removerNota(${index})"></i>
             </div>
-            <label style="font-size: 0.7rem; color: #94a3b8;">Data da Nota:</label>
+            <label style="font-size: 0.7rem; color: #94a3b8; display:block;">Data da Nota:</label>
             <input type="date" class="data-financeiro" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; margin-bottom: 8px;">
             
-            <label style="font-size: 0.7rem; color: #94a3b8;">Valor R$:</label>
-            <input type="number" placeholder="0,00" class="input-financeiro" onfocus="focarNota(${index})" oninput="calcularTotalRemessa()" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px;">
+            <label style="font-size: 0.7rem; color: #94a3b8; display:block;">Valor R$:</label>
+            <input type="number" placeholder="0.00" class="input-financeiro" onfocus="focarNota(${index})" oninput="calcularTotalRemessa()" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px;">
             
             <select class="cat-financeiro" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; margin-top: 8px;">
                 <option>Alimentação</option><option>EPI</option><option>Combustível</option><option>Manutenção</option><option>Outros</option>
@@ -846,20 +846,18 @@ function removerNota(index) {
 }
 
 function resetarInterfaceFinanceiro() {
-    // 1. Limpa o array de dados
     window.arquivosAtuais = [];
     
-    // 2. Limpa o input de arquivo (ESSENCIAL para destravar o botão)
+    // Limpa o input de ficheiro (Isso destrava o botão de carregar)
     const fileInput = document.getElementById('upload-lote');
     if(fileInput) fileInput.value = "";
     
-    // 3. Reseta os textos e totais
     document.getElementById('total-remessa').innerText = "R$ 0,00";
-    document.getElementById('form-notas-container').innerHTML = '<p style="color: #94a3b8; font-size: 0.8rem;">Selecione as notas para iniciar.</p>';
+    document.getElementById('form-notas-container').innerHTML = '<p style="color: #94a3b8; padding: 20px;">Selecione as notas para começar.</p>';
     
-    // 4. Restaura o botão central de carregar
+    // Força a volta do botão central
     document.getElementById('visor-notas').innerHTML = `
-        <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8;">
+        <div style="margin: auto; text-align: center; color: #94a3b8;">
             <i class="fas fa-images fa-3x"></i><br><br>
             <button type="button" class="btn-save" onclick="document.getElementById('upload-lote').click()">Carregar Notas</button>
         </div>
@@ -873,28 +871,29 @@ function enviarParaDP() {
     const total = document.getElementById('total-remessa').innerText;
     
     if (window.arquivosAtuais.length === 0) {
-        alert("Adicione notas primeiro.");
+        alert("Nenhuma nota selecionada.");
         return;
     }
 
     let detalhamento = "";
     inputs.forEach((input, i) => {
-        const valor = parseFloat(input.value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        const dataNota = datas[i].value ? datas[i].value.split('-').reverse().join('/') : "S/ Data";
-        detalhamento += `🔹 *Nota ${i+1}:* ${valor} (${categorias[i].value}) - Data: ${dataNota}%0A`;
+        const valorNum = parseFloat(input.value || 0);
+        const valorFormatado = valorNum.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const dataNota = datas[i].value ? datas[i].value.split('-').reverse().join('/') : "Sem Data";
+        detalhamento += `🔹 *Nota ${i+1}:* ${valorFormatado} (${categorias[i].value}) - Data: ${dataNota}%0A`;
     });
 
-    const msg = `🧾 *RESUMO FINANCEIRO*%0A%0A${detalhamento}%0A💰 *TOTAL: ${total}*`;
+    const msg = `🧾 *CONFERÊNCIA DE NOTAS*%0A%0A${detalhamento}%0A💰 *TOTAL GERAL: ${total}*`;
     
-    // Abre o WhatsApp
-    window.open(`https://wa.me/?text=${msg}`);
+    // Abre o WhatsApp numa nova aba
+    window.open(`https://wa.me/?text=${msg}`, '_blank');
 
-    // Pergunta para limpar
+    // Pergunta se deseja limpar
     setTimeout(() => {
-        if(confirm("Deseja limpar os dados deste envio?")) {
+        if(confirm("Os dados foram enviados. Deseja limpar o painel para uma nova conferência?")) {
             resetarInterfaceFinanceiro();
         }
-    }, 1000);
+    }, 800);
 }
 
 function focarNota(index) {
