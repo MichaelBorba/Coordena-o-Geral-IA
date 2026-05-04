@@ -771,16 +771,16 @@ function handleFinanceiroUpload(input) {
     });
 }
 
+// 1. Garantir que a variável global exista
+if (!window.arquivosAtuais) window.arquivosAtuais = [];
+
 function handleFinanceiroUpload(input) {
     const files = Array.from(input.files);
-    
-    // Inicializa o array global se não existir
-    if (!window.arquivosAtuais) window.arquivosAtuais = [];
-    
+    if (files.length === 0) return;
+
     files.forEach((file) => {
         const reader = new FileReader();
         reader.onload = (e) => {
-            // Adicionamos cada arquivo com um ID único para facilitar a exclusão
             const itemNota = { 
                 id: Date.now() + Math.random(), 
                 src: e.target.result, 
@@ -796,45 +796,43 @@ function handleFinanceiroUpload(input) {
 function renderizarListaFinanceiro() {
     const visor = document.getElementById('visor-notas');
     const formContainer = document.getElementById('form-notas-container');
-    visor.innerHTML = '';
-    formContainer.innerHTML = '';
-
-    if (!window.arquivosAtuais || window.arquivosAtuais.length === 0) {
-        resetarFinanceiro();
+    
+    // Se a lista esvaziar, volta ao estado inicial
+    if (window.arquivosAtuais.length === 0) {
+        resetarInterfaceFinanceiro();
         return;
     }
 
+    visor.innerHTML = ''; 
+    formContainer.innerHTML = '';
+
     window.arquivosAtuais.forEach((item, index) => {
-        // 1. Renderiza Imagem no Visor com botão de excluir flutuante
+        // Container da Imagem
         const imgContainer = document.createElement('div');
-        imgContainer.style = "position: relative; width: 95%; margin-bottom: 20px; display: inline-block;";
+        imgContainer.style = "position: relative; width: 95%; margin-bottom: 20px;";
         imgContainer.innerHTML = `
             <img src="${item.src}" id="nota-img-${index}" style="width: 100%; border-radius: 10px; border: 2px solid transparent; transition: 0.3s;">
-            <button onclick="removerNota(${index})" style="position: absolute; top: 10px; right: 10px; background: var(--accent-red, #ef4444); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.5); z-index: 10; display: flex; align-items: center; justify-content: center;">X</button>
+            <button type="button" onclick="removerNota(${index})" style="position: absolute; top: 10px; right: 10px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-weight: bold; z-index: 10; display: flex; align-items: center; justify-content: center;">X</button>
         `;
         visor.appendChild(imgContainer);
 
-        // 2. Renderiza Campos do Formulário (incluindo DATA)
+        // Campos do Formulário
         const div = document.createElement('div');
         div.className = 'historico-box';
-        div.style = "margin-bottom: 15px; padding: 12px; border-left: 3px solid var(--accent-orange, #f59e0b); background: #1e293b; border-radius: 5px;";
+        div.style = "margin-bottom: 15px; padding: 12px; border-left: 3px solid #f59e0b;";
         div.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-                <small style="color: var(--accent-orange, #f59e0b); font-weight: bold;">NOTA ${index + 1}</small>
-                <i class="fas fa-trash-alt" style="color:var(--accent-red, #ef4444); cursor:pointer; font-size:0.9rem" onclick="removerNota(${index})"></i>
+                <small style="color: #f59e0b; font-weight: bold;">NOTA ${index + 1}</small>
+                <i class="fas fa-trash-alt" style="color:#ef4444; cursor:pointer;" onclick="removerNota(${index})"></i>
             </div>
-            <label style="font-size: 0.75rem; color: var(--text-dim, #94a3b8); display: block; margin-bottom: 4px;">Data de Vencimento/Pagamento:</label>
-            <input type="date" class="data-financeiro" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; margin-bottom: 8px; box-sizing: border-box;">
+            <label style="font-size: 0.7rem; color: #94a3b8;">Data da Nota:</label>
+            <input type="date" class="data-financeiro" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; margin-bottom: 8px;">
             
-            <label style="font-size: 0.75rem; color: var(--text-dim, #94a3b8); display: block; margin-bottom: 4px;">Valor R$:</label>
-            <input type="number" placeholder="0.00" class="input-financeiro" onfocus="focarNota(${index})" oninput="calcularTotalRemessa()" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; margin-bottom: 8px; box-sizing: border-box;">
+            <label style="font-size: 0.7rem; color: #94a3b8;">Valor R$:</label>
+            <input type="number" placeholder="0,00" class="input-financeiro" onfocus="focarNota(${index})" oninput="calcularTotalRemessa()" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px;">
             
-            <label style="font-size: 0.75rem; color: var(--text-dim, #94a3b8); display: block; margin-bottom: 4px;">Categoria:</label>
-            <select class="cat-financeiro" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; box-sizing: border-box;">
-                <option>Alimentação</option>
-                <option>EPI</option>
-                <option>Combustível</option>
-                <option>Outros</option>
+            <select class="cat-financeiro" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; margin-top: 8px;">
+                <option>Alimentação</option><option>EPI</option><option>Combustível</option><option>Manutenção</option><option>Outros</option>
             </select>
         `;
         formContainer.appendChild(div);
@@ -843,26 +841,29 @@ function renderizarListaFinanceiro() {
 }
 
 function removerNota(index) {
-    if (confirm("Deseja remover esta nota da conferência?")) {
-        window.arquivosAtuais.splice(index, 1);
-        renderizarListaFinanceiro();
-    }
+    window.arquivosAtuais.splice(index, 1);
+    renderizarListaFinanceiro();
 }
 
-function focarNota(index) {
-    const img = document.getElementById(`nota-img-${index}`);
-    if (img) {
-        img.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        document.querySelectorAll('#visor-notas img').forEach(i => i.style.borderColor = 'transparent');
-        img.style.borderColor = 'var(--primary-blue, #3b82f6)';
-    }
-}
-
-function calcularTotalRemessa() {
-    const inputs = document.querySelectorAll('.input-financeiro');
-    let total = 0;
-    inputs.forEach(i => total += Number(i.value || 0));
-    document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
+function resetarInterfaceFinanceiro() {
+    // 1. Limpa o array de dados
+    window.arquivosAtuais = [];
+    
+    // 2. Limpa o input de arquivo (ESSENCIAL para destravar o botão)
+    const fileInput = document.getElementById('upload-lote');
+    if(fileInput) fileInput.value = "";
+    
+    // 3. Reseta os textos e totais
+    document.getElementById('total-remessa').innerText = "R$ 0,00";
+    document.getElementById('form-notas-container').innerHTML = '<p style="color: #94a3b8; font-size: 0.8rem;">Selecione as notas para iniciar.</p>';
+    
+    // 4. Restaura o botão central de carregar
+    document.getElementById('visor-notas').innerHTML = `
+        <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8;">
+            <i class="fas fa-images fa-3x"></i><br><br>
+            <button type="button" class="btn-save" onclick="document.getElementById('upload-lote').click()">Carregar Notas</button>
+        </div>
+    `;
 }
 
 function enviarParaDP() {
@@ -871,65 +872,45 @@ function enviarParaDP() {
     const categorias = document.querySelectorAll('.cat-financeiro');
     const total = document.getElementById('total-remessa').innerText;
     
-    if (!window.arquivosAtuais || window.arquivosAtuais.length === 0) {
-        alert("Nenhuma nota selecionada para enviar.");
+    if (window.arquivosAtuais.length === 0) {
+        alert("Adicione notas primeiro.");
         return;
     }
 
     let detalhamento = "";
     inputs.forEach((input, i) => {
-        const valorRaw = input.value || 0;
-        const valor = parseFloat(valorRaw).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        const dataNota = datas[i].value ? datas[i].value.split('-').reverse().join('/') : "Não informada";
-        const cat = categorias[i].value;
-        detalhamento += `🔹 *Nota ${i+1}:* ${valor} (${cat}) - Data: ${dataNota}%0A`;
+        const valor = parseFloat(input.value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const dataNota = datas[i].value ? datas[i].value.split('-').reverse().join('/') : "S/ Data";
+        detalhamento += `🔹 *Nota ${i+1}:* ${valor} (${categorias[i].value}) - Data: ${dataNota}%0A`;
     });
 
-    const msg = `🧾 *RESUMO FINANCEIRO - REMESSA*%0A%0A${detalhamento}%0A━━━━━━━━━━━━━━━━━━%0A💰 *TOTAL DA REMESSA: ${total}*%0A━━━━━━━━━━━━━━━━━━`;
+    const msg = `🧾 *RESUMO FINANCEIRO*%0A%0A${detalhamento}%0A💰 *TOTAL: ${total}*`;
     
-    // 1. Abre o WhatsApp na nova aba
-    window.open(`https://wa.me/?text=${msg}`, '_blank');
+    // Abre o WhatsApp
+    window.open(`https://wa.me/?text=${msg}`);
 
-    // 2. O timeout garante que o navegador execute a abertura antes de exibir o prompt na tela
+    // Pergunta para limpar
     setTimeout(() => {
-        if (confirm("Você enviou a mensagem e deseja limpar os dados para iniciar uma nova conferência?")) {
-            resetarFinanceiro();
+        if(confirm("Deseja limpar os dados deste envio?")) {
+            resetarInterfaceFinanceiro();
         }
-    }, 500);
+    }, 1000);
 }
 
-function resetarFinanceiro() {
-    // Esvazia o array de dados
-    window.arquivosAtuais = [];
-    
-    // Reseta o visor de imagens para o estado inicial com botão de carregar notas
-    const visor = document.getElementById('visor-notas');
-    if (visor) {
-        visor.innerHTML = `
-            <div id="placeholder-notas" style="margin: auto; text-align: center; color: var(--text-dim, #94a3b8); padding: 20px;">
-                <i class="fas fa-images fa-3x" style="margin-bottom:10px;"></i><br><br>
-                <button class="btn-save" onclick="document.getElementById('upload-lote').click()" style="padding: 10px 20px; cursor: pointer;">Carregar Notas</button>
-            </div>
-        `;
+function focarNota(index) {
+    const img = document.getElementById(`nota-img-${index}`);
+    if(img) {
+        img.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.querySelectorAll('#visor-notas img').forEach(i => i.style.borderColor = 'transparent');
+        img.style.borderColor = '#3b82f6';
     }
-    
-    // Reseta o container de formulários da direita
-    const formContainer = document.getElementById('form-notas-container');
-    if (formContainer) {
-        formContainer.innerHTML = '<p style="color: var(--text-dim, #94a3b8); font-size: 0.85rem; text-align: center;">Selecione as notas para iniciar a digitação.</p>';
-    }
-    
-    // Zera o contador do valor total
-    const totalElem = document.getElementById('total-remessa');
-    if (totalElem) {
-        totalElem.innerText = "R$ 0.00";
-    }
-    
-    // Limpa o input file para que se os mesmos arquivos forem selecionados de novo o evento 'change' funcione
-    const fileInput = document.getElementById('upload-lote');
-    if (fileInput) {
-        fileInput.value = "";
-    }
+}
+
+function calcularTotalRemessa() {
+    const inputs = document.querySelectorAll('.input-financeiro');
+    let total = 0;
+    inputs.forEach(i => total += Number(i.value || 0));
+    document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
 }
 </script>
 </body>
