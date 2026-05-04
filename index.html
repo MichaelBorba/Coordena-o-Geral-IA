@@ -747,6 +747,30 @@ function handleFinanceiroUpload(input) {
     });
 }
 
+// Substitua handleFinanceiroUpload, focarNota, calcularTotalRemessa e enviarParaDP por estas:
+
+function handleFinanceiroUpload(input) {
+    const files = Array.from(input.files);
+    
+    // Inicializa o array global se não existir
+    if(!window.arquivosAtuais) window.arquivosAtuais = [];
+    
+    files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            // Adicionamos cada arquivo com um ID único para facilitar a exclusão
+            const itemNota = { 
+                id: Date.now() + Math.random(), 
+                src: e.target.result, 
+                file: file 
+            };
+            window.arquivosAtuais.push(itemNota);
+            renderizarListaFinanceiro();
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
 function renderizarListaFinanceiro() {
     const visor = document.getElementById('visor-notas');
     const formContainer = document.getElementById('form-notas-container');
