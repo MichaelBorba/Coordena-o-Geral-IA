@@ -966,72 +966,77 @@ function calcularTotalRemessa() {
     let link = prompt("Cole o link da sua planilha do Google Drive:");
     if (!link) return;
 
-    // 1. Limpeza do Link: Extrai o ID da planilha mesmo que venha com /edit ou /usp
     const regex = /\/d\/([a-zA-Z0-9-_]+)/;
     const match = link.match(regex);
-    
-    if (!match) {
-        alert("Link inválido! Certifique-se de copiar o link completo do navegador.");
-        return;
-    }
+    if (!match) return alert("Link inválido!");
     
     const fileId = match[1];
-    
-    // 2. URL de Exportação correta (Força o download do arquivo de dados)
     const exportUrl = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=csv&gid=0`;
 
     try {
-        console.log("Tentando acessar:", exportUrl);
         const res = await fetch(exportUrl);
+        const csvText = await res.text();
         
-        if (!res.ok) throw new Error("Não foi possível acessar os dados. Verifique o compartilhamento.");
-        
-        const data = await res.text();
-        
-        // Verifica se o que voltou é HTML (erro de permissão) ou CSV (dados)
-        if (data.includes("<!DOCTYPE html>") || data.includes("google-signin")) {
-            throw new Error("O Google bloqueou o acesso. Verifique se 'Qualquer pessoa com o link' está como 'Leitor'.");
-        }
+        // Divide as linhas e limpa espaços/aspas
+        const lines = csvText.split(/\r?\n/);
+        if (lines.length < 2) return alert("Planilha vazia!");
 
-        const rows = data.split('\n').map(r => r.split(',').map(cell => cell.replace(/"/g, '').trim()));
-        const headers = rows[0].map(h => h.toUpperCase());
+        // Pega a primeira linha (Cabeçalhos) e limpa cada nome
+        const headers = lines[0].split(',').map(h => h.trim().toUpperCase().replace(/"/g, ''));
         
+        console.log("Colunas encontradas:", headers);
+
         const listaParaInserir = [];
 
-        for (let i = 1; i < rows.length; i++) {
-            const c = rows[i];
-            if (c.length < 2 || !c[headers.indexOf("NOME")]) continue;
+        // Começa da linha 1 (ignora o cabeçalho)
+        for (let i = 1; i < lines.length; i++) {
+            const row = lines[i].split(',').map(cell => cell.trim().replace(/"/g, ''));
+            
+            // Verifica se a linha tem dados (pelo menos o nome)
+            const nomeIndex = headers.indexOf("NOME");
+            if (nomeIndex === -1 || !row[nomeIndex]) continue;
+
+            // Função auxiliar para pegar o dado pela coluna certa, não importa a ordem
+            const getVal = (colName) => {
+                const idx = headers.indexOf(colName.toUpperCase());
+                return idx !== -1 ? row[idx] : null;
+            };
 
             listaParaInserir.push({
-                codigo: c[headers.indexOf("CODIGO")],
-                nome: c[headers.indexOf("NOME")],
-                endereco: c[headers.indexOf("ENDERECO")],
-                bairro: c[headers.indexOf("BAIRRO")],
-                cidade: c[headers.indexOf("CIDADE")],
-                estado: c[headers.indexOf("ESTADO")],
-                cep: c[headers.indexOf("CEP")],
-                nascimento: c[headers.indexOf("NASCIMENTO")],
-                cpf: c[headers.indexOf("CPF")],
-                rg: c[headers.indexOf("RG")],
-                titulo_eleitor: c[headers.indexOf("TITULO_ELEITOR")],
-                ctps: c[headers.indexOf("CTPS")],
-                habilitacao: c[headers.indexOf("HABILITACAO")],
-                data_admissa: c[headers.indexOf("ADMISSAO")],
-                desligamento: c[headers.indexOf("DESLIGAMENTO")],
-                funcao: c[headers.indexOf("NOME_CARGO_ATUAL")],
-                celular: c[headers.indexOf("CELULAR")],
-                qtde_horas_mes: c[headers.indexOf("QTDE_HORAS_MES")]
+                codigo: getVal("CODIGO"),
+                nome: getVal("NOME"),
+                endereco: getVal("ENDERECO"),
+                bairro: getVal("BAIRRO"),
+                cidade: getVal("CIDADE"),
+                estado: getVal("ESTADO"),
+                cep: getVal("CEP"),
+                nascimento: getVal("NASCIMENTO"),
+                cpf: getVal("CPF"),
+                rg: getVal("RG"),
+                titulo_eleitor: getVal("TITULO_ELEITOR"),
+                ctps: getVal("CTPS"),
+                habilitacao: getVal("HABILITACAO"),
+                data_admissa: getVal("ADMISSAO"),
+                desligamento: getVal("DESLIGAMENTO"),
+                funcao: getVal("NOME_CARGO_ATUAL"),
+                celular: getVal("CELULAR"),
+                qtde_horas_mes: getVal("QTDE_HORAS_MES")
             });
+        }
+
+        if (listaParaInserir.length === 0) {
+            alert("Nenhum dado válido foi encontrado na planilha. Verifique os nomes das colunas.");
+            return;
         }
 
         const { error } = await _supabase.from('funcionarios').insert(listaParaInserir);
         if (error) throw error;
 
-        alert("Sucesso! " + listaParaInserir.length + " funcionários importados.");
+        alert(`Sucesso! ${listaParaInserir.length} funcionários importados, mesmo com colunas fora de ordem.`);
         listarEquipe();
         
     } catch (err) {
-        console.error("Erro detalhado:", err);
+        console.error(err);
         alert("Erro: " + err.message);
     }
 }
