@@ -961,6 +961,65 @@ function calcularTotalRemessa() {
     inputs.forEach(i => total += Number(i.value || 0));
     document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
 }
+
+    async function sincronizarLinkDireto() {
+    const link = prompt("Cole o link 'Compartilhado' da sua planilha do Google Drive:");
+    if (!link) return;
+
+    // Extrai o ID da planilha do link
+    const match = link.match(/\/d\/(.*?)(\/|$)/);
+    if (!match) return alert("Link do Google Drive inválido!");
+    const fileId = match[1];
+    
+    // URL para baixar a planilha como CSV automaticamente
+    const exportUrl = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=csv`;
+
+    try {
+        const res = await fetch(exportUrl);
+        const data = await res.text();
+        
+        // Converte o texto do CSV em linhas e colunas
+        const rows = data.split('\n').map(r => r.split(','));
+        const headers = rows[0].map(h => h.trim().toUpperCase());
+        
+        const listaParaInserir = [];
+
+        // Começa do 1 para pular o cabeçalho
+        for (let i = 1; i < rows.length; i++) {
+            const c = rows[i];
+            if (c.length < 2) continue;
+
+            listaParaInserir.push({
+                codigo: c[headers.indexOf("CODIGO")],
+                nome: c[headers.indexOf("NOME")],
+                endereco: c[headers.indexOf("ENDERECO")],
+                bairro: c[headers.indexOf("BAIRRO")],
+                cidade: c[headers.indexOf("CIDADE")],
+                estado: c[headers.indexOf("ESTADO")],
+                cep: c[headers.indexOf("CEP")],
+                nascimento: c[headers.indexOf("NASCIMENTO")],
+                cpf: c[headers.indexOf("CPF")],
+                rg: c[headers.indexOf("RG")],
+                titulo_eleitor: c[headers.indexOf("TITULO_ELEITOR")],
+                ctps: c[headers.indexOf("CTPS")],
+                habilitacao: c[headers.indexOf("HABILITACAO")],
+                data_admissa: c[headers.indexOf("ADMISSAO")],
+                desligamento: c[headers.indexOf("DESLIGAMENTO")],
+                funcao: c[headers.indexOf("NOME_CARGO_ATUAL")],
+                celular: c[headers.indexOf("CELULAR")],
+                qtde_horas_mes: c[headers.indexOf("QTDE_HORAS_MES")]
+            });
+        }
+
+        const { error } = await _supabase.from('funcionarios').insert(listaParaInserir);
+        if (error) throw error;
+
+        alert("Planilha sincronizada! " + listaParaInserir.length + " funcionários importados.");
+        listarEquipe();
+    } catch (err) {
+        alert("Erro na sincronização. Verifique se a planilha está aberta para 'Qualquer pessoa com o link'.");
+    }
+    
 </script>
 </body>
 </html>
