@@ -66,7 +66,7 @@
             <i class="fas fa-calendar-alt" style="font-size: 1.5rem; color: var(--primary-blue); cursor: pointer;" onclick="changeView('view-calendar')"></i>
         </header>
         
-                <main class="grid-modules" id="view-dashboard">
+        <main class="grid-modules">
             <div class="module-card" onclick="changeView('view-employees')">
                 <i class="fas fa-users icon-blue"></i>
                 <span>Funcionários</span>
@@ -75,32 +75,35 @@
                 <i class="far fa-file-alt icon-lightblue"></i>
                 <span>Atas</span>
             </div>
-            <div class="module-card">
-                <i class="fas fa-chart-line icon-green"></i>
-                <span>Relatórios</span>
-            </div>
-            <div class="module-card" onclick="abrirModuloDP()">
-                <i class="far fa-id-badge icon-dp"></i>
-                <span>D.P.</span>
-            </div>
-            <div class="module-card" onclick="openPatrimonio()">
-                <i class="fas fa-boxes icon-gold"></i>
-                <span>Patrimônio</span>
-            </div>
-            <div class="module-card">
-                <i class="fas fa-cloud-upload-alt icon-purple"></i>
-                <span>Upload</span>
-            </div>
-            <div class="module-card" onclick="openAcolhidos()">
-                <i class="fas fa-bed icon-purple"></i>
-                <span>Acolhidos</span>
-            </div>
-            <div class="module-card" onclick="openFinanceiro()">
-                <i class="fas fa-file-invoice-dollar" style="color: var(--accent-orange);"></i>
-                <span>Financeiro</span>
-            </div>
+            <div class="module-card"><i class="fas fa-chart-line icon-green"></i><span>Relatórios</span></div>
+            <div class="module-card" onclick="abrirModuloDP()"><i class="far fa-id-badge icon-dp"></i><span>D.P.</span></div>
+            <div class="module-card" onclick="openPatrimonio()"><i class="fas fa-boxes icon-gold"></i><span>Patrimônio</span></div>
+            <div class="module-card"><i class="fas fa-cloud-upload-alt icon-purple"></i><span>Upload</span></div>
+            <div class="module-card" onclick="openAcolhidos()"><i class="fas fa-bed icon-purple"></i><span>Acolhidos</span></div>
+            <div class="module-card" onclick="openFinanceiro()"><i class="fas fa-file-invoice-dollar" style="color: var(--accent-orange);"></i><span>Financeiro</span></div>
         </main>
+    </div>
 
+    <div id="view-employees" class="view">
+        <header>
+            <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; cursor:pointer">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <span style="font-weight: 600;">Equipe</span>
+            <div style="width:20px"></div>
+        </header>
+        
+        <div id="employee-list" style="margin-top:20px; padding-bottom: 100px;"></div>
+        
+        <div style="position: fixed; bottom: 30px; right: 20px; display: flex; gap: 15px; z-index: 99;">
+            <button onclick="sincronizarLinkDireto()" title="Sincronizar Planilha"
+                style="width: 60px; height: 60px; background: var(--accent-purple); border-radius: 50%; border: none; color: white; font-size: 20px; box-shadow: 0 6px 0 #7e22ce; cursor: pointer;">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+            <button onclick="prepararNovoEmp()" class="fab-add" style="position:static;"><i class="fas fa-plus"></i></button>
+        </div>
+    </div>
+    
         <div id="view-employees" class="view">
             <header>
                 <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; cursor:pointer">
