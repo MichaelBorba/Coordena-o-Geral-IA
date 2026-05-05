@@ -963,31 +963,44 @@ function calcularTotalRemessa() {
 }
 
     async function sincronizarLinkDireto() {
-    const link = prompt("Cole o link 'Compartilhado' da sua planilha do Google Drive:");
+    let link = prompt("Cole o link da sua planilha do Google Drive:");
     if (!link) return;
 
-    // Extrai o ID da planilha do link
-    const match = link.match(/\/d\/(.*?)(\/|$)/);
-    if (!match) return alert("Link do Google Drive inválido!");
+    // 1. Limpeza do Link: Extrai o ID da planilha mesmo que venha com /edit ou /usp
+    const regex = /\/d\/([a-zA-Z0-9-_]+)/;
+    const match = link.match(regex);
+    
+    if (!match) {
+        alert("Link inválido! Certifique-se de copiar o link completo do navegador.");
+        return;
+    }
+    
     const fileId = match[1];
     
-    // URL para baixar a planilha como CSV automaticamente
-    const exportUrl = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=csv`;
+    // 2. URL de Exportação correta (Força o download do arquivo de dados)
+    const exportUrl = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=csv&gid=0`;
 
     try {
+        console.log("Tentando acessar:", exportUrl);
         const res = await fetch(exportUrl);
+        
+        if (!res.ok) throw new Error("Não foi possível acessar os dados. Verifique o compartilhamento.");
+        
         const data = await res.text();
         
-        // Converte o texto do CSV em linhas e colunas
-        const rows = data.split('\n').map(r => r.split(','));
-        const headers = rows[0].map(h => h.trim().toUpperCase());
+        // Verifica se o que voltou é HTML (erro de permissão) ou CSV (dados)
+        if (data.includes("<!DOCTYPE html>") || data.includes("google-signin")) {
+            throw new Error("O Google bloqueou o acesso. Verifique se 'Qualquer pessoa com o link' está como 'Leitor'.");
+        }
+
+        const rows = data.split('\n').map(r => r.split(',').map(cell => cell.replace(/"/g, '').trim()));
+        const headers = rows[0].map(h => h.toUpperCase());
         
         const listaParaInserir = [];
 
-        // Começa do 1 para pular o cabeçalho
         for (let i = 1; i < rows.length; i++) {
             const c = rows[i];
-            if (c.length < 2) continue;
+            if (c.length < 2 || !c[headers.indexOf("NOME")]) continue;
 
             listaParaInserir.push({
                 codigo: c[headers.indexOf("CODIGO")],
@@ -1014,12 +1027,15 @@ function calcularTotalRemessa() {
         const { error } = await _supabase.from('funcionarios').insert(listaParaInserir);
         if (error) throw error;
 
-        alert("Planilha sincronizada! " + listaParaInserir.length + " funcionários importados.");
+        alert("Sucesso! " + listaParaInserir.length + " funcionários importados.");
         listarEquipe();
+        
     } catch (err) {
-        alert("Erro na sincronização. Verifique se a planilha está aberta para 'Qualquer pessoa com o link'.");
+        console.error("Erro detalhado:", err);
+        alert("Erro: " + err.message);
     }
-    }
+}
+
 </script>
 </body>
 </html>
