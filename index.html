@@ -966,78 +966,70 @@ async function sincronizarLinkDireto() {
     let linkInput = prompt("Cole o link da sua planilha do Google Drive:");
     if (!linkInput) return;
 
-    // 1. Extração robusta do ID
     let fileId = "";
     try {
         if (linkInput.includes("/d/")) {
             fileId = linkInput.split("/d/")[1].split("/")[0];
-        } else if (linkInput.length > 20) {
-            fileId = linkInput; // Caso o usuário cole apenas o ID
         } else {
-            throw new Error("Link inválido");
+            return alert("Link inválido! Copie o link completo da barra de endereços.");
         }
     } catch (e) {
-        return alert("Link inválido! Copie o link inteiro da barra de endereços.");
+        return alert("Erro ao processar o link.");
     }
 
-    // 2. URL de exportação via API de Visualização (Mais estável para Scripts)
-    const exportUrl = `https://docs.google.com/spreadsheets/d/${fileId}/pub?output=csv`;
+    // Mudança estratégica de URL para evitar bloqueios de segurança
+    const exportUrl = `https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv`;
 
     try {
-        console.log("Tentando conectar ao ID:", fileId);
-        
         const res = await fetch(exportUrl);
-        if (!res.ok) throw new Error("O Google negou o acesso. Certifique-se de que a planilha foi 'Publicada na Web'.");
+        if (!res.ok) throw new Error("Acesso negado pelo Google.");
         
         const csvText = await res.text();
         
-        // Verifica se o Google enviou uma página de erro/login em vez de dados
-        if (csvText.includes("<!DOCTYPE html>") || csvText.includes("google-signin")) {
-            throw new Error("Acesso restrito. Vá em Arquivo > Compartilhar > Publicar na Web e clique em Publicar.");
+        // O Google Sheets às vezes retorna um cabeçalho de erro em HTML
+        if (csvText.includes("<!DOCTYPE html>")) {
+            throw new Error("A planilha precisa estar 'Publicada na Web'. Vá em Arquivo > Compartilhar > Publicar na Web.");
         }
 
-        // 3. Processamento com XLSX
         const workbook = XLSX.read(csvText, { type: 'string' });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
-        if (jsonData.length === 0) throw new Error("A planilha parece estar vazia ou sem cabeçalhos.");
-
-        // 4. Mapeamento Inteligente
         const listaParaInserir = jsonData.map(row => {
-            // Função para buscar nome da coluna independente de espaços ou acentos
-            const findCol = (names) => {
+            // Função para buscar a coluna ignorando espaços, acentos e maiúsculas
+            const getVal = (possibleNames) => {
                 const key = Object.keys(row).find(k => 
-                    names.includes(k.trim().toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))
+                    possibleNames.includes(k.trim().toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))
                 );
-                return key ? row[key] : null;
+                return key ? String(row[key]).trim() : null;
             };
 
             return {
-                codigo: findCol(["CODIGO", "ID"]),
-                nome: findCol(["NOME", "FUNCIONARIO"]),
-                endereco: findCol(["ENDERECO", "LOGRADOURO"]),
-                bairro: findCol(["BAIRRO"]),
-                cidade: findCol(["CIDADE"]),
-                estado: findCol(["ESTADO", "UF"]),
-                cep: findCol(["CEP"]),
-                nascimento: findCol(["NASCIMENTO", "DATA_NASCIMENTO"]),
-                cpf: findCol(["CPF"]),
-                rg: findCol(["RG"]),
-                titulo_eleitor: findCol(["TITULO_ELEITOR", "TITULO"]),
-                ctps: findCol(["CTPS"]),
-                habilitacao: findCol(["HABILITACAO", "CNH"]),
-                data_admissa: findCol(["ADMISSAO", "ADMISSÃO", "DATA_ADMISSAO"]),
-                desligamento: findCol(["DESLIGAMENTO"]),
-                funcao: findCol(["NOME_CARGO_ATUAL", "CARGO", "FUNCAO"]),
-                celular: findCol(["CELULAR", "TELEFONE"]),
-                qtde_horas_mes: findCol(["QTDE_HORAS_MES", "HORAS", "JORNADA"])
+                codigo: getVal(["CODIGO", "ID"]),
+                nome: getVal(["NOME", "FUNCIONARIO"]),
+                endereco: getVal(["ENDERECO", "LOGRADOURO"]),
+                bairro: getVal(["BAIRRO"]),
+                cidade: getVal(["CIDADE"]),
+                estado: getVal(["ESTADO", "UF"]),
+                cep: getVal(["CEP"]),
+                nascimento: getVal(["NASCIMENTO"]),
+                cpf: getVal(["CPF"]),
+                rg: getVal(["RG"]),
+                titulo_eleitor: getVal(["TITULO_ELEITOR", "TITULO"]),
+                ctps: getVal(["CTPS"]),
+                habilitacao: getVal(["HABILITACAO", "CNH"]),
+                data_admissa: getVal(["ADMISSAO", "ADMISSÃO", "DATA_ADMISSAO"]),
+                desligamento: getVal(["DESLIGAMENTO"]),
+                funcao: getVal(["NOME_CARGO_ATUAL", "CARGO", "FUNÇÃO"]),
+                celular: getVal(["CELULAR", "TELEFONE"]),
+                qtde_horas_mes: getVal(["QTDE_HORAS_MES", "HORAS"])
             };
-        }).filter(item => item.nome); // Só importa se tiver nome
+        }).filter(f => f.nome); // Só importa se tiver nome preenchido
 
-        if (listaParaInserir.length === 0) throw new Error("Não foi possível encontrar a coluna 'NOME' na planilha.");
+        if (listaParaInserir.length === 0) {
+            return alert("Nenhum dado encontrado. Verifique se os nomes das colunas na Linha 1 estão corretos.");
+        }
 
-        // 5. Envio ao Supabase
         const { error } = await _supabase.from('funcionarios').insert(listaParaInserir);
         if (error) throw error;
 
@@ -1045,12 +1037,10 @@ async function sincronizarLinkDireto() {
         listarEquipe();
 
     } catch (err) {
-        console.error("ERRO DETALHADO:", err);
-        alert("FALHA: " + err.message);
+        console.error(err);
+        alert("Erro na Sincronia: " + err.message);
     }
 }
-    
-    
     
 </script>
 </body>
