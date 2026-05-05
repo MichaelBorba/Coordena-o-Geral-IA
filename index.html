@@ -963,86 +963,83 @@ function calcularTotalRemessa() {
 }
 
 async function sincronizarLinkDireto() {
-    let link = prompt("Cole o link da sua planilha do Google Drive:");
-    if (!link) return;
+    let linkInput = prompt("Cole o link da sua planilha do Google Drive:");
+    if (!linkInput) return;
 
-    const regex = /\/d\/([a-zA-Z0-9-_]+)/;
-    const match = link.match(regex);
-    if (!match) return alert("Link inválido! Copie o link do navegador.");
-    
-    const fileId = match[1];
-    // Adicionamos tqx=out:csv para forçar o Google a entregar apenas os dados brutos
-    const exportUrl = `https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv`;
+    // 1. Extrai o ID da planilha corretamente
+    let fileId = "";
+    if (linkInput.includes("/d/")) {
+        fileId = linkInput.split("/d/")[1].split("/")[0];
+    } else {
+        return alert("Link inválido! Certifique-se de copiar o link completo da barra de endereços.");
+    }
+
+    // 2. URL de exportação técnica (formato CSV)
+    const exportUrl = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=csv`;
 
     try {
         const res = await fetch(exportUrl);
+        if (!res.ok) throw new Error("Não foi possível acessar a planilha. Verifique se ela está compartilhada para 'Qualquer pessoa com o link'.");
+        
         const csvText = await res.text();
         
-        // Divide por linhas e remove linhas vazias
-        const lines = csvText.split(/\r?\n/).filter(line => line.trim() !== "");
-        if (lines.length < 2) return alert("A planilha parece estar vazia ou o acesso foi negado.");
-
-        // Detecta se o separador é vírgula ou ponto e vírgula
-        const separator = lines[0].includes(';') ? ';' : ',';
+        // 3. Usa a biblioteca XLSX (já no seu projeto) para ler os dados corretamente
+        const workbook = XLSX.read(csvText, { type: 'string' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
         
-        // Limpa os cabeçalhos (remove aspas e espaços)
-        const headers = lines[0].split(separator).map(h => 
-            h.trim().replace(/^"|"$/g, '').toUpperCase()
-        );
+        // Converte para JSON usando a primeira linha como cabeçalho
+        const jsonData = XLSX.utils.sheet_to_json(sheet);
 
-        const listaParaInserir = [];
-
-        for (let i = 1; i < lines.length; i++) {
-            const row = lines[i].split(separator).map(cell => 
-                cell.trim().replace(/^"|"$/g, '')
-            );
-            
-            const getVal = (name) => {
-                const idx = headers.indexOf(name.toUpperCase());
-                return (idx !== -1 && row[idx]) ? row[idx] : null;
-            };
-
-            // Só adiciona se houver um nome na linha
-            const nomeDigitado = getVal("NOME");
-            if (nomeDigitado) {
-                listaParaInserir.push({
-                    codigo: getVal("CODIGO"),
-                    nome: nomeDigitado,
-                    endereco: getVal("ENDERECO"),
-                    bairro: getVal("BAIRRO"),
-                    cidade: getVal("CIDADE"),
-                    estado: getVal("ESTADO"),
-                    cep: getVal("CEP"),
-                    nascimento: getVal("NASCIMENTO"),
-                    cpf: getVal("CPF"),
-                    rg: getVal("RG"),
-                    titulo_eleitor: getVal("TITULO_ELEITOR"),
-                    ctps: getVal("CTPS"),
-                    habilitacao: getVal("HABILITACAO"),
-                    data_admissa: getVal("ADMISSAO"),
-                    desligamento: getVal("DESLIGAMENTO"),
-                    funcao: getVal("NOME_CARGO_ATUAL"),
-                    celular: getVal("CELULAR"),
-                    qtde_horas_mes: getVal("QTDE_HORAS_MES")
-                });
-            }
+        if (jsonData.length === 0) {
+            return alert("A planilha parece estar vazia.");
         }
+
+        // 4. Mapeia os dados conforme os nomes das suas colunas (Independente da ordem)
+        const listaParaInserir = jsonData.map(row => {
+            return {
+                codigo: row["CODIGO"] || row["CÓDIGO"] || null,
+                nome: row["NOME"] || null,
+                endereco: row["ENDERECO"] || row["ENDEREÇO"] || null,
+                bairro: row["BAIRRO"] || null,
+                cidade: row["CIDADE"] || null,
+                estado: row["ESTADO"] || null,
+                cep: row["CEP"] || null,
+                nascimento: row["NASCIMENTO"] || null,
+                cpf: row["CPF"] || null,
+                rg: row["RG"] || null,
+                titulo_eleitor: row["TITULO_ELEITOR"] || row["TÍTULO"] || null,
+                ctps: row["CTPS"] || null,
+                habilitacao: row["HABILITACAO"] || row["HABILITAÇÃO"] || null,
+                data_admissa: row["ADMISSAO"] || row["ADMISSÃO"] || null,
+                desligamento: row["DESLIGAMENTO"] || null,
+                funcao: row["NOME_CARGO_ATUAL"] || row["CARGO"] || null,
+                celular: row["CELULAR"] || null,
+                qtde_horas_mes: row["QTDE_HORAS_MES"] || row["HORAS"] || null
+            };
+        }).filter(item => item.nome); // Remove linhas que não tem nome
 
         if (listaParaInserir.length === 0) {
-            throw new Error("Não encontramos a coluna 'NOME' ou a planilha está sem dados.");
+            return alert("Não encontramos a coluna 'NOME' na sua planilha.");
         }
 
+        // 5. Envia para o Supabase
         const { error } = await _supabase.from('funcionarios').insert(listaParaInserir);
-        if (error) throw error;
-
-        alert(`Sucesso! ${listaParaInserir.length} funcionários importados.`);
-        listarEquipe();
         
+        if (error) {
+            console.error("Erro Supabase:", error);
+            throw new Error("Erro ao salvar no banco de dados.");
+        }
+
+        alert(`Sucesso! ${listaParaInserir.length} funcionários importados com sucesso.`);
+        listarEquipe();
+
     } catch (err) {
-        console.error("Erro na importação:", err);
-        alert("Falha na Sincronização: " + err.message + "\n\nVerifique se as colunas têm os nomes corretos na primeira linha.");
+        console.error("Erro detalhado:", err);
+        alert("Falha: " + err.message);
     }
 }
+    
     
 </script>
 </body>
