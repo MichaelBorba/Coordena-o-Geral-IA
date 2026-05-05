@@ -977,36 +977,43 @@ async function sincronizarLinkDireto() {
         return alert("Erro ao processar o link.");
     }
 
-    // Mudança estratégica de URL para evitar bloqueios de segurança
+    // URL específica para contornar bloqueios de segurança (CORS)
     const exportUrl = `https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv`;
 
     try {
         const res = await fetch(exportUrl);
-        if (!res.ok) throw new Error("Acesso negado pelo Google.");
+        
+        // Se o Google retornar erro 401 ou 403, caímos aqui
+        if (!res.ok) {
+            throw new Error("O Google bloqueou o acesso. Você precisa 'Publicar na Web'.");
+        }
         
         const csvText = await res.text();
         
-        // O Google Sheets às vezes retorna um cabeçalho de erro em HTML
+        // Se o resultado vier em HTML, significa que o Google está a pedir login (Acesso Negado)
         if (csvText.includes("<!DOCTYPE html>")) {
-            throw new Error("A planilha precisa estar 'Publicada na Web'. Vá em Arquivo > Compartilhar > Publicar na Web.");
+            throw new Error("Acesso Negado. A planilha não está 'Publicada na Web'.");
         }
 
         const workbook = XLSX.read(csvText, { type: 'string' });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
+        if (jsonData.length === 0) {
+            return alert("Nenhum dado encontrado. Verifique a Linha 1 da sua planilha.");
+        }
+
         const listaParaInserir = jsonData.map(row => {
-            // Função para buscar a coluna ignorando espaços, acentos e maiúsculas
-            const getVal = (possibleNames) => {
+            const getVal = (names) => {
                 const key = Object.keys(row).find(k => 
-                    possibleNames.includes(k.trim().toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))
+                    names.includes(k.trim().toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))
                 );
                 return key ? String(row[key]).trim() : null;
             };
 
             return {
                 codigo: getVal(["CODIGO", "ID"]),
-                nome: getVal(["NOME", "FUNCIONARIO"]),
+                nome: getVal(["NOME"]),
                 endereco: getVal(["ENDERECO", "LOGRADOURO"]),
                 bairro: getVal(["BAIRRO"]),
                 cidade: getVal(["CIDADE"]),
@@ -1018,17 +1025,13 @@ async function sincronizarLinkDireto() {
                 titulo_eleitor: getVal(["TITULO_ELEITOR", "TITULO"]),
                 ctps: getVal(["CTPS"]),
                 habilitacao: getVal(["HABILITACAO", "CNH"]),
-                data_admissa: getVal(["ADMISSAO", "ADMISSÃO", "DATA_ADMISSAO"]),
+                data_admissa: getVal(["ADMISSAO", "ADMISSÃO"]),
                 desligamento: getVal(["DESLIGAMENTO"]),
-                funcao: getVal(["NOME_CARGO_ATUAL", "CARGO", "FUNÇÃO"]),
+                funcao: getVal(["NOME_CARGO_ATUAL", "CARGO"]),
                 celular: getVal(["CELULAR", "TELEFONE"]),
                 qtde_horas_mes: getVal(["QTDE_HORAS_MES", "HORAS"])
             };
-        }).filter(f => f.nome); // Só importa se tiver nome preenchido
-
-        if (listaParaInserir.length === 0) {
-            return alert("Nenhum dado encontrado. Verifique se os nomes das colunas na Linha 1 estão corretos.");
-        }
+        }).filter(f => f.nome);
 
         const { error } = await _supabase.from('funcionarios').insert(listaParaInserir);
         if (error) throw error;
@@ -1037,10 +1040,11 @@ async function sincronizarLinkDireto() {
         listarEquipe();
 
     } catch (err) {
-        console.error(err);
-        alert("Erro na Sincronia: " + err.message);
+        console.error("Erro detalhado:", err);
+        alert("FALHA DE ACESSO: " + err.message + "\n\nSiga o passo a passo de publicação na planilha.");
     }
-}
+    }
+            
     
 </script>
 </body>
