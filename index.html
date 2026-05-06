@@ -961,8 +961,8 @@ function calcularTotalRemessa() {
     inputs.forEach(i => total += Number(i.value || 0));
     document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
 }
-
-    async function sincronizarLinkDireto() {
+    
+async function sincronizarLinkDireto() {
     let linkInput = prompt("Cole o link da sua planilha do Google Drive:");
     if (!linkInput) return;
 
@@ -981,20 +981,19 @@ function calcularTotalRemessa() {
 
     try {
         const res = await fetch(exportUrl);
-        if (!res.ok) throw new Error("Acesso negado. Verifique se a planilha foi 'Publicada na Web'.");
+        if (!res.ok) throw new Error("Acesso negado. Verifique a publicação da planilha.");
         
         const csvText = await res.text();
         if (csvText.includes("<!DOCTYPE html>")) {
-            throw new Error("A planilha precisa estar 'Publicada na Web' (Arquivo > Compartilhar > Publicar na Web).");
+            throw new Error("A planilha precisa estar 'Publicada na Web'.");
         }
 
         const workbook = XLSX.read(csvText, { type: 'string' });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
-        if (jsonData.length === 0) return alert("Nenhum dado encontrado na planilha.");
+        if (jsonData.length === 0) return alert("Nenhum dado encontrado.");
 
-        // MAPEAMENTO EXATO PARA O SEU SUPABASE (CONFORME PRINTS)
         const listaParaInserir = jsonData.map(row => {
             const getVal = (names) => {
                 const key = Object.keys(row).find(k => 
@@ -1004,12 +1003,18 @@ function calcularTotalRemessa() {
             };
 
             return {
-                nome: getVal(["NOME", "NOME COMPLETO", "FUNCIONARIO"]),
+                // Dados Básicos (Principais)
+                nome: getVal(["NOME", "NOME COMPLETO"]),
                 funcao: getVal(["FUNCAO", "CARGO", "FUNÇÃO"]),
-                horario: getVal(["HORARIO", "TURNO", "HORÁRIO"]),
-                equipe: getVal(["EQUIPE", "GRUPO"]),
-                codigo: getVal(["CODIGO", "CÓDIGO", "ID_PLANILHA"]),
-                // Campos booleanos conforme seus prints (padrão FALSE para não dar erro)
+                horario: getVal(["HORARIO", "TURNO"]),
+                equipe: getVal(["EQUIPE"]),
+                codigo: getVal(["CODIGO", "CÓDIGO"]),
+                
+                // Correção do erro: 'alinhamentos' com N
+                alinhamentos: "0", 
+                advertencias: "0",
+
+                // Inicialização de segurança para colunas booleanas
                 check_docs: false,
                 check_aso: false,
                 check_contrato: false,
@@ -1017,30 +1022,30 @@ function calcularTotalRemessa() {
                 check_epi: false,
                 check_vt: false,
                 check_cracha: false,
-                alinhametos: "0",
-                advertencias: "0"
+
+                // Dados Complementares (Se existirem na planilha, ele puxa)
+                cpf: getVal(["CPF"]),
+                rg: getVal(["RG"]),
+                celular: getVal(["CELULAR", "TELEFONE", "ZAP"]),
+                data_admissa: getVal(["ADMISSAO", "ADMISSÃO", "DATA"])
             };
-        }).filter(f => f.nome); // Só envia se tiver o nome
+        }).filter(f => f.nome);
 
-        console.log("Dados preparados para envio:", listaParaInserir);
-
-        // Insere no banco 'funcionarios'
+        // Insere no banco
         const { error } = await _supabase.from('funcionarios').insert(listaParaInserir);
         
         if (error) {
-            console.error("Erro completo do Supabase:", error);
-            // Mostra o erro exato que o banco devolveu
-            throw new Error(`Erro no Banco: ${error.message} (${error.details || 'Verifique se os nomes das colunas na planilha estão corretos'})`);
+            console.error("Erro Supabase:", error);
+            throw new Error(`Erro no Banco: ${error.message}`);
         }
 
-        alert(`Sucesso! ${listaParaInserir.length} novos funcionários sincronizados.`);
-        if (typeof listarEquipe === "function") listarEquipe(); 
+        alert(`Sucesso! ${listaParaInserir.length} funcionários sincronizados.`);
+        listarEquipe();[cite: 1]
 
     } catch (err) {
-        console.error(err);
         alert(err.message);
     }
 }
-   </script>
+       </script>
 </body>
 </html>
