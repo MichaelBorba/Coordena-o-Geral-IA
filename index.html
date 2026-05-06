@@ -18,16 +18,16 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 15px; display: flex; justify-content: center; }
         .app-container { width: 100%; max-width: 450px; min-height: 95vh; position: relative; }
         header { display: flex; align-items: center; justify-content: space-between; padding: 15px 5px; }
-        .avatar { width: 42px; height: 42px; border-radius: 50%; background: #334155; border: 2px solid var(--primary-blue); overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .avatar { width: 42px; height: 42px; border-radius: 50%; background: #334155; border: 2px solid var(--primary-blue); overflow: hidden; display: flex; align-items: center; justify-content: center; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .emp-photo-container { width: 90px; height: 90px; border-radius: 50%; background: #334155; margin: 0 auto 15px; border: 3px solid var(--accent-orange); display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; }
+        .emp-photo-container { width: 90px; height: 90px; border-radius: 50%; background: #334155; margin: 0 auto 15px; border: 3px solid var(--accent-orange); display: flex; align-items: center; justify-content: center; }
         .emp-photo-container img { width: 100%; height: 100%; object-fit: cover; }
         .emp-photo-container i { font-size: 1.5rem; color: var(--text-dim); }
-        .module-card { background: linear-gradient(145deg, #243147, #1a2333); padding: 25px 15px; border-radius: 24px; text-align: center; cursor: pointer; transition: all 0.1s ease; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 8px 0 var(--card-shadow), 0 15px 20px rgba(0, 0, 0, 0.4); }
+        .module-card { background: linear-gradient(145deg, #243147, #1a2333); padding: 25px 15px; border-radius: 24px; text-align: center; cursor: pointer; transition: all 0.1s ease; border: 1px solid #334155; }
         .module-card:active { transform: translateY(4px); box-shadow: 0 4px 0 var(--card-shadow); }
         .module-card i { font-size: 2.2rem; margin-bottom: 15px; display: block; }
         .module-card span { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; }
-        .icon-blue { color: #60a5fa; } .icon-lightblue { color: #93c5fd; } .icon-green { color: #4ade80; } .icon-dp { color: #cbd5e1; } .icon-gold { color: var(--accent-orange); } .icon-purple { color: var(--accent-purple); }
+        .icon-blue { color: #60a5fa; } .icon-lightblue { color: #93c5fd; } .icon-green { color: #4ade80; } .icon-dp { color: #cbd5e1; } .icon-gold { color: var(--accent-orange); } .icon-purple { color: #a855f7; }
         .view { display: none; animation: fadeIn 0.3s ease; }
         .view.active { display: flex; flex-direction: column; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -44,11 +44,19 @@
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
         .calendar-day { padding: 10px 0; border-radius: 10px; cursor: pointer; font-size: 0.9rem; position: relative; }
         .calendar-day.has-event { background: var(--accent-orange); color: white; font-weight: bold; }
-        .fab-add { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer; z-index: 99; }
+        .fab-add { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
         .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; padding: 25px; border-radius: 25px 25px 0 0; max-height: 85vh; overflow-y: auto; }
         .historico-box { background: #0f172a; padding: 10px; border-radius: 10px; font-size: 0.85rem; margin-top: 10px; white-space: pre-wrap; border-left: 3px solid var(--primary-blue); }
         .dp-input-small { padding: 8px !important; font-size: 0.7rem !important; margin-bottom: 5px !important; }
+        .modal-sync { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card-bg); padding: 25px; border-radius: 15px; z-index: 2000; min-width: 300px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        .modal-sync h3 { margin-top: 0; color: var(--primary-blue); }
+        .sync-input { width: 100%; background: var(--bg-dark); border: 1px solid #334155; border-radius: 8px; padding: 10px; color: white; margin-bottom: 15px; }
+        .sync-columns { max-height: 200px; overflow-y: auto; margin: 15px 0; padding: 10px; background: #0f172a; border-radius: 8px; }
+        .sync-col-item { display: flex; align-items: center; gap: 10px; padding: 8px; margin: 5px 0; background: #1a2333; border-radius: 6px; }
+        .sync-col-item input[type="checkbox"] { cursor: pointer; }
+        .sync-status { padding: 10px; background: #0f172a; border-radius: 8px; margin: 10px 0; border-left: 3px solid var(--accent-green); color: var(--text-dim); font-size: 0.9rem; }
+        .overlay-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1999; }
     </style>
 </head>
 <body>
@@ -97,49 +105,56 @@
         <div id="employee-list" style="margin-top:20px; padding-bottom: 100px;"></div>
         
         <div style="position: fixed; bottom: 30px; right: 20px; display: flex; gap: 15px; z-index: 99;">
-            <button onclick="sincronizarLinkDireto()" title="Sincronizar Planilha"
+            <button onclick="abrirModalSincronizar()" title="Sincronizar com Drive"
                 style="width: 60px; height: 60px; background: var(--accent-purple); border-radius: 50%; border: none; color: white; font-size: 20px; box-shadow: 0 6px 0 #7e22ce; cursor: pointer;">
                 <i class="fas fa-sync-alt"></i>
             </button>
             <button onclick="prepararNovoEmp()" class="fab-add" style="position:static;"><i class="fas fa-plus"></i></button>
         </div>
     </div>
-    
-        <div id="view-employees" class="view">
-            <header>
-                <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; cursor:pointer">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <span style="font-weight: 600;">Equipe</span>
-                <div style="width:20px"></div>
-            </header>
-            
-            <div id="employee-list" style="margin-top:20px; padding-bottom: 100px;"></div>
-            
-            <div style="position: fixed; bottom: 30px; right: 20px; display: flex; gap: 15px; z-index: 99;">
-                <button onclick="sincronizarLinkDireto()" title="Sincronizar com Drive"
-                    style="width: 60px; height: 60px; background: var(--accent-purple); border-radius: 50%; border: none; color: white; font-size: 20px; box-shadow: 0 6px 0 #7e22ce; cursor: pointer;">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
 
-                <button onclick="prepararNovoEmp()" title="Novo Funcionário"
-                    style="width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer;">
-                    <i class="fas fa-plus"></i>
-                </button>
+    <!-- MODAL SINCRONIZAR -->
+    <div id="overlayBg" class="overlay-bg" onclick="fecharModalSincronizar()"></div>
+    <div id="modalSincronizar" class="modal-sync" style="display:none;">
+        <h3><i class="fas fa-sync-alt"></i> Sincronizar Planilha Drive</h3>
+        
+        <label style="font-size: 0.9rem; color: var(--text-dim); display:block; margin-bottom:8px;">Cole o link da planilha:</label>
+        <input type="text" id="inputLinkDrive" class="sync-input" placeholder="https://docs.google.com/spreadsheets/d/..." autocomplete="off">
+        
+        <label style="font-size: 0.9rem; color: var(--text-dim); display:block; margin-bottom:8px;">Selecione as colunas a importar:</label>
+        <div class="sync-columns" id="colunasCheckbox">
+            <div class="sync-col-item">
+                <input type="checkbox" id="col-nome" checked>
+                <label for="col-nome" style="margin:0; cursor:pointer; flex:1;">Nome</label>
+            </div>
+            <div class="sync-col-item">
+                <input type="checkbox" id="col-funcao" checked>
+                <label for="col-funcao" style="margin:0; cursor:pointer; flex:1;">Função</label>
+            </div>
+            <div class="sync-col-item">
+                <input type="checkbox" id="col-horario" checked>
+                <label for="col-horario" style="margin:0; cursor:pointer; flex:1;">Horário</label>
+            </div>
+            <div class="sync-col-item">
+                <input type="checkbox" id="col-equipe">
+                <label for="col-equipe" style="margin:0; cursor:pointer; flex:1;">Equipe</label>
+            </div>
+            <div class="sync-col-item">
+                <input type="checkbox" id="col-admissao">
+                <label for="col-admissao" style="margin:0; cursor:pointer; flex:1;">Data Admissão</label>
             </div>
         </div>
-        
-    </div>
 
-    <!-- VIEW EQUIPE -->
-    <div id="view-employees" class="view">
-        <header>
-            <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; cursor:pointer"><i class="fas fa-arrow-left"></i></button>
-            <span style="font-weight: 600;">Equipe</span>
-            <div style="width:20px"></div>
-        </header>
-        <div id="employee-list" style="margin-top:20px; padding-bottom: 100px;"></div>
-        <button class="fab-add" onclick="prepararNovoEmp()"><i class="fas fa-plus"></i></button>
+        <div id="syncStatus" class="sync-status" style="display:none;"></div>
+
+        <div style="display: flex; gap: 10px;">
+            <button class="btn-save" style="flex:1;" onclick="sincronizarPlaniha()">
+                <i class="fas fa-download"></i> Importar
+            </button>
+            <button style="flex:1; background:var(--accent-red); border:none; color:white; padding:15px; border-radius:15px; font-weight:700; cursor:pointer; box-shadow: 0 5px 0 #991b1b;" onclick="fecharModalSincronizar()">
+                Cancelar
+            </button>
+        </div>
     </div>
 
     <!-- MODAL CADASTRO -->
@@ -333,7 +348,131 @@
     </div>
     
 <script>
-    const _supabase = supabase.createClient('https://envuzusmubunlrrhhclu.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudnV6dXNtdWJ1bmxycmhoY2x1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NTMzMTcsImV4cCI6MjA5MzEyOTMxN30.pzepBGPOl9reoD4uLN0HUhpWaWfwv9pjLSkVdau7ntY');
+    const _supabase = supabase.createClient('https://envuzusmubunlrrhhclu.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudnV6dXNtdWJ1bmxycmhoY2x1Iiwicm9sZ2VzIjpbInBvc3RncmVzIiwiYW5vbiJdLCJpc3NfYXQiOjE3MzQ2Mzc5MjUsImV4cCI6MTg5MjQwNDcyNX0.lqMsXJNUxzW77DJfUn_1cKvJEiAyR3gWLzSm1RRK9C8');
+
+    // ===== FUNÇÃO DE SINCRONIZAÇÃO MELHORADA =====
+    function abrirModalSincronizar() {
+        document.getElementById('overlayBg').style.display = 'block';
+        document.getElementById('modalSincronizar').style.display = 'block';
+        document.getElementById('inputLinkDrive').focus();
+    }
+
+    function fecharModalSincronizar() {
+        document.getElementById('overlayBg').style.display = 'none';
+        document.getElementById('modalSincronizar').style.display = 'none';
+        document.getElementById('inputLinkDrive').value = '';
+        document.getElementById('syncStatus').style.display = 'none';
+    }
+
+    function mostrarStatus(mensagem, tipo = 'success') {
+        const statusEl = document.getElementById('syncStatus');
+        statusEl.textContent = mensagem;
+        statusEl.style.borderLeftColor = tipo === 'success' ? '#22c55e' : '#ef4444';
+        statusEl.style.display = 'block';
+    }
+
+    async function sincronizarPlaniha() {
+        const linkInput = document.getElementById('inputLinkDrive').value.trim();
+        
+        if (!linkInput) {
+            mostrarStatus('❌ Cole o link da planilha!', 'error');
+            return;
+        }
+
+        // Extrair ID da planilha
+        let fileId = "";
+        try {
+            if (linkInput.includes("/d/")) {
+                fileId = linkInput.split("/d/")[1].split("/")[0];
+            } else {
+                mostrarStatus('❌ Link inválido! Use: https://docs.google.com/spreadsheets/d/...', 'error');
+                return;
+            }
+        } catch (e) {
+            mostrarStatus('❌ Erro ao processar o link.', 'error');
+            return;
+        }
+
+        mostrarStatus('⏳ Buscando dados da planilha...', 'success');
+
+        // URL para exportar como CSV
+        const exportUrl = `https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv`;
+
+        try {
+            const res = await fetch(exportUrl);
+            
+            if (!res.ok) {
+                mostrarStatus('❌ Planilha não encontrada. Verifique o link.', 'error');
+                return;
+            }
+            
+            const csvText = await res.text();
+            
+            if (csvText.includes("<!DOCTYPE html>")) {
+                mostrarStatus('❌ Acesso negado. Verifique se a planilha está pública.', 'error');
+                return;
+            }
+
+            // Parsear CSV
+            const workbook = XLSX.read(csvText, { type: 'string' });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const dados = XLSX.utils.sheet_to_json(sheet);
+
+            if (dados.length === 0) {
+                mostrarStatus('⚠️ Nenhum dado encontrado na planilha.', 'error');
+                return;
+            }
+
+            // Obter colunas selecionadas
+            const colunasSelected = {
+                nome: document.getElementById('col-nome').checked,
+                funcao: document.getElementById('col-funcao').checked,
+                horario: document.getElementById('col-horario').checked,
+                equipe: document.getElementById('col-equipe').checked,
+                admissao: document.getElementById('col-admissao').checked
+            };
+
+            // Filtrar e formatar dados
+            const dataFormatada = dados.map(row => {
+                const obj = {};
+                if (colunasSelected.nome) obj.nome = row.Nome || row.nome || '';
+                if (colunasSelected.funcao) obj.funcao = row.Função || row.funcao || '';
+                if (colunasSelected.horario) obj.horario = row.Horário || row.horario || '';
+                if (colunasSelected.equipe) obj.equipe = row.Equipe || row.equipe || '';
+                if (colunasSelected.admissao) obj.data_admissa = row['Data Admissão'] || row['data_admissa'] || '';
+                return obj;
+            }).filter(obj => obj.nome); // Filtrar linhas sem nome
+
+            if (dataFormatada.length === 0) {
+                mostrarStatus('⚠️ Nenhum dado válido para importar.', 'error');
+                return;
+            }
+
+            mostrarStatus(`⏳ Importando ${dataFormatada.length} funcionários...`, 'success');
+
+            // Inserir no Supabase
+            const { error } = await _supabase.from('funcionarios').insert(dataFormatada);
+            
+            if (error) {
+                mostrarStatus(`❌ Erro ao salvar: ${error.message}`, 'error');
+                return;
+            }
+
+            mostrarStatus(`✅ ${dataFormatada.length} funcionários importados com sucesso!`, 'success');
+            
+            // Recarregar lista
+            setTimeout(() => {
+                fecharModalSincronizar();
+                listarEquipe();
+            }, 1500);
+
+        } catch (err) {
+            mostrarStatus(`❌ Erro: ${err.message}`, 'error');
+            console.error(err);
+        }
+    }
+
+    // ===== FUNÇÕES ORIGINAIS =====
 
     function changeView(id) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -496,7 +635,9 @@
                         <small>Admissão: ${dataAdmFormat}</small><br>
                         <small>Tempo: ${tempoCasa} | Exp: ${statusExp}</small>
                     </div>
-                    <button onclick="enviarZapDPCompleto('${emp.id}', '${emp.nome.replace(/'/g, "\\'")}', '${tempoCasa}', '${statusExp}')" style="background:#25d366; border:none; color:white; padding:8px 12px; border-radius:8px; font-size:0.8rem; cursor:pointer"><i class="fab fa-whatsapp"></i> Enviar</button>
+                    <button onclick="enviarZapDPCompleto('${emp.id}', '${emp.nome.replace(/'/g, "\\'")}', '${tempoCasa}', '${statusExp}')" style="background:#25d366; border:none; color:white; padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:0.75rem;">
+                        <i class="fab fa-whatsapp"></i> ZAP
+                    </button>
                 </div>
                 
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:10px; font-size:0.75rem; background:rgba(255,255,255,0.03); padding:10px; border-radius:10px;">
@@ -638,7 +779,7 @@
         });
     }
     async function salvarPatrimonio() {
-        await _supabase.from('patrimonio').insert([{ item: document.getElementById('patItem').value, quantidade: document.getElementById('patQtd').value, estado: document.getElementById('patEstado').value }]);
+        await _supabase.from('patrimonio').insert([{ item: document.getElementById('patItem').value, quantidade: document.getElementById('patQtd').value, estado: document.getElementById('patEstado').value}]);
         listarPatri(); switchPatriTab('lista');
     }
     function switchPatriTab(t) { 
@@ -696,357 +837,202 @@
             }
         }
     };
-// Garante a abertura correta do popup e limpa estados anteriores
-async function openAcolhidos() {
-    // Reset de visualização: mostra a lista e esconde o mapa ao abrir
-    document.getElementById('lista-acolhidos').style.display = 'block';
-    document.getElementById('mapa-quartos').style.display = 'none';
-    
-    openModal('modalAcolhidos'); // Chama a função que você já tem no código
-    renderizarAcolhidos(); // Carrega os dados do Supabase
-}
 
-// Se os botões ainda aparecerem "soltos" na tela, 
-    
-// verifique se você não esqueceu de fechar alguma </div> anterior no código.
-// Cole estas funções no final da sua tag <script>
-async function renderizarAcolhidos() {
-    const { data, error } = await _supabase.from('acolhidos').select('*').order('quarto');
-    if (error) return;
-
-    const container = document.getElementById('lista-acolhidos');
-    // Filtra quem não está com nome "Livre" ou vazio
-    const ocupados = data.filter(a => a.nome && a.nome.trim().toLowerCase() !== 'livre');
-    const livres = data.filter(a => !a.nome || a.nome.trim().toLowerCase() === 'livre');
-
-    document.getElementById('count-acolhidos').innerText = ocupados.length;
-    document.getElementById('count-livres').innerText = livres.length;
-    
-    container.innerHTML = data.map(a => `
-        <div class="item-card" style="padding:10px; margin-bottom:8px; border-left: 4px solid ${a.nome.toLowerCase() === 'livre' ? '#22c55e' : '#3b82f6'}">
-            <strong style="display:block">${a.nome}</strong>
-            <small style="color:var(--text-dim)">Quarto: ${a.quarto} | Cama: ${a.cama} (${a.tipo})</small>
-        </div>
-    `).join('');
-}
-
-async function importarExcel(input) {
-    const file = input.files[0];
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(sheet);
-
-        const formatado = json.map(row => ({
-            nome: row.Nome || row.nome || 'Livre',
-            quarto: row.Quarto || row.quarto || '?',
-            cama: row.Cama || row.cama || '?',
-            tipo: row.Tipo || row.tipo || 'S/T'
-        }));
-
-        const { error } = await _supabase.from('acolhidos').insert(formatado);
-        if (!error) {
-            alert("Dados importados com sucesso!");
-            renderizarAcolhidos();
-        }
-    };
-    reader.readAsArrayBuffer(file);
-}
-
-function toggleMapaQuartos() {
-    const lista = document.getElementById('lista-acolhidos');
-    const mapa = document.getElementById('mapa-quartos');
-    if (mapa.style.display === 'none') {
-        lista.style.display = 'none';
-        mapa.style.display = 'block';
-    } else {
-        lista.style.display = 'block';
-        mapa.style.display = 'none';
-    }
-}
-    
- let notasParaProcessar = [];
-
-function openFinanceiro() {
-    openModal('modalFinanceiro');
-}
-
-// Substitua handleFinanceiroUpload, focarNota, calcularTotalRemessa e enviarParaDP por estas:
-
-function handleFinanceiroUpload(input) {
-    const files = Array.from(input.files);
-    
-    // Inicializa o array global se não existir
-    if(!window.arquivosAtuais) window.arquivosAtuais = [];
-    
-    files.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            // Adicionamos cada arquivo com um ID único para facilitar a exclusão
-            const itemNota = { 
-                id: Date.now() + Math.random(), 
-                src: e.target.result, 
-                file: file 
-            };
-            window.arquivosAtuais.push(itemNota);
-            renderizarListaFinanceiro();
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-// Substitua handleFinanceiroUpload, focarNota, calcularTotalRemessa e enviarParaDP por estas:
-
-function handleFinanceiroUpload(input) {
-    const files = Array.from(input.files);
-    
-    // Inicializa o array global se não existir
-    if(!window.arquivosAtuais) window.arquivosAtuais = [];
-    
-    files.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            // Adicionamos cada arquivo com um ID único para facilitar a exclusão
-            const itemNota = { 
-                id: Date.now() + Math.random(), 
-                src: e.target.result, 
-                file: file 
-            };
-            window.arquivosAtuais.push(itemNota);
-            renderizarListaFinanceiro();
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-// 1. Garantir que a variável global exista
-if (!window.arquivosAtuais) window.arquivosAtuais = [];
-
-function handleFinanceiroUpload(input) {
-    const files = Array.from(input.files);
-    if (files.length === 0) return;
-
-    files.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const itemNota = { 
-                id: Date.now() + Math.random(), 
-                src: e.target.result, 
-                file: file 
-            };
-            window.arquivosAtuais.push(itemNota);
-            renderizarListaFinanceiro();
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-function renderizarListaFinanceiro() {
-    const visor = document.getElementById('visor-notas');
-    const formContainer = document.getElementById('form-notas-container');
-    
-    // Se a lista esvaziar, volta ao estado inicial
-    if (window.arquivosAtuais.length === 0) {
-        resetarInterfaceFinanceiro();
-        return;
+    async function openAcolhidos() {
+        document.getElementById('lista-acolhidos').style.display = 'block';
+        document.getElementById('mapa-quartos').style.display = 'none';
+        openModal('modalAcolhidos');
+        renderizarAcolhidos();
     }
 
-    visor.innerHTML = ''; 
-    formContainer.innerHTML = '';
+    async function renderizarAcolhidos() {
+        const { data, error } = await _supabase.from('acolhidos').select('*').order('quarto');
+        if (error) return;
 
-    window.arquivosAtuais.forEach((item, index) => {
-        // Container da Imagem
-        const imgContainer = document.createElement('div');
-        imgContainer.style = "position: relative; width: 95%; margin-bottom: 20px;";
-        imgContainer.innerHTML = `
-            <img src="${item.src}" id="nota-img-${index}" style="width: 100%; border-radius: 10px; border: 2px solid transparent; transition: 0.3s;">
-            <button type="button" onclick="removerNota(${index})" style="position: absolute; top: 10px; right: 10px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-weight: bold; z-index: 10; display: flex; align-items: center; justify-content: center;">X</button>
-        `;
-        visor.appendChild(imgContainer);
+        const container = document.getElementById('lista-acolhidos');
+        const ocupados = data.filter(a => a.nome && a.nome.trim().toLowerCase() !== 'livre');
+        const livres = data.filter(a => !a.nome || a.nome.trim().toLowerCase() === 'livre');
 
-        // Campos do Formulário
-        const div = document.createElement('div');
-        div.className = 'historico-box';
-        div.style = "margin-bottom: 15px; padding: 12px; border-left: 3px solid #f59e0b;";
-        div.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-                <small style="color: #f59e0b; font-weight: bold;">NOTA ${index + 1}</small>
-                <i class="fas fa-trash-alt" style="color:#ef4444; cursor:pointer;" onclick="removerNota(${index})"></i>
+        document.getElementById('count-acolhidos').innerText = ocupados.length;
+        document.getElementById('count-livres').innerText = livres.length;
+        
+        container.innerHTML = data.map(a => `
+            <div class="item-card" style="padding:10px; margin-bottom:8px; border-left: 4px solid ${a.nome.toLowerCase() === 'livre' ? '#22c55e' : '#3b82f6'}">
+                <strong style="display:block">${a.nome}</strong>
+                <small style="color:var(--text-dim)">Quarto: ${a.quarto} | Cama: ${a.cama} (${a.tipo})</small>
             </div>
-            <label style="font-size: 0.7rem; color: #94a3b8;">Data da Nota:</label>
-            <input type="date" class="data-financeiro" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; margin-bottom: 8px;">
-            
-            <label style="font-size: 0.7rem; color: #94a3b8;">Valor R$:</label>
-            <input type="number" placeholder="0,00" class="input-financeiro" onfocus="focarNota(${index})" oninput="calcularTotalRemessa()" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px;">
-            
-            <select class="cat-financeiro" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; margin-top: 8px;">
-                <option>Alimentação</option><option>EPI</option><option>Combustível</option><option>Manutenção</option><option>Outros</option>
-            </select>
-        `;
-        formContainer.appendChild(div);
-    });
-    calcularTotalRemessa();
-}
-
-function removerNota(index) {
-    window.arquivosAtuais.splice(index, 1);
-    renderizarListaFinanceiro();
-}
-
-function resetarInterfaceFinanceiro() {
-    // 1. Limpa o array de dados
-    window.arquivosAtuais = [];
-    
-    // 2. Limpa o input de arquivo (ESSENCIAL para destravar o botão)
-    const fileInput = document.getElementById('upload-lote');
-    if(fileInput) fileInput.value = "";
-    
-    // 3. Reseta os textos e totais
-    document.getElementById('total-remessa').innerText = "R$ 0,00";
-    document.getElementById('form-notas-container').innerHTML = '<p style="color: #94a3b8; font-size: 0.8rem;">Selecione as notas para iniciar.</p>';
-    
-    // 4. Restaura o botão central de carregar
-    document.getElementById('visor-notas').innerHTML = `
-        <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8;">
-            <i class="fas fa-images fa-3x"></i><br><br>
-            <button type="button" class="btn-save" onclick="document.getElementById('upload-lote').click()">Carregar Notas</button>
-        </div>
-    `;
-}
-
-function enviarParaDP() {
-    const inputs = document.querySelectorAll('.input-financeiro');
-    const datas = document.querySelectorAll('.data-financeiro');
-    const categorias = document.querySelectorAll('.cat-financeiro');
-    const total = document.getElementById('total-remessa').innerText;
-    
-    if (window.arquivosAtuais.length === 0) {
-        alert("Adicione notas primeiro.");
-        return;
+        `).join('');
     }
 
-    let detalhamento = "";
-    inputs.forEach((input, i) => {
-        const valor = parseFloat(input.value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        const dataNota = datas[i].value ? datas[i].value.split('-').reverse().join('/') : "S/ Data";
-        detalhamento += `🔹 *Nota ${i+1}:* ${valor} (${categorias[i].value}) - Data: ${dataNota}%0A`;
-    });
+    async function importarExcel(input) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const json = XLSX.utils.sheet_to_json(sheet);
 
-    const msg = `🧾 *RESUMO FINANCEIRO*%0A%0A${detalhamento}%0A💰 *TOTAL: ${total}*`;
-    
-    // Abre o WhatsApp
-    window.open(`https://wa.me/?text=${msg}`);
+            const formatado = json.map(row => ({
+                nome: row.Nome || row.nome || 'Livre',
+                quarto: row.Quarto || row.quarto || '?',
+                cama: row.Cama || row.cama || '?',
+                tipo: row.Tipo || row.tipo || 'S/T'
+            }));
 
-    // Pergunta para limpar
-    setTimeout(() => {
-        if(confirm("Deseja limpar os dados deste envio?")) {
-            resetarInterfaceFinanceiro();
-        }
-    }, 1000);
-}
-
-function focarNota(index) {
-    const img = document.getElementById(`nota-img-${index}`);
-    if(img) {
-        img.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        document.querySelectorAll('#visor-notas img').forEach(i => i.style.borderColor = 'transparent');
-        img.style.borderColor = '#3b82f6';
+            const { error } = await _supabase.from('acolhidos').insert(formatado);
+            if (!error) {
+                alert("Dados importados com sucesso!");
+                renderizarAcolhidos();
+            }
+        };
+        reader.readAsArrayBuffer(file);
     }
-}
 
-function calcularTotalRemessa() {
-    const inputs = document.querySelectorAll('.input-financeiro');
-    let total = 0;
-    inputs.forEach(i => total += Number(i.value || 0));
-    document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
-}
-
-async function sincronizarLinkDireto() {
-    let linkInput = prompt("Cole o link da sua planilha do Google Drive:");
-    if (!linkInput) return;
-
-    let fileId = "";
-    try {
-        if (linkInput.includes("/d/")) {
-            fileId = linkInput.split("/d/")[1].split("/")[0];
+    function toggleMapaQuartos() {
+        const lista = document.getElementById('lista-acolhidos');
+        const mapa = document.getElementById('mapa-quartos');
+        if (mapa.style.display === 'none') {
+            lista.style.display = 'none';
+            mapa.style.display = 'block';
         } else {
-            return alert("Link inválido! Copie o link completo da barra de endereços.");
+            lista.style.display = 'block';
+            mapa.style.display = 'none';
         }
-    } catch (e) {
-        return alert("Erro ao processar o link.");
     }
 
-    // URL específica para contornar bloqueios de segurança (CORS)
-    const exportUrl = `https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv`;
+    function openFinanceiro() {
+        openModal('modalFinanceiro');
+    }
 
-    try {
-        const res = await fetch(exportUrl);
-        
-        // Se o Google retornar erro 401 ou 403, caímos aqui
-        if (!res.ok) {
-            throw new Error("O Google bloqueou o acesso. Você precisa 'Publicar na Web'.");
-        }
-        
-        const csvText = await res.text();
-        
-        // Se o resultado vier em HTML, significa que o Google está a pedir login (Acesso Negado)
-        if (csvText.includes("<!DOCTYPE html>")) {
-            throw new Error("Acesso Negado. A planilha não está 'Publicada na Web'.");
-        }
+    if (!window.arquivosAtuais) window.arquivosAtuais = [];
 
-        const workbook = XLSX.read(csvText, { type: 'string' });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+    function handleFinanceiroUpload(input) {
+        const files = Array.from(input.files);
+        if (files.length === 0) return;
 
-        if (jsonData.length === 0) {
-            return alert("Nenhum dado encontrado. Verifique a Linha 1 da sua planilha.");
-        }
-
-        const listaParaInserir = jsonData.map(row => {
-            const getVal = (names) => {
-                const key = Object.keys(row).find(k => 
-                    names.includes(k.trim().toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))
-                );
-                return key ? String(row[key]).trim() : null;
+        files.forEach((file) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const itemNota = { 
+                    id: Date.now() + Math.random(), 
+                    src: e.target.result, 
+                    file: file 
+                };
+                window.arquivosAtuais.push(itemNota);
+                renderizarListaFinanceiro();
             };
-
-            return {
-                codigo: getVal(["CODIGO", "ID"]),
-                nome: getVal(["NOME"]),
-                endereco: getVal(["ENDERECO", "LOGRADOURO"]),
-                bairro: getVal(["BAIRRO"]),
-                cidade: getVal(["CIDADE"]),
-                estado: getVal(["ESTADO", "UF"]),
-                cep: getVal(["CEP"]),
-                nascimento: getVal(["NASCIMENTO"]),
-                cpf: getVal(["CPF"]),
-                rg: getVal(["RG"]),
-                titulo_eleitor: getVal(["TITULO_ELEITOR", "TITULO"]),
-                ctps: getVal(["CTPS"]),
-                habilitacao: getVal(["HABILITACAO", "CNH"]),
-                data_admissa: getVal(["ADMISSAO", "ADMISSÃO"]),
-                desligamento: getVal(["DESLIGAMENTO"]),
-                funcao: getVal(["NOME_CARGO_ATUAL", "CARGO"]),
-                celular: getVal(["CELULAR", "TELEFONE"]),
-                qtde_horas_mes: getVal(["QTDE_HORAS_MES", "HORAS"])
-            };
-        }).filter(f => f.nome);
-
-        const { error } = await _supabase.from('funcionarios').insert(listaParaInserir);
-        if (error) throw error;
-
-        alert(`Sucesso! ${listaParaInserir.length} funcionários sincronizados.`);
-        listarEquipe();
-
-    } catch (err) {
-        console.error("Erro detalhado:", err);
-        alert("FALHA DE ACESSO: " + err.message + "\n\nSiga o passo a passo de publicação na planilha.");
+            reader.readAsDataURL(file);
+        });
     }
+
+    function renderizarListaFinanceiro() {
+        const visor = document.getElementById('visor-notas');
+        const formContainer = document.getElementById('form-notas-container');
+        
+        if (window.arquivosAtuais.length === 0) {
+            resetarInterfaceFinanceiro();
+            return;
+        }
+
+        visor.innerHTML = ''; 
+        formContainer.innerHTML = '';
+
+        window.arquivosAtuais.forEach((item, index) => {
+            const imgContainer = document.createElement('div');
+            imgContainer.style = "position: relative; width: 95%; margin-bottom: 20px;";
+            imgContainer.innerHTML = `
+                <img src="${item.src}" id="nota-img-${index}" style="width: 100%; border-radius: 10px; border: 2px solid transparent; transition: 0.3s;">
+                <button type="button" onclick="removerNota(${index})" style="position: absolute; top: 10px; right: 10px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor:pointer; font-size: 1rem;">✕</button>
+            `;
+            visor.appendChild(imgContainer);
+
+            const div = document.createElement('div');
+            div.className = 'historico-box';
+            div.style = "margin-bottom: 15px; padding: 12px; border-left: 3px solid #f59e0b;";
+            div.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                    <small style="color: #f59e0b; font-weight: bold;">NOTA ${index + 1}</small>
+                    <i class="fas fa-trash-alt" style="color:#ef4444; cursor:pointer;" onclick="removerNota(${index})"></i>
+                </div>
+                <label style="font-size: 0.7rem; color: #94a3b8;">Data da Nota:</label>
+                <input type="date" class="data-financeiro" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; margin-bottom: 8px;">
+                
+                <label style="font-size: 0.7rem; color: #94a3b8;">Valor R$:</label>
+                <input type="number" placeholder="0,00" class="input-financeiro" onfocus="focarNota(${index})" oninput="calcularTotalRemessa()" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; margin-bottom: 8px;">
+                
+                <select class="cat-financeiro" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; margin-top: 8px;">
+                    <option>Alimentação</option><option>EPI</option><option>Combustível</option><option>Manutenção</option><option>Outros</option>
+                </select>
+            `;
+            formContainer.appendChild(div);
+        });
+        calcularTotalRemessa();
     }
-            
-    
+
+    function removerNota(index) {
+        window.arquivosAtuais.splice(index, 1);
+        renderizarListaFinanceiro();
+    }
+
+    function resetarInterfaceFinanceiro() {
+        window.arquivosAtuais = [];
+        const fileInput = document.getElementById('upload-lote');
+        if(fileInput) fileInput.value = "";
+        document.getElementById('total-remessa').innerText = "R$ 0,00";
+        document.getElementById('form-notas-container').innerHTML = '<p style="color: #94a3b8; font-size: 0.8rem;">Selecione as notas para iniciar.</p>';
+        document.getElementById('visor-notas').innerHTML = `
+            <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8; display: flex; flex-direction: column; align-items: center;">
+                <i class="fas fa-images fa-3x"></i><br><br>
+                <button type="button" class="btn-save" onclick="document.getElementById('upload-lote').click()">Carregar Notas</button>
+            </div>
+        `;
+    }
+
+    function enviarParaDP() {
+        const inputs = document.querySelectorAll('.input-financeiro');
+        const datas = document.querySelectorAll('.data-financeiro');
+        const categorias = document.querySelectorAll('.cat-financeiro');
+        const total = document.getElementById('total-remessa').innerText;
+        
+        if (window.arquivosAtuais.length === 0) {
+            alert("Adicione notas primeiro.");
+            return;
+        }
+
+        let detalhamento = "";
+        inputs.forEach((input, i) => {
+            const valor = parseFloat(input.value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            const dataNota = datas[i].value ? datas[i].value.split('-').reverse().join('/') : "S/ Data";
+            detalhamento += `🔹 *Nota ${i+1}:* ${valor} (${categorias[i].value}) - Data: ${dataNota}%0A`;
+        });
+
+        const msg = `🧾 *RESUMO FINANCEIRO*%0A%0A${detalhamento}%0A💰 *TOTAL: ${total}*`;
+        window.open(`https://wa.me/?text=${msg}`);
+
+        setTimeout(() => {
+            if(confirm("Deseja limpar os dados deste envio?")) {
+                resetarInterfaceFinanceiro();
+            }
+        }, 1000);
+    }
+
+    function focarNota(index) {
+        const img = document.getElementById(`nota-img-${index}`);
+        if(img) {
+            img.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            document.querySelectorAll('#visor-notas img').forEach(i => i.style.borderColor = 'transparent');
+            img.style.borderColor = '#3b82f6';
+        }
+    }
+
+    function calcularTotalRemessa() {
+        const inputs = document.querySelectorAll('.input-financeiro');
+        let total = 0;
+        inputs.forEach(i => total += Number(i.value || 0));
+        document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
+    }
 </script>
+
 </body>
 </html>
