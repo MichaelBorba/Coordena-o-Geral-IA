@@ -967,7 +967,6 @@ function calcularTotalRemessa() {
     if (!linkInput) return;
 
     let fileId = "";
-    // Extrai o ID de qualquer link de planilha que você colar
     try {
         if (linkInput.includes("/d/")) {
             fileId = linkInput.split("/d/")[1].split("/")[0];
@@ -978,32 +977,28 @@ function calcularTotalRemessa() {
         return alert("Erro ao processar o link.");
     }
 
-    // Esta URL funciona para QUALQUER planilha pública, forçando a saída em CSV
     const exportUrl = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=csv`;
 
     try {
         const res = await fetch(exportUrl);
-        if (!res.ok) throw new Error("Não foi possível acessar a planilha. Verifique se ela está 'Publicada na Web'.");
+        if (!res.ok) throw new Error("Acesso negado. Verifique se a planilha foi 'Publicada na Web'.");
         
         const csvText = await res.text();
-        
-        // Se o resultado for HTML, a planilha não está pública
         if (csvText.includes("<!DOCTYPE html>")) {
-            throw new Error("Acesso negado. Na planilha, vá em Arquivo > Compartilhar > Publicar na Web.");
+            throw new Error("A planilha precisa estar 'Publicada na Web' (Arquivo > Compartilhar > Publicar na Web).");
         }
 
         const workbook = XLSX.read(csvText, { type: 'string' });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
-        if (jsonData.length === 0) return alert("Planilha vazia!");
+        if (jsonData.length === 0) return alert("Nenhum dado encontrado na planilha.");
 
-        // MAPEAMENTO INTELIGENTE: Busca pelo nome da coluna ignorando maiúsculas/minúsculas
+        // MAPEAMENTO EXATO PARA O SEU SUPABASE (CONFORME PRINTS)
         const listaParaInserir = jsonData.map(row => {
-            const getVal = (possibleNames) => {
-                // Procura na linha atual uma chave que combine com os nomes que queremos
+            const getVal = (names) => {
                 const key = Object.keys(row).find(k => 
-                    possibleNames.includes(k.trim().toUpperCase())
+                    names.includes(k.trim().toUpperCase())
                 );
                 return key ? String(row[key]).trim() : null;
             };
@@ -1013,25 +1008,39 @@ function calcularTotalRemessa() {
                 funcao: getVal(["FUNCAO", "CARGO", "FUNÇÃO"]),
                 horario: getVal(["HORARIO", "TURNO", "HORÁRIO"]),
                 equipe: getVal(["EQUIPE", "GRUPO"]),
-                data_admissa: getVal(["ADMISSAO", "DATA", "ADMISSÃO"])
+                codigo: getVal(["CODIGO", "CÓDIGO", "ID_PLANILHA"]),
+                // Campos booleanos conforme seus prints (padrão FALSE para não dar erro)
+                check_docs: false,
+                check_aso: false,
+                check_contrato: false,
+                check_uniforme: false,
+                check_epi: false,
+                check_vt: false,
+                check_cracha: false,
+                alinhametos: "0",
+                advertencias: "0"
             };
-        }).filter(f => f.nome); // Só importa se tiver um nome preenchido
+        }).filter(f => f.nome); // Só envia se tiver o nome
 
-        // Salva no Supabase
+        console.log("Dados preparados para envio:", listaParaInserir);
+
+        // Insere no banco 'funcionarios'
         const { error } = await _supabase.from('funcionarios').insert(listaParaInserir);
         
         if (error) {
-            console.error("Erro Supabase:", error);
-            throw new Error("Erro ao salvar no banco de dados.");
+            console.error("Erro completo do Supabase:", error);
+            // Mostra o erro exato que o banco devolveu
+            throw new Error(`Erro no Banco: ${error.message} (${error.details || 'Verifique se os nomes das colunas na planilha estão corretos'})`);
         }
 
-        alert(`Sucesso! ${listaParaInserir.length} funcionários sincronizados.`);
-        listarEquipe(); 
+        alert(`Sucesso! ${listaParaInserir.length} novos funcionários sincronizados.`);
+        if (typeof listarEquipe === "function") listarEquipe(); 
 
     } catch (err) {
-        alert("FALHA: " + err.message);
+        console.error(err);
+        alert(err.message);
     }
 }
-</script>
+   </script>
 </body>
 </html>
