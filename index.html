@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -961,7 +962,7 @@ function calcularTotalRemessa() {
     inputs.forEach(i => total += Number(i.value || 0));
     document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
 }
-    
+
 async function sincronizarLinkDireto() {
     let linkInput = prompt("Cole o link da sua planilha do Google Drive:");
     if (!linkInput) return;
@@ -971,81 +972,81 @@ async function sincronizarLinkDireto() {
         if (linkInput.includes("/d/")) {
             fileId = linkInput.split("/d/")[1].split("/")[0];
         } else {
-            return alert("Link inválido! Cole o link completo da planilha.");
+            return alert("Link inválido! Copie o link completo da barra de endereços.");
         }
     } catch (e) {
         return alert("Erro ao processar o link.");
     }
 
-    const exportUrl = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=csv`;
+    // URL específica para contornar bloqueios de segurança (CORS)
+    const exportUrl = `https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv`;
 
     try {
         const res = await fetch(exportUrl);
-        if (!res.ok) throw new Error("Acesso negado. Verifique a publicação da planilha.");
+        
+        // Se o Google retornar erro 401 ou 403, caímos aqui
+        if (!res.ok) {
+            throw new Error("O Google bloqueou o acesso. Você precisa 'Publicar na Web'.");
+        }
         
         const csvText = await res.text();
+        
+        // Se o resultado vier em HTML, significa que o Google está a pedir login (Acesso Negado)
         if (csvText.includes("<!DOCTYPE html>")) {
-            throw new Error("A planilha precisa estar 'Publicada na Web'.");
+            throw new Error("Acesso Negado. A planilha não está 'Publicada na Web'.");
         }
 
         const workbook = XLSX.read(csvText, { type: 'string' });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
-        if (jsonData.length === 0) return alert("Nenhum dado encontrado.");
+        if (jsonData.length === 0) {
+            return alert("Nenhum dado encontrado. Verifique a Linha 1 da sua planilha.");
+        }
 
         const listaParaInserir = jsonData.map(row => {
             const getVal = (names) => {
                 const key = Object.keys(row).find(k => 
-                    names.includes(k.trim().toUpperCase())
+                    names.includes(k.trim().toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))
                 );
                 return key ? String(row[key]).trim() : null;
             };
 
             return {
-                // Dados Básicos (Principais)
-                nome: getVal(["NOME", "NOME COMPLETO"]),
-                funcao: getVal(["FUNCAO", "CARGO", "FUNÇÃO"]),
-                horario: getVal(["HORARIO", "TURNO"]),
-                equipe: getVal(["EQUIPE"]),
-                codigo: getVal(["CODIGO", "CÓDIGO"]),
-                
-                // Correção do erro: 'alinhamentos' com N
-                alinhamentos: "0", 
-                advertencias: "0",
-
-                // Inicialização de segurança para colunas booleanas
-                check_docs: false,
-                check_aso: false,
-                check_contrato: false,
-                check_uniforme: false,
-                check_epi: false,
-                check_vt: false,
-                check_cracha: false,
-
-                // Dados Complementares (Se existirem na planilha, ele puxa)
+                codigo: getVal(["CODIGO", "ID"]),
+                nome: getVal(["NOME"]),
+                endereco: getVal(["ENDERECO", "LOGRADOURO"]),
+                bairro: getVal(["BAIRRO"]),
+                cidade: getVal(["CIDADE"]),
+                estado: getVal(["ESTADO", "UF"]),
+                cep: getVal(["CEP"]),
+                nascimento: getVal(["NASCIMENTO"]),
                 cpf: getVal(["CPF"]),
                 rg: getVal(["RG"]),
-                celular: getVal(["CELULAR", "TELEFONE", "ZAP"]),
-                data_admissa: getVal(["ADMISSAO", "ADMISSÃO", "DATA"])
+                titulo_eleitor: getVal(["TITULO_ELEITOR", "TITULO"]),
+                ctps: getVal(["CTPS"]),
+                habilitacao: getVal(["HABILITACAO", "CNH"]),
+                data_admissa: getVal(["ADMISSAO", "ADMISSÃO"]),
+                desligamento: getVal(["DESLIGAMENTO"]),
+                funcao: getVal(["NOME_CARGO_ATUAL", "CARGO"]),
+                celular: getVal(["CELULAR", "TELEFONE"]),
+                qtde_horas_mes: getVal(["QTDE_HORAS_MES", "HORAS"])
             };
         }).filter(f => f.nome);
 
-        // Insere no banco
         const { error } = await _supabase.from('funcionarios').insert(listaParaInserir);
-        
-        if (error) {
-            console.error("Erro Supabase:", error);
-            throw new Error(`Erro no Banco: ${error.message}`);
-        }
+        if (error) throw error;
 
         alert(`Sucesso! ${listaParaInserir.length} funcionários sincronizados.`);
-        listarEquipe();[cite: 1]
+        listarEquipe();
 
     } catch (err) {
-        alert(err.message);
+        console.error("Erro detalhado:", err);
+        alert("FALHA DE ACESSO: " + err.message + "\n\nSiga o passo a passo de publicação na planilha.");
     }
-}
-       </script>
+    }
+            
+    
+</script>
 </body>
 </html>
