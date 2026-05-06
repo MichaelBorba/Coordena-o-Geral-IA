@@ -977,22 +977,21 @@ async function sincronizarLinkDireto() {
         return alert("Erro ao processar o link.");
     }
 
-    // URL específica para contornar bloqueios de segurança (CORS)
-    const exportUrl = `https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv`;
+    // Usamos a visualização pública de CSV do Google para evitar erros de CORS
+    const exportUrl = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=csv`;
 
     try {
         const res = await fetch(exportUrl);
         
-        // Se o Google retornar erro 401 ou 403, caímos aqui
         if (!res.ok) {
-            throw new Error("O Google bloqueou o acesso. Você precisa 'Publicar na Web'.");
+            throw new Error("Acesso Negado. Verifique se a planilha foi 'Publicada na Web'.");
         }
         
         const csvText = await res.text();
         
-        // Se o resultado vier em HTML, significa que o Google está a pedir login (Acesso Negado)
+        // Verifica se o retorno não é uma página de erro/login do Google
         if (csvText.includes("<!DOCTYPE html>")) {
-            throw new Error("Acesso Negado. A planilha não está 'Publicada na Web'.");
+            throw new Error("A planilha precisa estar 'Publicada na Web' e acessível para qualquer pessoa com o link.");
         }
 
         const workbook = XLSX.read(csvText, { type: 'string' });
@@ -1000,9 +999,10 @@ async function sincronizarLinkDireto() {
         const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
         if (jsonData.length === 0) {
-            return alert("Nenhum dado encontrado. Verifique a Linha 1 da sua planilha.");
+            return alert("Nenhum dado encontrado na planilha.");
         }
 
+        // Mapeamento ajustado para as colunas do seu banco de dados
         const listaParaInserir = jsonData.map(row => {
             const getVal = (names) => {
                 const key = Object.keys(row).find(k => 
@@ -1012,40 +1012,27 @@ async function sincronizarLinkDireto() {
             };
 
             return {
-                codigo: getVal(["CODIGO", "ID"]),
                 nome: getVal(["NOME"]),
-                endereco: getVal(["ENDERECO", "LOGRADOURO"]),
-                bairro: getVal(["BAIRRO"]),
-                cidade: getVal(["CIDADE"]),
-                estado: getVal(["ESTADO", "UF"]),
-                cep: getVal(["CEP"]),
-                nascimento: getVal(["NASCIMENTO"]),
-                cpf: getVal(["CPF"]),
-                rg: getVal(["RG"]),
-                titulo_eleitor: getVal(["TITULO_ELEITOR", "TITULO"]),
-                ctps: getVal(["CTPS"]),
-                habilitacao: getVal(["HABILITACAO", "CNH"]),
-                data_admissa: getVal(["ADMISSAO", "ADMISSÃO"]),
-                desligamento: getVal(["DESLIGAMENTO"]),
-                funcao: getVal(["NOME_CARGO_ATUAL", "CARGO"]),
-                celular: getVal(["CELULAR", "TELEFONE"]),
-                qtde_horas_mes: getVal(["QTDE_HORAS_MES", "HORAS"])
+                funcao: getVal(["FUNCAO", "CARGO", "NOME_CARGO_ATUAL"]),
+                horario: getVal(["HORARIO", "TURNO"]),
+                data_admissa: getVal(["ADMISSAO", "DATA_ADMISSAO", "ADMISSÃO"]),
+                equipe: getVal(["EQUIPE"])
             };
-        }).filter(f => f.nome);
+        }).filter(f => f.nome); // Remove linhas vazias sem nome
 
+        // Insere no Supabase
         const { error } = await _supabase.from('funcionarios').insert(listaParaInserir);
+        
         if (error) throw error;
 
         alert(`Sucesso! ${listaParaInserir.length} funcionários sincronizados.`);
-        listarEquipe();
+        listarEquipe(); // Atualiza a lista na tela
 
     } catch (err) {
         console.error("Erro detalhado:", err);
-        alert("FALHA DE ACESSO: " + err.message + "\n\nSiga o passo a passo de publicação na planilha.");
+        alert("FALHA NA CONEXÃO:\n1. Vá na Planilha em Arquivo > Compartilhar > Publicar na Web.\n2. Certifique-se de que o link é de uma planilha pública.");
     }
-    }
-            
-    
+}    
 </script>
 </body>
 </html>
