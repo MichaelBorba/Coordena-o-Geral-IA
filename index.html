@@ -961,43 +961,43 @@ async function sincronizarLinkDireto() {
         const csvText = await res.text();
         const linhas = csvText.split(/\r?\n/).filter(l => l.trim());
         
+        // Detecta o separador (vírgula ou ponto e vírgula)
+        const separador = linhas[0].includes(';') ? ';' : ',';
+
         const novosFuncionarios = linhas.slice(1).map(linha => {
-            const col = linha.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.trim().replace(/^"|"$/g, ''));
+            // Regex melhorada para lidar com aspas e o separador detectado
+            const regex = new RegExp(`${separador}(?=(?:(?:[^"]*"){2})*[^"]*$)`);
+            const col = linha.split(regex).map(c => c.trim().replace(/^"|"$/g, ''));
             
             let dataFormatada = null;
             if (col[4] && col[4].includes('/')) {
                 const p = col[4].split('/');
+                // Garante formato YYYY-MM-DD para o banco
                 dataFormatada = `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
             }
 
             return {
-                nome: col[0] || null,
+                nome: col[0],
                 funcao: col[1] || '',
                 horario: col[2] || '',
                 equipe: col[3] || '',
                 data_admissa: dataFormatada
             };
-        }).filter(f => f.nome);
+        }).filter(f => f.nome); // Remove linhas onde o nome é vazio
 
-        // AQUI ESTÁ A CHAVE: Usamos await e checamos o erro explicitamente
         const { data, error } = await _supabase
             .from('funcionarios')
             .insert(novosFuncionarios)
-            .select(); // O .select() força o Supabase a retornar o que foi gravado
+            .select();
 
-        if (error) {
-            console.error("Erro detalhado do Supabase:", error);
-            throw new Error(`Erro no Banco: ${error.message} - ${error.details}`);
-        }
+        if (error) throw error;
 
-        if (data) {
-            alert(`✅ REGISTRADO! ${data.length} funcionários agora estão no Supabase.`);
-            listarEquipe();
-        }
+        alert(`✅ Sucesso! ${data.length} registros sincronizados.`);
+        listarEquipe();
         
     } catch (e) {
-        console.error(e);
-        alert("❌ Falha ao registrar: " + e.message);
+        console.error("Erro na Sincronização:", e);
+        alert("❌ Falha: " + (e.message || "Verifique o console para detalhes."));
     }
 }
     
