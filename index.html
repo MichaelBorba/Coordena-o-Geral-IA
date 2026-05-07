@@ -946,81 +946,57 @@ function calcularTotalRemessa() {
     document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
 }
 
-  async function sincronizarLinkDireto() {
-    const linkInput = prompt("Cole o link da planilha PUBLICADA como CSV:");
-    if (!linkInput) return;
+  const novosFuncionarios = linhas.slice(1).map((linha) => {
+    const regex = new RegExp(`${separador}(?=(?:(?:[^"]*"){2})*[^"]*$)`);
+    const col = linha.split(regex).map(c => c.trim().replace(/^"|"$/g, ''));
+    
+    // Função auxiliar para converter datas (DD/MM/AAAA -> AAAA-MM-DD)
+    const formatarData = (v) => {
+        if (!v || !v.includes('/')) return null;
+        const p = v.split('/');
+        return p.length === 3 ? `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}` : null;
+    };
 
-    try {
-        let urlSinc = linkInput;
-        if (linkInput.includes('/edit')) {
-            const id = linkInput.split('/d/')[1].split('/')[0];
-            urlSinc = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`;
-        }
+    // Função auxiliar para converter valores da planilha em Booleano (true/false)
+    const eVerdadeiro = (v) => v && (v.toUpperCase() === 'TRUE' || v.toUpperCase() === 'SIM' || v === '1');
 
-        const res = await fetch(urlSinc);
-        const csvText = await res.text();
-        const linhas = csvText.split(/\r?\n/).filter(l => l.trim());
-        
-        if (linhas.length < 2) {
-            alert("A planilha parece estar vazia ou não foi publicada corretamente.");
-            return;
-        }
-
-        const separador = linhas[0].includes(';') ? ';' : ',';
-
-        const novosFuncionarios = linhas.slice(1).map((linha) => {
-            const regex = new RegExp(`${separador}(?=(?:(?:[^"]*"){2})*[^"]*$)`);
-            const col = linha.split(regex).map(c => c.trim().replace(/^"|"$/g, ''));
-            
-            // Função para converter data PT-BR (DD/MM/AAAA) para ISO (AAAA-MM-DD)
-            const formatarData = (v) => {
-                if (!v || !v.includes('/')) return null;
-                const p = v.split('/');
-                return p.length === 3 ? `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}` : null;
-            };
-
-            // Mapeamento baseado nas imagens do seu Supabase
-            return {
-                nome: col[0] || null,               // Coluna A
-                funcão: col[1] || '',               // Coluna B
-                horario: col[2] || '',              // Coluna C
-                equipe: col[3] || '',               // Coluna D
-                data_admissa: formatarData(col[4]), // Coluna E
-                endereco: col[5] || '',             // Coluna F
-                bairro: col[6] || '',               // Coluna G
-                estado: col[7] || '',               // Coluna H
-                cep: col[8] || '',                  // Coluna I
-                codigo: col[9] || '',               // Coluna J
-                cidade: col[10] || '',              // Coluna K
-                nascimento: formatarData(col[11]),  // Coluna L
-                cpf: col[12] || '',                 // Coluna M
-                rg: col[13] || '',                  // Coluna N
-                titulo_eleitor: col[14] || '',      // Coluna O
-                ctps: col[15] || '',                // Coluna P
-                habilitacao: col[16] || '',         // Coluna Q
-                celular: col[17] || '',             // Coluna R
-                qtde_horas_mes: col[18] || '',      // Coluna S
-                // Campos booleanos (opcional: se vierem da planilha)
-                check_docs: col[19] === 'TRUE',
-                check_aso: col[20] === 'TRUE'
-            };
-        }).filter(f => f.nome && f.nome.toLowerCase() !== "nome"); 
-
-        const { data, error } = await _supabase
-            .from('funcionarios')
-            .insert(novosFuncionarios)
-            .select();
-
-            if (error) throw error;
-
-            alert(`✅ REGISTRADO! ${data.length} funcionários inseridos com sucesso.`);
-            if (typeof listarEquipe === 'function') listarEquipe();
-            
-    } catch (e) {
-        console.error("Erro detalhado:", e);
-        alert("❌ Falha ao registrar: " + e.message);
-    }
-}
+    return {
+        nome: col[0] || null,
+        endereco: col[1] || '',
+        bairro: col[2] || '',
+        estado: col[3] || '',
+        cep: col[4] || '',
+        funcao: col[5] || '',
+        horario: col[6] || '',
+        equipe: col[7] || '',
+        alinhamientos: col[8] || '', // Ajustado conforme imagem (alinhamientos)
+        advertencias: col[9] || '',  // Ajustado conforme imagem (advertencias)
+        foto: col[10] || '',
+        data_admissa: formatarData(col[11]),
+        check_docs: eVerdadeiro(col[12]),
+        check_aso: eVerdadeiro(col[13]),
+        check_contrato: eVerdadeiro(col[14]), // Ajustado para bater com check_contrato da imagem
+        check_uniforme: eVerdadeiro(col[15]),
+        check_epi: eVerdadeiro(col[16]),
+        tamanho_uniforme: col[17] || '',
+        ultimo_envio_zap: col[18] || '',
+        data_zap: formatarData(col[19]),
+        check_vt: eVerdadeiro(col[20]),
+        check_cracha: eVerdadeiro(col[21]),
+        codigo: col[22] || '',
+        cidade: col[23] || '',
+        nascimento: formatarData(col[24]),
+        cpf: col[25] || '',
+        rg: col[26] || '',
+        titulo_eleitor: col[27] || '',
+        ctps: col[28] || '',
+        habilitacao: col[29] || '',
+        desligamento: formatarData(col[30]),
+        qtde_horas_mes: col[31] || '',
+        celular: col[32] || ''
+    };
+}).filter(f => f.nome && f.nome.toLowerCase() !== "nome");
+    
 
 </script>
 </body>
