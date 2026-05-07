@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -17,16 +18,16 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 15px; display: flex; justify-content: center; }
         .app-container { width: 100%; max-width: 450px; min-height: 95vh; position: relative; }
         header { display: flex; align-items: center; justify-content: space-between; padding: 15px 5px; }
-        .avatar { width: 42px; height: 42px; border-radius: 50%; background: #334155; border: 2px solid var(--primary-blue); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .avatar { width: 42px; height: 42px; border-radius: 50%; background: #334155; border: 2px solid var(--primary-blue); overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .emp-photo-container { width: 90px; height: 90px; border-radius: 50%; background: #334155; margin: 0 auto 15px; border: 3px solid var(--accent-orange); display: flex; align-items: center; justify-content: center; }
+        .emp-photo-container { width: 90px; height: 90px; border-radius: 50%; background: #334155; margin: 0 auto 15px; border: 3px solid var(--accent-orange); display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; }
         .emp-photo-container img { width: 100%; height: 100%; object-fit: cover; }
         .emp-photo-container i { font-size: 1.5rem; color: var(--text-dim); }
-        .module-card { background: linear-gradient(145deg, #243147, #1a2333); padding: 25px 15px; border-radius: 24px; text-align: center; cursor: pointer; transition: all 0.1s ease; border: 1px solid #334155; }
+        .module-card { background: linear-gradient(145deg, #243147, #1a2333); padding: 25px 15px; border-radius: 24px; text-align: center; cursor: pointer; transition: all 0.1s ease; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 8px 0 var(--card-shadow), 0 15px 20px rgba(0, 0, 0, 0.4); }
         .module-card:active { transform: translateY(4px); box-shadow: 0 4px 0 var(--card-shadow); }
         .module-card i { font-size: 2.2rem; margin-bottom: 15px; display: block; }
         .module-card span { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; }
-        .icon-blue { color: #60a5fa; } .icon-lightblue { color: #93c5fd; } .icon-green { color: #4ade80; } .icon-dp { color: #cbd5e1; } .icon-gold { color: var(--accent-orange); } .icon-purple { color: #d8b4fe; }
+        .icon-blue { color: #60a5fa; } .icon-lightblue { color: #93c5fd; } .icon-green { color: #4ade80; } .icon-dp { color: #cbd5e1; } .icon-gold { color: var(--accent-orange); } .icon-purple { color: var(--accent-purple); }
         .view { display: none; animation: fadeIn 0.3s ease; }
         .view.active { display: flex; flex-direction: column; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -43,7 +44,7 @@
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
         .calendar-day { padding: 10px 0; border-radius: 10px; cursor: pointer; font-size: 0.9rem; position: relative; }
         .calendar-day.has-event { background: var(--accent-orange); color: white; font-weight: bold; }
-        .fab-add { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer; }
+        .fab-add { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer; z-index: 99; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
         .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; padding: 25px; border-radius: 25px 25px 0 0; max-height: 85vh; overflow-y: auto; }
         .historico-box { background: #0f172a; padding: 10px; border-radius: 10px; font-size: 0.85rem; margin-top: 10px; white-space: pre-wrap; border-left: 3px solid var(--primary-blue); }
@@ -102,6 +103,43 @@
             </button>
             <button onclick="prepararNovoEmp()" class="fab-add" style="position:static;"><i class="fas fa-plus"></i></button>
         </div>
+    </div>
+    
+        <div id="view-employees" class="view">
+            <header>
+                <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; cursor:pointer">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <span style="font-weight: 600;">Equipe</span>
+                <div style="width:20px"></div>
+            </header>
+            
+            <div id="employee-list" style="margin-top:20px; padding-bottom: 100px;"></div>
+            
+            <div style="position: fixed; bottom: 30px; right: 20px; display: flex; gap: 15px; z-index: 99;">
+                <button onclick="sincronizarLinkDireto()" title="Sincronizar com Drive"
+                    style="width: 60px; height: 60px; background: var(--accent-purple); border-radius: 50%; border: none; color: white; font-size: 20px; box-shadow: 0 6px 0 #7e22ce; cursor: pointer;">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+
+                <button onclick="prepararNovoEmp()" title="Novo Funcionário"
+                    style="width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer;">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- VIEW EQUIPE -->
+    <div id="view-employees" class="view">
+        <header>
+            <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; cursor:pointer"><i class="fas fa-arrow-left"></i></button>
+            <span style="font-weight: 600;">Equipe</span>
+            <div style="width:20px"></div>
+        </header>
+        <div id="employee-list" style="margin-top:20px; padding-bottom: 100px;"></div>
+        <button class="fab-add" onclick="prepararNovoEmp()"><i class="fas fa-plus"></i></button>
     </div>
 
     <!-- MODAL CADASTRO -->
@@ -295,7 +333,7 @@
     </div>
     
 <script>
-    const _supabase = supabase.createClient('https://envuzusmubunlrrhhclu.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudnV6dXNtdWJ1bmxycmhoY2x1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDcwMDc1MjAsImV4cCI6MTczODU0MzUyMH0.6-E_4CjqhGWjm7vGkQC1R-G2Y2fY3eQJrLQ4WtE2R_8');
+    const _supabase = supabase.createClient('https://envuzusmubunlrrhhclu.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudnV6dXNtdWJ1bmxycmhoY2x1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NTMzMTcsImV4cCI6MjA5MzEyOTMxN30.pzepBGPOl9reoD4uLN0HUhpWaWfwv9pjLSkVdau7ntY');
 
     function changeView(id) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -458,9 +496,7 @@
                         <small>Admissão: ${dataAdmFormat}</small><br>
                         <small>Tempo: ${tempoCasa} | Exp: ${statusExp}</small>
                     </div>
-                    <button onclick="enviarZapDPCompleto('${emp.id}', '${emp.nome.replace(/'/g, "\\'")}', '${tempoCasa}', '${statusExp}')" style="background:#25d366; border:none; color:white; padding:8px 12px; border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer;">
-                        <i class="fab fa-whatsapp"></i> WhatsApp
-                    </button>
+                    <button onclick="enviarZapDPCompleto('${emp.id}', '${emp.nome.replace(/'/g, "\\'")}', '${tempoCasa}', '${statusExp}')" style="background:#25d366; border:none; color:white; padding:8px 12px; border-radius:8px; font-size:0.8rem; cursor:pointer"><i class="fab fa-whatsapp"></i> Enviar</button>
                 </div>
                 
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:10px; font-size:0.75rem; background:rgba(255,255,255,0.03); padding:10px; border-radius:10px;">
@@ -660,296 +696,339 @@
             }
         }
     };
+// Garante a abertura correta do popup e limpa estados anteriores
+async function openAcolhidos() {
+    // Reset de visualização: mostra a lista e esconde o mapa ao abrir
+    document.getElementById('lista-acolhidos').style.display = 'block';
+    document.getElementById('mapa-quartos').style.display = 'none';
+    
+    openModal('modalAcolhidos'); // Chama a função que você já tem no código
+    renderizarAcolhidos(); // Carrega os dados do Supabase
+}
 
-    // Acolhidos
-    async function openAcolhidos() {
-        document.getElementById('lista-acolhidos').style.display = 'block';
-        document.getElementById('mapa-quartos').style.display = 'none';
-        openModal('modalAcolhidos');
-        renderizarAcolhidos();
+// Se os botões ainda aparecerem "soltos" na tela, 
+    
+// verifique se você não esqueceu de fechar alguma </div> anterior no código.
+// Cole estas funções no final da sua tag <script>
+async function renderizarAcolhidos() {
+    const { data, error } = await _supabase.from('acolhidos').select('*').order('quarto');
+    if (error) return;
+
+    const container = document.getElementById('lista-acolhidos');
+    // Filtra quem não está com nome "Livre" ou vazio
+    const ocupados = data.filter(a => a.nome && a.nome.trim().toLowerCase() !== 'livre');
+    const livres = data.filter(a => !a.nome || a.nome.trim().toLowerCase() === 'livre');
+
+    document.getElementById('count-acolhidos').innerText = ocupados.length;
+    document.getElementById('count-livres').innerText = livres.length;
+    
+    container.innerHTML = data.map(a => `
+        <div class="item-card" style="padding:10px; margin-bottom:8px; border-left: 4px solid ${a.nome.toLowerCase() === 'livre' ? '#22c55e' : '#3b82f6'}">
+            <strong style="display:block">${a.nome}</strong>
+            <small style="color:var(--text-dim)">Quarto: ${a.quarto} | Cama: ${a.cama} (${a.tipo})</small>
+        </div>
+    `).join('');
+}
+
+async function importarExcel(input) {
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(sheet);
+
+        const formatado = json.map(row => ({
+            nome: row.Nome || row.nome || 'Livre',
+            quarto: row.Quarto || row.quarto || '?',
+            cama: row.Cama || row.cama || '?',
+            tipo: row.Tipo || row.tipo || 'S/T'
+        }));
+
+        const { error } = await _supabase.from('acolhidos').insert(formatado);
+        if (!error) {
+            alert("Dados importados com sucesso!");
+            renderizarAcolhidos();
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function toggleMapaQuartos() {
+    const lista = document.getElementById('lista-acolhidos');
+    const mapa = document.getElementById('mapa-quartos');
+    if (mapa.style.display === 'none') {
+        lista.style.display = 'none';
+        mapa.style.display = 'block';
+    } else {
+        lista.style.display = 'block';
+        mapa.style.display = 'none';
     }
+}
+    
+ let notasParaProcessar = [];
 
-    async function renderizarAcolhidos() {
-        const { data, error } = await _supabase.from('acolhidos').select('*').order('quarto');
-        if (error) return;
+function openFinanceiro() {
+    openModal('modalFinanceiro');
+}
 
-        const container = document.getElementById('lista-acolhidos');
-        const ocupados = data.filter(a => a.nome && a.nome.trim().toLowerCase() !== 'livre');
-        const livres = data.filter(a => !a.nome || a.nome.trim().toLowerCase() === 'livre');
+// Substitua handleFinanceiroUpload, focarNota, calcularTotalRemessa e enviarParaDP por estas:
 
-        document.getElementById('count-acolhidos').innerText = ocupados.length;
-        document.getElementById('count-livres').innerText = livres.length;
-        
-        container.innerHTML = data.map(a => `
-            <div class="item-card" style="padding:10px; margin-bottom:8px; border-left: 4px solid ${a.nome.toLowerCase() === 'livre' ? '#22c55e' : '#3b82f6'}">
-                <strong style="display:block">${a.nome}</strong>
-                <small style="color:var(--text-dim)">Quarto: ${a.quarto} | Cama: ${a.cama} (${a.tipo})</small>
-            </div>
-        `).join('');
-    }
-
-    async function importarExcel(input) {
-        const file = input.files[0];
+function handleFinanceiroUpload(input) {
+    const files = Array.from(input.files);
+    
+    // Inicializa o array global se não existir
+    if(!window.arquivosAtuais) window.arquivosAtuais = [];
+    
+    files.forEach((file) => {
         const reader = new FileReader();
-        reader.onload = async (e) => {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const sheet = workbook.Sheets[workbook.SheetNames[0]];
-            const json = XLSX.utils.sheet_to_json(sheet);
-
-            const formatado = json.map(row => ({
-                nome: row.Nome || row.nome || 'Livre',
-                quarto: row.Quarto || row.quarto || '?',
-                cama: row.Cama || row.cama || '?',
-                tipo: row.Tipo || row.tipo || 'S/T'
-            }));
-
-            const { error } = await _supabase.from('acolhidos').insert(formatado);
-            if (!error) {
-                alert("Dados importados com sucesso!");
-                renderizarAcolhidos();
-            }
-        };
-        reader.readAsArrayBuffer(file);
-    }
-
-    function toggleMapaQuartos() {
-        const lista = document.getElementById('lista-acolhidos');
-        const mapa = document.getElementById('mapa-quartos');
-        if (mapa.style.display === 'none') {
-            lista.style.display = 'none';
-            mapa.style.display = 'block';
-        } else {
-            lista.style.display = 'block';
-            mapa.style.display = 'none';
-        }
-    }
-
-    // Financeiro
-    if (!window.arquivosAtuais) window.arquivosAtuais = [];
-
-    function openFinanceiro() {
-        openModal('modalFinanceiro');
-    }
-
-    function handleFinanceiroUpload(input) {
-        const files = Array.from(input.files);
-        if (files.length === 0) return;
-
-        files.forEach((file) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const itemNota = { 
-                    id: Date.now() + Math.random(), 
-                    src: e.target.result, 
-                    file: file 
-                };
-                window.arquivosAtuais.push(itemNota);
-                renderizarListaFinanceiro();
+        reader.onload = (e) => {
+            // Adicionamos cada arquivo com um ID único para facilitar a exclusão
+            const itemNota = { 
+                id: Date.now() + Math.random(), 
+                src: e.target.result, 
+                file: file 
             };
-            reader.readAsDataURL(file);
-        });
+            window.arquivosAtuais.push(itemNota);
+            renderizarListaFinanceiro();
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// Substitua handleFinanceiroUpload, focarNota, calcularTotalRemessa e enviarParaDP por estas:
+
+function handleFinanceiroUpload(input) {
+    const files = Array.from(input.files);
+    
+    // Inicializa o array global se não existir
+    if(!window.arquivosAtuais) window.arquivosAtuais = [];
+    
+    files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            // Adicionamos cada arquivo com um ID único para facilitar a exclusão
+            const itemNota = { 
+                id: Date.now() + Math.random(), 
+                src: e.target.result, 
+                file: file 
+            };
+            window.arquivosAtuais.push(itemNota);
+            renderizarListaFinanceiro();
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// 1. Garantir que a variável global exista
+if (!window.arquivosAtuais) window.arquivosAtuais = [];
+
+function handleFinanceiroUpload(input) {
+    const files = Array.from(input.files);
+    if (files.length === 0) return;
+
+    files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const itemNota = { 
+                id: Date.now() + Math.random(), 
+                src: e.target.result, 
+                file: file 
+            };
+            window.arquivosAtuais.push(itemNota);
+            renderizarListaFinanceiro();
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function renderizarListaFinanceiro() {
+    const visor = document.getElementById('visor-notas');
+    const formContainer = document.getElementById('form-notas-container');
+    
+    // Se a lista esvaziar, volta ao estado inicial
+    if (window.arquivosAtuais.length === 0) {
+        resetarInterfaceFinanceiro();
+        return;
     }
 
-    function renderizarListaFinanceiro() {
-        const visor = document.getElementById('visor-notas');
-        const formContainer = document.getElementById('form-notas-container');
-        
-        if (window.arquivosAtuais.length === 0) {
-            resetarInterfaceFinanceiro();
-            return;
-        }
+    visor.innerHTML = ''; 
+    formContainer.innerHTML = '';
 
-        visor.innerHTML = ''; 
-        formContainer.innerHTML = '';
-
-        window.arquivosAtuais.forEach((item, index) => {
-            const imgContainer = document.createElement('div');
-            imgContainer.style = "position: relative; width: 95%; margin-bottom: 20px;";
-            imgContainer.innerHTML = `
-                <img src="${item.src}" id="nota-img-${index}" style="width: 100%; border-radius: 10px; border: 2px solid transparent; transition: 0.3s;">
-                <button type="button" onclick="removerNota(${index})" style="position: absolute; top: 10px; right: 10px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 18px;"><i class="fas fa-times"></i></button>
-            `;
-            visor.appendChild(imgContainer);
-
-            const div = document.createElement('div');
-            div.className = 'historico-box';
-            div.style = "margin-bottom: 15px; padding: 12px; border-left: 3px solid #f59e0b;";
-            div.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-                    <small style="color: #f59e0b; font-weight: bold;">NOTA ${index + 1}</small>
-                    <i class="fas fa-trash-alt" style="color:#ef4444; cursor:pointer;" onclick="removerNota(${index})"></i>
-                </div>
-                <label style="font-size: 0.7rem; color: #94a3b8;">Data da Nota:</label>
-                <input type="date" class="data-financeiro" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; margin-bottom: 8px;">
-                
-                <label style="font-size: 0.7rem; color: #94a3b8;">Valor R$:</label>
-                <input type="number" placeholder="0,00" class="input-financeiro" onfocus="focarNota(${index})" oninput="calcularTotalRemessa()" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px;">
-                
-                <select class="cat-financeiro" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; margin-top: 8px;">
-                    <option>Alimentação</option><option>EPI</option><option>Combustível</option><option>Manutenção</option><option>Outros</option>
-                </select>
-            `;
-            formContainer.appendChild(div);
-        });
-        calcularTotalRemessa();
-    }
-
-    function removerNota(index) {
-        window.arquivosAtuais.splice(index, 1);
-        renderizarListaFinanceiro();
-    }
-
-    function resetarInterfaceFinanceiro() {
-        window.arquivosAtuais = [];
-        const fileInput = document.getElementById('upload-lote');
-        if(fileInput) fileInput.value = "";
-        
-        document.getElementById('total-remessa').innerText = "R$ 0,00";
-        document.getElementById('form-notas-container').innerHTML = '<p style="color: #94a3b8; font-size: 0.8rem;">Selecione as notas para iniciar.</p>';
-        
-        document.getElementById('visor-notas').innerHTML = `
-            <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8; display: flex; flex-direction: column; align-items: center;">
-                <i class="fas fa-images fa-3x"></i><br><br>
-                <button type="button" class="btn-save" onclick="document.getElementById('upload-lote').click()">Carregar Notas</button>
-            </div>
+    window.arquivosAtuais.forEach((item, index) => {
+        // Container da Imagem
+        const imgContainer = document.createElement('div');
+        imgContainer.style = "position: relative; width: 95%; margin-bottom: 20px;";
+        imgContainer.innerHTML = `
+            <img src="${item.src}" id="nota-img-${index}" style="width: 100%; border-radius: 10px; border: 2px solid transparent; transition: 0.3s;">
+            <button type="button" onclick="removerNota(${index})" style="position: absolute; top: 10px; right: 10px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-weight: bold; z-index: 10; display: flex; align-items: center; justify-content: center;">X</button>
         `;
+        visor.appendChild(imgContainer);
+
+        // Campos do Formulário
+        const div = document.createElement('div');
+        div.className = 'historico-box';
+        div.style = "margin-bottom: 15px; padding: 12px; border-left: 3px solid #f59e0b;";
+        div.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                <small style="color: #f59e0b; font-weight: bold;">NOTA ${index + 1}</small>
+                <i class="fas fa-trash-alt" style="color:#ef4444; cursor:pointer;" onclick="removerNota(${index})"></i>
+            </div>
+            <label style="font-size: 0.7rem; color: #94a3b8;">Data da Nota:</label>
+            <input type="date" class="data-financeiro" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; margin-bottom: 8px;">
+            
+            <label style="font-size: 0.7rem; color: #94a3b8;">Valor R$:</label>
+            <input type="number" placeholder="0,00" class="input-financeiro" onfocus="focarNota(${index})" oninput="calcularTotalRemessa()" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px;">
+            
+            <select class="cat-financeiro" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; margin-top: 8px;">
+                <option>Alimentação</option><option>EPI</option><option>Combustível</option><option>Manutenção</option><option>Outros</option>
+            </select>
+        `;
+        formContainer.appendChild(div);
+    });
+    calcularTotalRemessa();
+}
+
+function removerNota(index) {
+    window.arquivosAtuais.splice(index, 1);
+    renderizarListaFinanceiro();
+}
+
+function resetarInterfaceFinanceiro() {
+    // 1. Limpa o array de dados
+    window.arquivosAtuais = [];
+    
+    // 2. Limpa o input de arquivo (ESSENCIAL para destravar o botão)
+    const fileInput = document.getElementById('upload-lote');
+    if(fileInput) fileInput.value = "";
+    
+    // 3. Reseta os textos e totais
+    document.getElementById('total-remessa').innerText = "R$ 0,00";
+    document.getElementById('form-notas-container').innerHTML = '<p style="color: #94a3b8; font-size: 0.8rem;">Selecione as notas para iniciar.</p>';
+    
+    // 4. Restaura o botão central de carregar
+    document.getElementById('visor-notas').innerHTML = `
+        <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8;">
+            <i class="fas fa-images fa-3x"></i><br><br>
+            <button type="button" class="btn-save" onclick="document.getElementById('upload-lote').click()">Carregar Notas</button>
+        </div>
+    `;
+}
+
+function enviarParaDP() {
+    const inputs = document.querySelectorAll('.input-financeiro');
+    const datas = document.querySelectorAll('.data-financeiro');
+    const categorias = document.querySelectorAll('.cat-financeiro');
+    const total = document.getElementById('total-remessa').innerText;
+    
+    if (window.arquivosAtuais.length === 0) {
+        alert("Adicione notas primeiro.");
+        return;
     }
 
-    function enviarParaDP() {
-        const inputs = document.querySelectorAll('.input-financeiro');
-        const datas = document.querySelectorAll('.data-financeiro');
-        const categorias = document.querySelectorAll('.cat-financeiro');
-        const total = document.getElementById('total-remessa').innerText;
+    let detalhamento = "";
+    inputs.forEach((input, i) => {
+        const valor = parseFloat(input.value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const dataNota = datas[i].value ? datas[i].value.split('-').reverse().join('/') : "S/ Data";
+        detalhamento += `🔹 *Nota ${i+1}:* ${valor} (${categorias[i].value}) - Data: ${dataNota}%0A`;
+    });
+
+    const msg = `🧾 *RESUMO FINANCEIRO*%0A%0A${detalhamento}%0A💰 *TOTAL: ${total}*`;
+    
+    // Abre o WhatsApp
+    window.open(`https://wa.me/?text=${msg}`);
+
+    // Pergunta para limpar
+    setTimeout(() => {
+        if(confirm("Deseja limpar os dados deste envio?")) {
+            resetarInterfaceFinanceiro();
+        }
+    }, 1000);
+}
+
+function focarNota(index) {
+    const img = document.getElementById(`nota-img-${index}`);
+    if(img) {
+        img.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.querySelectorAll('#visor-notas img').forEach(i => i.style.borderColor = 'transparent');
+        img.style.borderColor = '#3b82f6';
+    }
+}
+
+function calcularTotalRemessa() {
+    const inputs = document.querySelectorAll('.input-financeiro');
+    let total = 0;
+    inputs.forEach(i => total += Number(i.value || 0));
+    document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
+}
+
+async function sincronizarLinkDireto() {
+    const linkInput = prompt("Cole o link da sua planilha do Google Drive:\n\nExemplo: https://docs.google.com/spreadsheets/d/AQUI_O_ID/edit");
+    if (!linkInput || linkInput.trim() === "") return;
+
+    let fileId = "";
+    try {
+        if (linkInput.includes("/d/")) {
+            fileId = linkInput.split("/d/")[1].split("/")[0];
+        } else if (linkInput.includes("?id=")) {
+            fileId = linkInput.split("?id=")[1].split("&")[0];
+        } else {
+            return alert("❌ Link inválido!");
+        }
+
+        if (!fileId || fileId.length < 20) {
+            return alert("❌ ID da planilha não reconhecido!");
+        }
+    } catch (e) {
+        return alert("❌ Erro: " + e.message);
+    }
+
+    try {
+        alert("⏳ Sincronizando...");
         
-        if (window.arquivosAtuais.length === 0) {
-            alert("Adicione notas primeiro.");
-            return;
-        }
-
-        let detalhamento = "";
-        inputs.forEach((input, i) => {
-            const valor = parseFloat(input.value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            const dataNota = datas[i].value ? datas[i].value.split('-').reverse().join('/') : "S/ Data";
-            detalhamento += `🔹 *Nota ${i+1}:* ${valor} (${categorias[i].value}) - Data: ${dataNota}%0A`;
-        });
-
-        const msg = `🧾 *RESUMO FINANCEIRO*%0A%0A${detalhamento}%0A💰 *TOTAL: ${total}*`;
+        const exportUrl = `https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv`;
+        const res = await fetch(exportUrl);
         
-        window.open(`https://wa.me/?text=${msg}`);
-
-        setTimeout(() => {
-            if(confirm("Deseja limpar os dados deste envio?")) {
-                resetarInterfaceFinanceiro();
-            }
-        }, 1000);
-    }
-
-    function focarNota(index) {
-        const img = document.getElementById(`nota-img-${index}`);
-        if(img) {
-            img.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            document.querySelectorAll('#visor-notas img').forEach(i => i.style.borderColor = 'transparent');
-            img.style.borderColor = '#3b82f6';
-        }
-    }
-
-    function calcularTotalRemessa() {
-        const inputs = document.querySelectorAll('.input-financeiro');
-        let total = 0;
-        inputs.forEach(i => total += Number(i.value || 0));
-        document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
-    }
-
-    // SINCRONIZAR LINK DIRETO - FUNÇÃO CORRIGIDA
-    async function sincronizarLinkDireto() {
-        const linkInput = prompt("Cole o link da sua planilha do Google Drive:\n\nExemplo: https://docs.google.com/spreadsheets/d/AQUI_O_ID/edit");
-        if (!linkInput || linkInput.trim() === "") return;
-
-        let fileId = "";
-        try {
-            if (linkInput.includes("/d/")) {
-                fileId = linkInput.split("/d/")[1].split("/")[0];
-            } else if (linkInput.includes("?id=")) {
-                fileId = linkInput.split("?id=")[1].split("&")[0];
-            } else {
-                return alert("❌ Link inválido!");
-            }
-
-            if (!fileId || fileId.length < 20) {
-                return alert("❌ ID da planilha não reconhecido!");
-            }
-        } catch (e) {
-            return alert("❌ Erro: " + e.message);
+        if (!res.ok) {
+            throw new Error("Acesso Negado! Publique a planilha na Web.");
         }
 
-        try {
-            alert("⏳ Sincronizando...");
-            
-            const exportUrl = `https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv`;
-            const res = await fetch(exportUrl);
-            
-            if (!res.ok) {
-                throw new Error("Acesso Negado! Certifique-se de que a planilha está pública ou acessível.");
-            }
+        const csv = await res.text();
+        const linhas = csv.split('\n').filter(l => l.trim());
+        
+        // ❌ AQUI ESTÁ FALTANDO: Parse do CSV e Insert no Supabase
+        
+        // ✅ SOLUÇÃO - Adicione isto:
+        const funcionarios = linhas.slice(1).map(linha => {
+            const colunas = linha.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+            return {
+                nome: colunas[0] || '',
+                funcao: colunas[1] || '',
+                horario: colunas[2] || '',
+                equipe: colunas[3] || '',
+                data_admissa: colunas[4] || ''
+            };
+        }).filter(f => f.nome); // Remove linhas vazias
 
-            const csv = await res.text();
-            const linhas = csv.split('\n').filter(l => l.trim());
-            
-            if (linhas.length <= 1) {
-                return alert("❌ Planilha vazia ou sem dados!");
-            }
-
-            // Parse do CSV
-            const headers = linhas[0].split(',').map(h => h.trim().toLowerCase());
-            const dados = [];
-
-            for (let i = 1; i < linhas.length; i++) {
-                const valores = linhas[i].split(',').map(v => v.trim());
-                if (valores.some(v => v)) { // Pula linhas vazias
-                    const obj = {};
-                    headers.forEach((header, idx) => {
-                        obj[header] = valores[idx] || '';
-                    });
-                    dados.push(obj);
-                }
-            }
-
-            if (dados.length === 0) {
-                return alert("❌ Nenhum dado encontrado na planilha!");
-            }
-
-            // Mapear colunas (procura por variações comuns)
-            const formatado = dados.map(row => {
-                const nomeCol = Object.keys(row).find(k => k.includes('nome') || k.includes('name'));
-                const funcaoCol = Object.keys(row).find(k => k.includes('funcao') || k.includes('função') || k.includes('cargo'));
-                const horarioCol = Object.keys(row).find(k => k.includes('horario') || k.includes('horário') || k.includes('hora'));
-                const equipeCol = Object.keys(row).find(k => k.includes('equipe') || k.includes('time'));
-
-                return {
-                    nome: row[nomeCol] || 'Sem Nome',
-                    funcao: row[funcaoCol] || 'Sem Função',
-                    horario: row[horarioCol] || '08:00',
-                    equipe: row[equipeCol] || 'Equipe 1 Diurna'
-                };
-            });
-
-            // Salvar no Supabase
-            const { error } = await _supabase.from('funcionarios').insert(formatado);
-            
-            if (error) {
-                console.error('Erro Supabase:', error);
-                alert(`❌ Erro ao salvar: ${error.message}`);
-            } else {
-                alert(`✅ ${formatado.length} funcionários importados com sucesso!`);
-                listarEquipe();
-            }
-
-        } catch (e) {
-            console.error('Erro:', e);
-            alert(`❌ Erro: ${e.message}`);
+        if (funcionarios.length === 0) {
+            return alert("❌ Nenhum dado válido encontrado na planilha!");
         }
+
+        // INSERT no Supabase
+        const { error } = await _supabase.from('funcionarios').insert(funcionarios);
+        
+        if (error) {
+            throw error;
+        }
+
+        alert(`✅ ${funcionarios.length} funcionário(s) importado(s) com sucesso!`);
+        listarEquipe(); // Atualiza a lista
+        
+    } catch (e) {
+        alert("❌ Erro: " + e.message);
     }
+}
 </script>
 </body>
 </html>
