@@ -964,89 +964,164 @@ function calcularTotalRemessa() {
 }
 
 async function sincronizarLinkDireto() {
-    let linkInput = prompt("Cole o link da sua planilha do Google Drive:");
-    if (!linkInput) return;
+    const linkInput = prompt("Cole o link da sua planilha do Google Drive:\n\nExemplo: https://docs.google.com/spreadsheets/d/AQUI_O_ID/edit");
+    if (!linkInput || linkInput.trim() === "") return;
 
     let fileId = "";
     try {
+        // Extrai o ID de diferentes formatos de URL
         if (linkInput.includes("/d/")) {
             fileId = linkInput.split("/d/")[1].split("/")[0];
+        } else if (linkInput.includes("?id=")) {
+            fileId = linkInput.split("?id=")[1].split("&")[0];
         } else {
-            return alert("Link inválido! Copie o link completo da barra de endereços.");
+            return alert("❌ Link inválido!\n\nFormato esperado:\nhttps://docs.google.com/spreadsheets/d/AQUI_O_ID/edit");
+        }
+
+        if (!fileId || fileId.length < 20) {
+            return alert("❌ ID da planilha não reconhecido. Verifique o link!");
         }
     } catch (e) {
-        return alert("Erro ao processar o link.");
+        return alert("❌ Erro ao processar o link: " + e.message);
     }
 
-    // URL específica para contornar bloqueios de segurança (CORS)
-    const exportUrl = `https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv`;
-
     try {
+        // Mostrar loading
+        alert("⏳ Sincronizando... Isso pode levar alguns segundos.");
+        
+        // URL para exportar como CSV
+        const exportUrl = `https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv`;
+
         const res = await fetch(exportUrl);
         
-        // Se o Google retornar erro 401 ou 403, caímos aqui
         if (!res.ok) {
-            throw new Error("O Google bloqueou o acesso. Você precisa 'Publicar na Web'.");
+            if (res.status === 403 || res.status === 401) {
+                throw new Error("Acesso Negado! Você precisa tornar a planilha 'Publicada na Web'.");
+            }
+            throw new Error(`Erro HTTP ${res.status}`);
         }
         
         const csvText = await res.text();
         
-        // Se o resultado vier em HTML, significa que o Google está a pedir login (Acesso Negado)
-        if (csvText.includes("<!DOCTYPE html>")) {
-            throw new Error("Acesso Negado. A planilha não está 'Publicada na Web'.");
+        // Valida se recebeu uma resposta real (não HTML de erro)
+        if (!csvText || csvText.trim() === "" || csvText.includes("<!DOCTYPE")) {
+            throw new Error("A planilha não está 'Publicada na Web' ou está vazia.");
         }
 
+        // Parse do CSV
         const workbook = XLSX.read(csvText, { type: 'string' });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-
-        if (jsonData.length === 0) {
-            return alert("Nenhum dado encontrado. Verifique a Linha 1 da sua planilha.");
+        if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+            throw new Error("Não foi possível ler as abas da planilha.");
         }
 
-        const listaParaInserir = jsonData.map(row => {
-            const getVal = (names) => {
-                const key = Object.keys(row).find(k => 
-                    names.includes(k.trim().toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""))
-                );
-                return key ? String(row[key]).trim() : null;
-            };
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+        if (!json || json.length === 0) {
+            return alert("⚠️ A planilha está vazia ou não tem dados válidos.");
+        }
+
+        // Mapeia as colunas esperadas (funcionários)
+        const dadosFormatados = json.map((row, index) => {
+            // Aceita variações de nomenclatura
+            const nome = row.Nome || row.nome || row.NOME || row.name || row.Name || "";
+            const funcao = row.Função || row.funcao || row.FUNCAO || row.Role || row.role || "";
+            const horario = row.Horário || row.horario || row.HORARIO || row.Horario || row.hora || "";
+            const equipe = row.Equipe || row.equipe || row.EQUIPE || row.team || "";
+            const admissao = row["Data de Admissão"] || row["Data Admissão"] || row.data_adm || row.admissao || row.Admissao || "";
 
             return {
-                codigo: getVal(["CODIGO", "ID"]),
-                nome: getVal(["NOME"]),
-                endereco: getVal(["ENDERECO", "LOGRADOURO"]),
-                bairro: getVal(["BAIRRO"]),
-                cidade: getVal(["CIDADE"]),
-                estado: getVal(["ESTADO", "UF"]),
-                cep: getVal(["CEP"]),
-                nascimento: getVal(["NASCIMENTO"]),
-                cpf: getVal(["CPF"]),
-                rg: getVal(["RG"]),
-                titulo_eleitor: getVal(["TITULO_ELEITOR", "TITULO"]),
-                ctps: getVal(["CTPS"]),
-                habilitacao: getVal(["HABILITACAO", "CNH"]),
-                data_admissa: getVal(["ADMISSAO", "ADMISSÃO"]),
-                desligamento: getVal(["DESLIGAMENTO"]),
-                funcao: getVal(["NOME_CARGO_ATUAL", "CARGO"]),
-                celular: getVal(["CELULAR", "TELEFONE"]),
-                qtde_horas_mes: getVal(["QTDE_HORAS_MES", "HORAS"])
+                nome: nome.trim(),
+                funcao: funcao.trim(),
+                horario: horario.trim(),
+                equipe: equipe.trim(),
+                data_admissa: formatarData(admissao),
+                foto: "", // Fotos são adicionadas manualmente
+                alinhamentos: "",
+                advertencias: ""
             };
-        }).filter(f => f.nome);
+        });
 
-        const { error } = await _supabase.from('funcionarios').insert(listaParaInserir);
-        if (error) throw error;
+        // Remove linhas vazias
+        const dadosValidos = dadosFormatados.filter(d => d.nome.length > 0);
 
-        alert(`Sucesso! ${listaParaInserir.length} funcionários sincronizados.`);
+        if (dadosValidos.length === 0) {
+            return alert("⚠️ Nenhum funcionário válido encontrado na planilha.\n\nVerifique se tem uma coluna 'Nome'.");
+        }
+
+        // Confirmar antes de sincronizar
+        const confirmar = confirm(`✅ Encontrados ${dadosValidos.length} funcionário(s).\n\nDeseja importar para o banco de dados?`);
+        if (!confirmar) return;
+
+        // Inserir no Supabase
+        let inseridos = 0;
+        let erros = 0;
+
+        for (const funcionario of dadosValidos) {
+            try {
+                const { error } = await _supabase.from('funcionarios').insert([funcionario]);
+                if (error) {
+                    console.error(`Erro ao inserir ${funcionario.nome}:`, error);
+                    erros++;
+                } else {
+                    inseridos++;
+                }
+            } catch (e) {
+                console.error(e);
+                erros++;
+            }
+        }
+
+        // Feedback final
+        let mensagem = `✅ Sincronização concluída!\n\n`;
+        mensagem += `✔️ Inseridos: ${inseridos}\n`;
+        if (erros > 0) mensagem += `⚠️ Erros: ${erros}\n`;
+        
+        alert(mensagem);
+
+        // Recarregar a lista
         listarEquipe();
 
-    } catch (err) {
-        console.error("Erro detalhado:", err);
-        alert("FALHA DE ACESSO: " + err.message + "\n\nSiga o passo a passo de publicação na planilha.");
+    } catch (error) {
+        console.error("Erro na sincronização:", error);
+        
+        let mensagemErro = "❌ Erro na sincronização:\n\n" + error.message;
+        
+        if (error.message.includes("Publicada na Web")) {
+            mensagemErro += "\n\n📌 COMO RESOLVER:\n";
+            mensagemErro += "1. Abra a planilha no Google Sheets\n";
+            mensagemErro += "2. Clique em 'Compartilhar' (canto superior direito)\n";
+            mensagemErro += "3. Clique em 'Alterar para qualquer pessoa com o link\"\n";
+            mensagemErro += "4. Copie e cole o link aqui novamente";
+        }
+        
+        alert(mensagemErro);
     }
-    }
-            
+}
+
+// Função auxiliar para formatar datas
+function formatarData(data) {
+    if (!data || data.trim() === "") return "";
     
+    // Se já está no formato YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(data.trim())) {
+        return data.trim();
+    }
+    
+    // Se está no formato DD/MM/YYYY
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(data.trim())) {
+        const [dia, mes, ano] = data.trim().split('/');
+        return `${ano}-${mes}-${dia}`;
+    }
+    
+    // Se está no formato DD-MM-YYYY
+    if (/^\d{2}-\d{2}-\d{4}$/.test(data.trim())) {
+        const [dia, mes, ano] = data.trim().split('-');
+        return `${ano}-${mes}-${dia}`;
+    }
+    
+    return "";
+    }
 </script>
 </body>
 </html>
