@@ -946,58 +946,104 @@ function calcularTotalRemessa() {
     document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
 }
 
-  const novosFuncionarios = linhas.slice(1).map((linha) => {
-    const regex = new RegExp(`${separador}(?=(?:(?:[^"]*"){2})*[^"]*$)`);
-    const col = linha.split(regex).map(c => c.trim().replace(/^"|"$/g, ''));
-    
-    // Função auxiliar para converter datas (DD/MM/AAAA -> AAAA-MM-DD)
-    const formatarData = (v) => {
-        if (!v || !v.includes('/')) return null;
-        const p = v.split('/');
-        return p.length === 3 ? `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}` : null;
-    };
+  async function sincronizarLinkDireto() {
+    const linkInput = prompt("Cole o link da planilha PUBLICADA como CSV:");
+    if (!linkInput) return;
 
-    // Função auxiliar para converter valores da planilha em Booleano (true/false)
-    const eVerdadeiro = (v) => v && (v.toUpperCase() === 'TRUE' || v.toUpperCase() === 'SIM' || v === '1');
+    try {
+        let urlSinc = linkInput;
+        // Converte link de edição em link de exportação direta
+        if (linkInput.includes('/edit')) {
+            const id = linkInput.split('/d/')[1].split('/')[0];
+            urlSinc = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`;
+        }
 
-    return {
-        nome: col[0] || null,
-        endereco: col[1] || '',
-        bairro: col[2] || '',
-        estado: col[3] || '',
-        cep: col[4] || '',
-        funcao: col[5] || '',
-        horario: col[6] || '',
-        equipe: col[7] || '',
-        alinhamientos: col[8] || '', // Ajustado conforme imagem (alinhamientos)
-        advertencias: col[9] || '',  // Ajustado conforme imagem (advertencias)
-        foto: col[10] || '',
-        data_admissa: formatarData(col[11]),
-        check_docs: eVerdadeiro(col[12]),
-        check_aso: eVerdadeiro(col[13]),
-        check_contrato: eVerdadeiro(col[14]), // Ajustado para bater com check_contrato da imagem
-        check_uniforme: eVerdadeiro(col[15]),
-        check_epi: eVerdadeiro(col[16]),
-        tamanho_uniforme: col[17] || '',
-        ultimo_envio_zap: col[18] || '',
-        data_zap: formatarData(col[19]),
-        check_vt: eVerdadeiro(col[20]),
-        check_cracha: eVerdadeiro(col[21]),
-        codigo: col[22] || '',
-        cidade: col[23] || '',
-        nascimento: formatarData(col[24]),
-        cpf: col[25] || '',
-        rg: col[26] || '',
-        titulo_eleitor: col[27] || '',
-        ctps: col[28] || '',
-        habilitacao: col[29] || '',
-        desligamento: formatarData(col[30]),
-        qtde_horas_mes: col[31] || '',
-        celular: col[32] || ''
-    };
-}).filter(f => f.nome && f.nome.toLowerCase() !== "nome");
-    
+        const res = await fetch(urlSinc);
+        const csvText = await res.text();
+        
+        // Remove linhas totalmente em branco
+        const linhas = csvText.split(/\r?\n/).map(l => l.trim()).filter(l => l !== "");
+        
+        console.log("Total de linhas detectadas:", linhas.length);
+        console.log("Conteúdo da primeira linha:", linhas[0]);
 
+        if (linhas.length < 2) {
+            alert("A planilha parece estar vazia. Certifique-se de que ela foi 'Publicada na Web' como CSV.");
+            return;
+        }
+
+        const separador = linhas[0].includes(';') ? ';' : ',';
+
+        const novosFuncionarios = linhas.slice(1).map((linha) => {
+            const regex = new RegExp(`${separador}(?=(?:(?:[^"]*"){2})*[^"]*$)`);
+            const col = linha.split(regex).map(c => c.trim().replace(/^"|"$/g, ''));
+            
+            const formatarData = (v) => {
+                if (!v || !v.includes('/')) return null;
+                const p = v.split('/');
+                return p.length === 3 ? `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}` : null;
+            };
+
+            const eVerdadeiro = (v) => v && (v.toUpperCase() === 'TRUE' || v.toUpperCase() === 'SIM' || v === '1');
+
+            return {
+                nome: col[0] || null,
+                endereco: col[1] || '',
+                bairro: col[2] || '',
+                estado: col[3] || '',
+                cep: col[4] || '',
+                funcao: col[5] || '',
+                horario: col[6] || '',
+                equipe: col[7] || '',
+                alinhamientos: col[8] || '', 
+                advertencias: col[9] || '',  
+                foto: col[10] || '',
+                data_admissa: formatarData(col[11]),
+                check_docs: eVerdadeiro(col[12]),
+                check_aso: eVerdadeiro(col[13]),
+                check_contrato: eVerdadeiro(col[14]), 
+                check_uniforme: eVerdadeiro(col[15]),
+                check_epi: eVerdadeiro(col[16]),
+                tamanho_uniforme: col[17] || '',
+                ultimo_envio_zap: col[18] || '',
+                data_zap: formatarData(col[19]),
+                check_vt: eVerdadeiro(col[20]),
+                check_cracha: eVerdadeiro(col[21]),
+                codigo: col[22] || '',
+                cidade: col[23] || '',
+                nascimento: formatarData(col[24]),
+                cpf: col[25] || '',
+                rg: col[26] || '',
+                titulo_eleitor: col[27] || '',
+                ctps: col[28] || '',
+                habilitacao: col[29] || '',
+                desligamento: formatarData(col[30]),
+                qtde_horas_mes: col[31] || '',
+                celular: col[32] || ''
+            };
+        }).filter(f => f.nome && f.nome.toLowerCase() !== "nome"); 
+
+        if (novosFuncionarios.length === 0) {
+            alert("Nenhum dado válido encontrado após o processamento.");
+            return;
+        }
+
+        const { data, error } = await _supabase
+            .from('funcionarios')
+            .insert(novosFuncionarios)
+            .select();
+
+        if (error) throw error;
+
+        alert(`✅ SUCESSO! ${data.length} funcionários sincronizados.`);
+        if (typeof listarEquipe === 'function') listarEquipe();
+        
+    } catch (e) {
+        console.error("Erro detalhado:", e);
+        alert("❌ Erro na sincronização: " + e.message);
+    }
+  }
+                
 </script>
 </body>
 </html>
