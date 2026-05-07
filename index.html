@@ -946,7 +946,7 @@ function calcularTotalRemessa() {
     document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
 }
 
-        async function sincronizarLinkDireto() {
+  async function sincronizarLinkDireto() {
     const linkInput = prompt("Cole o link da planilha PUBLICADA como CSV:");
     if (!linkInput) return;
 
@@ -962,19 +962,18 @@ function calcularTotalRemessa() {
         const linhas = csvText.split(/\r?\n/).filter(l => l.trim());
         
         if (linhas.length < 2) {
-            alert("A planilha parece estar vazia.");
+            alert("A planilha parece estar vazia ou não foi publicada corretamente.");
             return;
         }
 
-        // Detecta automaticamente se a planilha usa vírgula ou ponto e vírgula
+        // Detecta o separador para garantir que a divisão das colunas funcione
         const separador = linhas[0].includes(';') ? ';' : ',';
 
-        const novosFuncionarios = linhas.slice(1).map(linha => {
-            // Regex avançada para separar colunas sem quebrar em vírgulas dentro de textos
+        const novosFuncionarios = linhas.slice(1).map((linha) => {
             const regex = new RegExp(`${separador}(?=(?:(?:[^"]*"){2})*[^"]*$)`);
             const col = linha.split(regex).map(c => c.trim().replace(/^"|"$/g, ''));
             
-            // Tratamento da Data de Admissão (Coluna M - índice 12)
+            // Tratamento da Data de Admissão - Coluna M (índice 12)
             let dataFormatada = null;
             if (col[12] && col[12].includes('/')) {
                 const p = col[12].split('/');
@@ -983,18 +982,20 @@ function calcularTotalRemessa() {
                 }
             }
 
-            // MAPEAMENTO CONFORME A SUA LISTA:
-            // 0:nome, 6:função, 7:horário, 8:equipe, 12:data_admissa
+            // MAPEAMENTO PELAS COLUNAS DA SUA PLANILHA:
             return {
-                nome: col[0] || null,
-                funcao: col[6] || '',
-                horario: col[7] || '',
-                equipe: col[8] || '',
-                data_admissa: dataFormatada
+                nome: col[0] || null,           // Coluna A (Índice 0)
+                funcao: col[6] || '',           // Coluna G (Índice 6)
+                horario: col[7] || '',          // Coluna H (Índice 7)
+                equipe: col[8] || '',           // Coluna I (Índice 8)
+                data_admissa: dataFormatada     // Coluna M (Índice 12)
             };
         }).filter(f => f.nome && f.nome.toLowerCase() !== "nome");
 
-        console.log("Dados processados para envio:", novosFuncionarios);
+        if (novosFuncionarios.length === 0) {
+            alert("Nenhum dado válido encontrado. Verifique se a planilha segue a ordem das colunas.");
+            return;
+        }
 
         const { data, error } = await _supabase
             .from('funcionarios')
@@ -1003,18 +1004,15 @@ function calcularTotalRemessa() {
 
         if (error) throw error;
 
-        if (data) {
-            alert(`✅ SUCESSO! ${data.length} funcionários registrados no Supabase.`);
-            listarEquipe();
-        }
+        alert(`✅ REGISTRADO! ${data.length} funcionários agora estão no Supabase.`);
+        listarEquipe();
         
     } catch (e) {
         console.error("Erro detalhado:", e);
         alert("❌ Falha ao registrar: " + e.message);
     }
-    }
-            
-            
+}
+      
 </script>
 </body>
 </html>
