@@ -947,41 +947,63 @@ function calcularTotalRemessa() {
 }
 
 async function sincronizarLinkDireto() {
-    const linkInput = prompt("Cole o link da planilha publicada como CSV:");
+    const linkInput = prompt("Cole o link da planilha PUBLICADA como CSV:");
     if (!linkInput) return;
 
     try {
-        alert("⏳ Sincronizando...");
-        const res = await fetch(linkInput);
-        if (!res.ok) throw new Error("Acesso negado. Verifique se publicou como CSV.");
+        let urlSinc = linkInput;
+        if (linkInput.includes('/edit')) {
+            const id = linkInput.split('/d/')[1].split('/')[0];
+            urlSinc = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`;
+        }
 
-        const csv = await res.text();
-        const linhas = csv.split('\n').filter(l => l.trim());
+        const res = await fetch(urlSinc);
+        const csvText = await res.text();
         
-        // Mapeia os dados pulando o cabeçalho
-        const novosDados = linhas.slice(1).map(linha => {
-            const col = linha.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+        // Divide as linhas e remove espaços em branco
+        const linhas = csvText.split(/\r?\n/).filter(l => l.trim());
+        
+        const novosFuncionarios = linhas.slice(1).map(linha => {
+            // Este regex separa as colunas corretamente mesmo que haja vírgulas dentro dos textos
+            const col = linha.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.trim().replace(/^"|"$/g, ''));
+            
+            // Tratamento da Data (Coluna 5 - Índice 4)
+            let dataFormatada = null;
+            if (col[4] && col[4].includes('/')) {
+                const partes = col[4].split('/');
+                if (partes.length === 3) {
+                    dataFormatada = `${partes[2]}-${partes[1].padStart(2, '0')}-${partes[0].padStart(2, '0')}`;
+                }
+            }
+
+            // MAPEAMENTO EXCLUSIVO: Pegamos apenas as colunas 0, 1, 2, 3 e 4
+            // Ignoramos qualquer coluna da 5 em diante
             return {
-                nome: col[0] || '',
+                nome: col[0] || null,
                 funcao: col[1] || '',
                 horario: col[2] || '',
                 equipe: col[3] || '',
-                data_admissa: col[4] || null
+                data_admissa: dataFormatada
             };
-        }).filter(f => f.nome);
+        }).filter(f => f.nome && f.nome !== ""); // Só envia se tiver nome
 
-        // Insere no Supabase
-        const { error } = await _supabase.from('funcionarios').insert(novosDados);
+        if (novosFuncionarios.length === 0) {
+            throw new Error("Nenhum dado válido encontrado nas primeiras colunas.");
+        }
+
+        const { error } = await _supabase.from('funcionarios').insert(novosFuncionarios);
         
         if (error) throw error;
 
-        alert(`✅ ${novosDados.length} registros sincronizados!`);
+        alert(`✅ Sincronizado com sucesso! ${novosFuncionarios.length} registros importados.`);
         listarEquipe();
         
     } catch (e) {
-        alert("❌ Erro: " + e.message);
+        console.error("Erro detalhado:", e);
+        alert("❌ Erro: " + (e.message || "Verifique se a planilha segue a ordem: Nome, Função, Horário, Equipe, Data."));
     }
-}
+    }
+                
     
 </script>
 </body>
