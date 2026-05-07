@@ -969,159 +969,66 @@ async function sincronizarLinkDireto() {
 
     let fileId = "";
     try {
-        // Extrai o ID de diferentes formatos de URL
         if (linkInput.includes("/d/")) {
             fileId = linkInput.split("/d/")[1].split("/")[0];
         } else if (linkInput.includes("?id=")) {
             fileId = linkInput.split("?id=")[1].split("&")[0];
         } else {
-            return alert("❌ Link inválido!\n\nFormato esperado:\nhttps://docs.google.com/spreadsheets/d/AQUI_O_ID/edit");
+            return alert("❌ Link inválido!");
         }
 
         if (!fileId || fileId.length < 20) {
-            return alert("❌ ID da planilha não reconhecido. Verifique o link!");
+            return alert("❌ ID da planilha não reconhecido!");
         }
     } catch (e) {
-        return alert("❌ Erro ao processar o link: " + e.message);
+        return alert("❌ Erro: " + e.message);
     }
 
     try {
-        // Mostrar loading
-        alert("⏳ Sincronizando... Isso pode levar alguns segundos.");
+        alert("⏳ Sincronizando...");
         
-        // URL para exportar como CSV
         const exportUrl = `https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv`;
-
         const res = await fetch(exportUrl);
         
         if (!res.ok) {
-            if (res.status === 403 || res.status === 401) {
-                throw new Error("Acesso Negado! Você precisa tornar a planilha 'Publicada na Web'.");
-            }
-            throw new Error(`Erro HTTP ${res.status}`);
+            throw new Error("Acesso Negado! Publique a planilha na Web.");
         }
+
+        const csv = await res.text();
+        const linhas = csv.split('\n').filter(l => l.trim());
         
-        const csvText = await res.text();
+        // ❌ AQUI ESTÁ FALTANDO: Parse do CSV e Insert no Supabase
         
-        // Valida se recebeu uma resposta real (não HTML de erro)
-        if (!csvText || csvText.trim() === "" || csvText.includes("<!DOCTYPE")) {
-            throw new Error("A planilha não está 'Publicada na Web' ou está vazia.");
-        }
-
-        // Parse do CSV
-        const workbook = XLSX.read(csvText, { type: 'string' });
-        if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
-            throw new Error("Não foi possível ler as abas da planilha.");
-        }
-
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-
-        if (!json || json.length === 0) {
-            return alert("⚠️ A planilha está vazia ou não tem dados válidos.");
-        }
-
-        // Mapeia as colunas esperadas (funcionários)
-        const dadosFormatados = json.map((row, index) => {
-            // Aceita variações de nomenclatura
-            const nome = row.Nome || row.nome || row.NOME || row.name || row.Name || "";
-            const funcao = row.Função || row.funcao || row.FUNCAO || row.Role || row.role || "";
-            const horario = row.Horário || row.horario || row.HORARIO || row.Horario || row.hora || "";
-            const equipe = row.Equipe || row.equipe || row.EQUIPE || row.team || "";
-            const admissao = row["Data de Admissão"] || row["Data Admissão"] || row.data_adm || row.admissao || row.Admissao || "";
-
+        // ✅ SOLUÇÃO - Adicione isto:
+        const funcionarios = linhas.slice(1).map(linha => {
+            const colunas = linha.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
             return {
-                nome: nome.trim(),
-                funcao: funcao.trim(),
-                horario: horario.trim(),
-                equipe: equipe.trim(),
-                data_admissa: formatarData(admissao),
-                foto: "", // Fotos são adicionadas manualmente
-                alinhamentos: "",
-                advertencias: ""
+                nome: colunas[0] || '',
+                funcao: colunas[1] || '',
+                horario: colunas[2] || '',
+                equipe: colunas[3] || '',
+                data_admissa: colunas[4] || ''
             };
-        });
+        }).filter(f => f.nome); // Remove linhas vazias
 
-        // Remove linhas vazias
-        const dadosValidos = dadosFormatados.filter(d => d.nome.length > 0);
-
-        if (dadosValidos.length === 0) {
-            return alert("⚠️ Nenhum funcionário válido encontrado na planilha.\n\nVerifique se tem uma coluna 'Nome'.");
+        if (funcionarios.length === 0) {
+            return alert("❌ Nenhum dado válido encontrado na planilha!");
         }
 
-        // Confirmar antes de sincronizar
-        const confirmar = confirm(`✅ Encontrados ${dadosValidos.length} funcionário(s).\n\nDeseja importar para o banco de dados?`);
-        if (!confirmar) return;
-
-        // Inserir no Supabase
-        let inseridos = 0;
-        let erros = 0;
-
-        for (const funcionario of dadosValidos) {
-            try {
-                const { error } = await _supabase.from('funcionarios').insert([funcionario]);
-                if (error) {
-                    console.error(`Erro ao inserir ${funcionario.nome}:`, error);
-                    erros++;
-                } else {
-                    inseridos++;
-                }
-            } catch (e) {
-                console.error(e);
-                erros++;
-            }
+        // INSERT no Supabase
+        const { error } = await _supabase.from('funcionarios').insert(funcionarios);
+        
+        if (error) {
+            throw error;
         }
 
-        // Feedback final
-        let mensagem = `✅ Sincronização concluída!\n\n`;
-        mensagem += `✔️ Inseridos: ${inseridos}\n`;
-        if (erros > 0) mensagem += `⚠️ Erros: ${erros}\n`;
+        alert(`✅ ${funcionarios.length} funcionário(s) importado(s) com sucesso!`);
+        listarEquipe(); // Atualiza a lista
         
-        alert(mensagem);
-
-        // Recarregar a lista
-        listarEquipe();
-
-    } catch (error) {
-        console.error("Erro na sincronização:", error);
-        
-        let mensagemErro = "❌ Erro na sincronização:\n\n" + error.message;
-        
-        if (error.message.includes("Publicada na Web")) {
-            mensagemErro += "\n\n📌 COMO RESOLVER:\n";
-            mensagemErro += "1. Abra a planilha no Google Sheets\n";
-            mensagemErro += "2. Clique em 'Compartilhar' (canto superior direito)\n";
-            mensagemErro += "3. Clique em 'Alterar para qualquer pessoa com o link\"\n";
-            mensagemErro += "4. Copie e cole o link aqui novamente";
-        }
-        
-        alert(mensagemErro);
+    } catch (e) {
+        alert("❌ Erro: " + e.message);
     }
 }
-
-// Função auxiliar para formatar datas
-function formatarData(data) {
-    if (!data || data.trim() === "") return "";
-    
-    // Se já está no formato YYYY-MM-DD
-    if (/^\d{4}-\d{2}-\d{2}$/.test(data.trim())) {
-        return data.trim();
-    }
-    
-    // Se está no formato DD/MM/YYYY
-    if (/^\d{2}\/\d{2}\/\d{4}$/.test(data.trim())) {
-        const [dia, mes, ano] = data.trim().split('/');
-        return `${ano}-${mes}-${dia}`;
-    }
-    
-    // Se está no formato DD-MM-YYYY
-    if (/^\d{2}-\d{2}-\d{4}$/.test(data.trim())) {
-        const [dia, mes, ano] = data.trim().split('-');
-        return `${ano}-${mes}-${dia}`;
-    }
-    
-    return "";
-    }
 </script>
 </body>
 </html>
