@@ -919,71 +919,42 @@ function calcularTotalRemessa() {
 }
 
 async function sincronizarLinkDireto() {
-    const linkInput = prompt("Cole o link da sua planilha do Google Drive:\n\nExemplo: https://docs.google.com/spreadsheets/d/AQUI_O_ID/edit");
-    if (!linkInput || linkInput.trim() === "") return;
-
-    let fileId = "";
-    try {
-        if (linkInput.includes("/d/")) {
-            fileId = linkInput.split("/d/")[1].split("/")[0];
-        } else if (linkInput.includes("?id=")) {
-            fileId = linkInput.split("?id=")[1].split("&")[0];
-        } else {
-            return alert("❌ Link inválido!");
-        }
-
-        if (!fileId || fileId.length < 20) {
-            return alert("❌ ID da planilha não reconhecido!");
-        }
-    } catch (e) {
-        return alert("❌ Erro: " + e.message);
-    }
+    const linkInput = prompt("Cole o link da planilha publicada como CSV:");
+    if (!linkInput) return;
 
     try {
         alert("⏳ Sincronizando...");
-        
-        const exportUrl = `https://docs.google.com/spreadsheets/d/${fileId}/gviz/tq?tqx=out:csv`;
-        const res = await fetch(exportUrl);
-        
-        if (!res.ok) {
-            throw new Error("Acesso Negado! Publique a planilha na Web.");
-        }
+        const res = await fetch(linkInput);
+        if (!res.ok) throw new Error("Acesso negado. Verifique se publicou como CSV.");
 
         const csv = await res.text();
         const linhas = csv.split('\n').filter(l => l.trim());
         
-        // ❌ AQUI ESTÁ FALTANDO: Parse do CSV e Insert no Supabase
-        
-        // ✅ SOLUÇÃO - Adicione isto:
-        const funcionarios = linhas.slice(1).map(linha => {
-            const colunas = linha.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+        // Mapeia os dados pulando o cabeçalho
+        const novosDados = linhas.slice(1).map(linha => {
+            const col = linha.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
             return {
-                nome: colunas[0] || '',
-                funcao: colunas[1] || '',
-                horario: colunas[2] || '',
-                equipe: colunas[3] || '',
-                data_admissa: colunas[4] || ''
+                nome: col[0] || '',
+                funcao: col[1] || '',
+                horario: col[2] || '',
+                equipe: col[3] || '',
+                data_admissa: col[4] || null
             };
-        }).filter(f => f.nome); // Remove linhas vazias
+        }).filter(f => f.nome);
 
-        if (funcionarios.length === 0) {
-            return alert("❌ Nenhum dado válido encontrado na planilha!");
-        }
-
-        // INSERT no Supabase
-        const { error } = await _supabase.from('funcionarios').insert(funcionarios);
+        // Insere no Supabase
+        const { error } = await _supabase.from('funcionarios').insert(novosDados);
         
-        if (error) {
-            throw error;
-        }
+        if (error) throw error;
 
-        alert(`✅ ${funcionarios.length} funcionário(s) importado(s) com sucesso!`);
-        listarEquipe(); // Atualiza a lista
+        alert(`✅ ${novosDados.length} registros sincronizados!`);
+        listarEquipe();
         
     } catch (e) {
         alert("❌ Erro: " + e.message);
     }
 }
+    
 </script>
 </body>
 </html>
