@@ -85,52 +85,7 @@
         </main>
     </div>
 
-    <div id="view-employees" class="view">
-        <header>
-            <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; cursor:pointer">
-                <i class="fas fa-arrow-left"></i>
-            </button>
-            <span style="font-weight: 600;">Equipe</span>
-            <div style="width:20px"></div>
-        </header>
-        
-        <div id="employee-list" style="margin-top:20px; padding-bottom: 100px;"></div>
-        
-        <div style="position: fixed; bottom: 30px; right: 20px; display: flex; gap: 15px; z-index: 99;">
-            <button onclick="sincronizarLinkDireto()" title="Sincronizar Planilha"
-                style="width: 60px; height: 60px; background: var(--accent-purple); border-radius: 50%; border: none; color: white; font-size: 20px; box-shadow: 0 6px 0 #7e22ce; cursor: pointer;">
-                <i class="fas fa-sync-alt"></i>
-            </button>
-            <button onclick="prepararNovoEmp()" class="fab-add" style="position:static;"><i class="fas fa-plus"></i></button>
-        </div>
-    </div>
     
-        <div id="view-employees" class="view">
-            <header>
-                <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; cursor:pointer">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <span style="font-weight: 600;">Equipe</span>
-                <div style="width:20px"></div>
-            </header>
-            
-            <div id="employee-list" style="margin-top:20px; padding-bottom: 100px;"></div>
-            
-            <div style="position: fixed; bottom: 30px; right: 20px; display: flex; gap: 15px; z-index: 99;">
-                <button onclick="sincronizarLinkDireto()" title="Sincronizar com Drive"
-                    style="width: 60px; height: 60px; background: var(--accent-purple); border-radius: 50%; border: none; color: white; font-size: 20px; box-shadow: 0 6px 0 #7e22ce; cursor: pointer;">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
-
-                <button onclick="prepararNovoEmp()" title="Novo Funcionário"
-                    style="width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer;">
-                    <i class="fas fa-plus"></i>
-                </button>
-            </div>
-        </div>
-        
-    </div>
-
     <!-- VIEW EQUIPE -->
     <div id="view-employees" class="view">
         <header>
