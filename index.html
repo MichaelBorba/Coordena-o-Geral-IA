@@ -961,49 +961,45 @@ async function sincronizarLinkDireto() {
         const csvText = await res.text();
         const linhas = csvText.split(/\r?\n/).filter(l => l.trim());
         
-        // Pulamos a primeira linha (cabeçalho)
         const novosFuncionarios = linhas.slice(1).map(linha => {
-            // Separa as colunas ignorando vírgulas dentro de aspas
             const col = linha.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.trim().replace(/^"|"$/g, ''));
             
-            // TRATAMENTO DE DATA (Coluna E - Índice 4)
             let dataFormatada = null;
             if (col[4] && col[4].includes('/')) {
-                const partes = col[4].split('/');
-                if (partes.length === 3) {
-                    // Transforma DD/MM/AAAA em AAAA-MM-DD
-                    const dia = partes[0].padStart(2, '0');
-                    const mes = partes[1].padStart(2, '0');
-                    const ano = partes[2];
-                    dataFormatada = `${ano}-${mes}-${dia}`;
-                }
+                const p = col[4].split('/');
+                dataFormatada = `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
             }
 
-            // MAPEAMENTO PARA O SUPABASE (Tudo em minúsculo)
             return {
-                nome: col[0] || null,          // Coluna A
-                funcao: col[1] || '',          // Coluna B
-                horario: col[2] || '',         // Coluna C
-                equipe: col[3] || '',          // Coluna D
-                data_admissa: dataFormatada    // Coluna E (Formato AAAA-MM-DD)
+                nome: col[0] || null,
+                funcao: col[1] || '',
+                horario: col[2] || '',
+                equipe: col[3] || '',
+                data_admissa: dataFormatada
             };
-        }).filter(f => f.nome); // Só importa se tiver nome
+        }).filter(f => f.nome);
 
-        // Envio para o banco
-        const { error } = await _supabase.from('funcionarios').insert(novosFuncionarios);
-        
-        if (error) throw error;
+        // AQUI ESTÁ A CHAVE: Usamos await e checamos o erro explicitamente
+        const { data, error } = await _supabase
+            .from('funcionarios')
+            .insert(novosFuncionarios)
+            .select(); // O .select() força o Supabase a retornar o que foi gravado
 
-        alert(`✅ Sincronizado! ${novosFuncionarios.length} registros adicionados.`);
-        listarEquipe();
+        if (error) {
+            console.error("Erro detalhado do Supabase:", error);
+            throw new Error(`Erro no Banco: ${error.message} - ${error.details}`);
+        }
+
+        if (data) {
+            alert(`✅ REGISTRADO! ${data.length} funcionários agora estão no Supabase.`);
+            listarEquipe();
+        }
         
     } catch (e) {
-        console.error("Erro no Supabase:", e);
-        alert("❌ Erro: " + (e.message || "Verifique o console (F12) para detalhes."));
+        console.error(e);
+        alert("❌ Falha ao registrar: " + e.message);
     }
 }
-    
-                
     
 </script>
 </body>
