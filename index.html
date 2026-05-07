@@ -966,14 +966,13 @@ function calcularTotalRemessa() {
             return;
         }
 
-        // Detecta o separador para garantir que a divisão das colunas funcione
         const separador = linhas[0].includes(';') ? ';' : ',';
 
-        const novosFuncionarios = linhas.slice(1).map((linha) => {
+        const novosFuncionarios = linhas.slice(1).map((linha, index) => {
             const regex = new RegExp(`${separador}(?=(?:(?:[^"]*"){2})*[^"]*$)`);
             const col = linha.split(regex).map(c => c.trim().replace(/^"|"$/g, ''));
             
-            // Tratamento da Data de Admissão - Coluna M (índice 12)
+            // Tratamento da Data de Admissão (Coluna 12 - Letra M)
             let dataFormatada = null;
             if (col[12] && col[12].includes('/')) {
                 const p = col[12].split('/');
@@ -982,20 +981,44 @@ function calcularTotalRemessa() {
                 }
             }
 
-            // MAPEAMENTO PELAS COLUNAS DA SUA PLANILHA:
+            // MAPEAMENTO SEGUINDO A SEQUÊNCIA EXATA DA SUA PLANILHA
             return {
-                nome: col[0] || null,           // Coluna A (Índice 0)
-                funcao: col[6] || '',           // Coluna G (Índice 6)
-                horario: col[7] || '',          // Coluna H (Índice 7)
-                equipe: col[8] || '',           // Coluna I (Índice 8)
-                data_admissa: dataFormatada     // Coluna M (Índice 12)
+                nome: col[0] || null,           // A
+                endereco: col[1] || '',         // B
+                bairro: col[2] || '',           // C
+                estado: col[3] || '',           // D
+                cep: col[4] || '',              // E
+                nascimento: col[5] || '',       // F
+                funcao: col[6] || '',           // G
+                horario: col[7] || '',          // H
+                equipe: col[8] || '',           // I
+                alinhamento: col[9] || '',      // J
+                advertencia: col[10] || '',     // K
+                foto: col[11] || '',            // L
+                data_admissa: dataFormatada,    // M
+                checkdocs: col[13] || '',       // N
+                checkaso: col[14] || '',        // O
+                checkcontrato: col[15] || '',   // P
+                checkuniforme: col[16] || '',   // Q
+                checkepi: col[17] || '',        // R
+                tamanho_uniforme: col[18] || '',// S
+                ultimo_enviozap: col[19] || '', // T
+                datazap: col[20] || '',         // U
+                checkvt: col[21] || '',         // V
+                checkcracha: col[22] || '',     // W
+                codigo: col[23] || '',          // X
+                cidade: col[24] || '',          // Y
+                // col[25] seria nascimento de novo conforme sua lista
+                cpf: col[26] || '',             // AA
+                rg: col[27] || '',              // AB
+                titulo_eleitor: col[28] || '',  // AC
+                ctps: col[29] || '',            // AD
+                habilitacao: col[30] || '',     // AE
+                desligamento: col[31] || '',    // AF
+                qtde_horas_mes: col[32] || '',  // AG
+                celular: col[33] || ''          // AH
             };
         }).filter(f => f.nome && f.nome.toLowerCase() !== "nome");
-
-        if (novosFuncionarios.length === 0) {
-            alert("Nenhum dado válido encontrado. Verifique se a planilha segue a ordem das colunas.");
-            return;
-        }
 
         const { data, error } = await _supabase
             .from('funcionarios')
@@ -1004,15 +1027,15 @@ function calcularTotalRemessa() {
 
         if (error) throw error;
 
-        alert(`✅ REGISTRADO! ${data.length} funcionários agora estão no Supabase.`);
+        alert(`✅ REGISTRADO! ${data.length} funcionários sincronizados com todas as colunas.`);
         listarEquipe();
         
     } catch (e) {
         console.error("Erro detalhado:", e);
         alert("❌ Falha ao registrar: " + e.message);
     }
-}
-      
+  }
+    
 </script>
 </body>
 </html>
