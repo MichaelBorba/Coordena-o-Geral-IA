@@ -966,57 +966,62 @@ function calcularTotalRemessa() {
             return;
         }
 
-        // Detecta automaticamente se a planilha usa , ou ;
         const separador = linhas[0].includes(';') ? ';' : ',';
-        console.log("Separador detectado:", separador);
 
-        const novosFuncionarios = linhas.slice(1).map((linha, index) => {
-            // Regex para separar colunas respeitando aspas
+        const novosFuncionarios = linhas.slice(1).map((linha) => {
             const regex = new RegExp(`${separador}(?=(?:(?:[^"]*"){2})*[^"]*$)`);
             const col = linha.split(regex).map(c => c.trim().replace(/^"|"$/g, ''));
             
-            console.log(`Linha ${index + 1} processada:`, col);
-
-            let dataFormatada = null;
-            if (col[4] && col[4].includes('/')) {
-                const p = col[4].split('/');
-                if(p.length === 3) {
-                    dataFormatada = `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
-                }
-            }
-
-            // Mapeamento das colunas (Ajuste a ordem se necessário)
-            return {
-                nome: col[0] || null,    // Coluna A
-                funcao: col[1] || '',    // Coluna B
-                horario: col[2] || '',   // Coluna C
-                equipe: col[3] || '',    // Coluna D
-                data_admissa: dataFormatada // Coluna E
+            // Função para converter data PT-BR (DD/MM/AAAA) para ISO (AAAA-MM-DD)
+            const formatarData = (v) => {
+                if (!v || !v.includes('/')) return null;
+                const p = v.split('/');
+                return p.length === 3 ? `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}` : null;
             };
-        }).filter(f => f.nome && f.nome !== "Nome"); // Remove cabeçalhos repetidos e linhas sem nome
 
-        console.log("Dados prontos para envio:", novosFuncionarios);
-
-        if (novosFuncionarios.length === 0) {
-            alert("Nenhum dado válido encontrado. Verifique se a primeira coluna da planilha tem os nomes.");
-            return;
-        }
+            // Mapeamento baseado nas imagens do seu Supabase
+            return {
+                nome: col[0] || null,               // Coluna A
+                funcão: col[1] || '',               // Coluna B
+                horario: col[2] || '',              // Coluna C
+                equipe: col[3] || '',               // Coluna D
+                data_admissa: formatarData(col[4]), // Coluna E
+                endereco: col[5] || '',             // Coluna F
+                bairro: col[6] || '',               // Coluna G
+                estado: col[7] || '',               // Coluna H
+                cep: col[8] || '',                  // Coluna I
+                codigo: col[9] || '',               // Coluna J
+                cidade: col[10] || '',              // Coluna K
+                nascimento: formatarData(col[11]),  // Coluna L
+                cpf: col[12] || '',                 // Coluna M
+                rg: col[13] || '',                  // Coluna N
+                titulo_eleitor: col[14] || '',      // Coluna O
+                ctps: col[15] || '',                // Coluna P
+                habilitacao: col[16] || '',         // Coluna Q
+                celular: col[17] || '',             // Coluna R
+                qtde_horas_mes: col[18] || '',      // Coluna S
+                // Campos booleanos (opcional: se vierem da planilha)
+                check_docs: col[19] === 'TRUE',
+                check_aso: col[20] === 'TRUE'
+            };
+        }).filter(f => f.nome && f.nome.toLowerCase() !== "nome"); 
 
         const { data, error } = await _supabase
             .from('funcionarios')
             .insert(novosFuncionarios)
             .select();
 
-        if (error) throw error;
+            if (error) throw error;
 
-        alert(`✅ REGISTRADO! ${data.length} funcionários agora estão no Supabase.`);
-        listarEquipe();
-        
+            alert(`✅ REGISTRADO! ${data.length} funcionários inseridos com sucesso.`);
+            if (typeof listarEquipe === 'function') listarEquipe();
+            
     } catch (e) {
         console.error("Erro detalhado:", e);
         alert("❌ Falha ao registrar: " + e.message);
     }
-  }
+}
+
 </script>
 </body>
 </html>
