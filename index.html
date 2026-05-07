@@ -961,29 +961,46 @@ async function sincronizarLinkDireto() {
         const csvText = await res.text();
         const linhas = csvText.split(/\r?\n/).filter(l => l.trim());
         
-        // Detecta o separador (vírgula ou ponto e vírgula)
-        const separador = linhas[0].includes(';') ? ';' : ',';
+        if (linhas.length < 2) {
+            alert("A planilha parece estar vazia ou não foi publicada corretamente.");
+            return;
+        }
 
-        const novosFuncionarios = linhas.slice(1).map(linha => {
-            // Regex melhorada para lidar com aspas e o separador detectado
+        // Detecta automaticamente se a planilha usa , ou ;
+        const separador = linhas[0].includes(';') ? ';' : ',';
+        console.log("Separador detectado:", separador);
+
+        const novosFuncionarios = linhas.slice(1).map((linha, index) => {
+            // Regex para separar colunas respeitando aspas
             const regex = new RegExp(`${separador}(?=(?:(?:[^"]*"){2})*[^"]*$)`);
             const col = linha.split(regex).map(c => c.trim().replace(/^"|"$/g, ''));
             
+            console.log(`Linha ${index + 1} processada:`, col);
+
             let dataFormatada = null;
             if (col[4] && col[4].includes('/')) {
                 const p = col[4].split('/');
-                // Garante formato YYYY-MM-DD para o banco
-                dataFormatada = `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
+                if(p.length === 3) {
+                    dataFormatada = `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
+                }
             }
 
+            // Mapeamento das colunas (Ajuste a ordem se necessário)
             return {
-                nome: col[0],
-                funcao: col[1] || '',
-                horario: col[2] || '',
-                equipe: col[3] || '',
-                data_admissa: dataFormatada
+                nome: col[0] || null,    // Coluna A
+                funcao: col[1] || '',    // Coluna B
+                horario: col[2] || '',   // Coluna C
+                equipe: col[3] || '',    // Coluna D
+                data_admissa: dataFormatada // Coluna E
             };
-        }).filter(f => f.nome); // Remove linhas onde o nome é vazio
+        }).filter(f => f.nome && f.nome !== "Nome"); // Remove cabeçalhos repetidos e linhas sem nome
+
+        console.log("Dados prontos para envio:", novosFuncionarios);
+
+        if (novosFuncionarios.length === 0) {
+            alert("Nenhum dado válido encontrado. Verifique se a primeira coluna da planilha tem os nomes.");
+            return;
+        }
 
         const { data, error } = await _supabase
             .from('funcionarios')
@@ -992,14 +1009,14 @@ async function sincronizarLinkDireto() {
 
         if (error) throw error;
 
-        alert(`✅ Sucesso! ${data.length} registros sincronizados.`);
+        alert(`✅ REGISTRADO! ${data.length} funcionários agora estão no Supabase.`);
         listarEquipe();
         
     } catch (e) {
-        console.error("Erro na Sincronização:", e);
-        alert("❌ Falha: " + (e.message || "Verifique o console para detalhes."));
+        console.error("Erro detalhado:", e);
+        alert("❌ Falha ao registrar: " + e.message);
     }
-}
+                }
     
 </script>
 </body>
