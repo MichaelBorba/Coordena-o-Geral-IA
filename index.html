@@ -9,6 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
             --bg-dark: #0f172a; --card-bg: #1e293b; --primary-blue: #3b82f6;
@@ -445,63 +446,59 @@
     }
 
     async function abrirModuloDP() {
-        openModal('modalDP');
-        const container = document.getElementById('lista-dp-funcionarios');
-        container.innerHTML = "Buscando dados...";
-        const { data } = await _supabase.from('funcionarios').select('*').order('nome');
-        container.innerHTML = "";
+    openModal('modalDP');
+    const container = document.getElementById('lista-dp-funcionarios');
+    container.innerHTML = "Buscando dados...";
+    
+    // Busca todos os campos da tabela funcionários
+    const { data } = await _supabase.from('funcionarios').select('*').order('nome');
+    container.innerHTML = "";
 
-        data?.forEach(emp => {
-            let tempoCasa = "N/D";
-            let statusExp = "Data não informada";
-            let dataAdmFormat = emp.data_admissa ? new Date(emp.data_admissa).toLocaleDateString('pt-BR') : "N/D";
+    data?.forEach(emp => {
+        const div = document.createElement('div'); 
+        div.className = 'item-card';
+        div.id = `card-dp-${emp.id}`; // ID necessário para o PDF
+        div.style.borderLeft = "4px solid var(--primary-blue)";
+        
+        div.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <strong style="color:var(--primary-blue); font-size:1.1rem;">${emp.nome}</strong>
+                <div style="display:flex; gap:8px;">
+                    <button onclick="gerarPDF('${emp.id}')" style="background:#475569; border:none; color:white; padding:8px; border-radius:8px; cursor:pointer"><i class="fas fa-file-pdf"></i> PDF</button>
+                    <button onclick="enviarZapDPCompleto('${emp.id}')" style="background:#25d366; border:none; color:white; padding:8px; border-radius:8px; cursor:pointer"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                </div>
+            </div>
 
-            if(emp.data_admissa) {
-                const adm = new Date(emp.data_admissa);
-                const hoje = new Date();
-                const dias = Math.ceil((hoje - adm) / (1000 * 60 * 60 * 24));
-                tempoCasa = `${dias} dias`;
-                
-                if(dias < 45) {
-                    statusExp = `Faltam ${45 - dias} dias p/ 1ª fase (45d)`;
-                } else if(dias < 90) {
-                    statusExp = `Faltam ${90 - dias} dias p/ efetivação (90d)`;
-                } else {
-                    statusExp = "Experiência concluída";
-                }
-            }
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:0.75rem;">
+                <div style="background:rgba(255,255,255,0.03); padding:8px; border-radius:8px;">
+                    <p style="margin:0 0 5px 0; color:var(--accent-orange)"><b>DOCUMENTOS</b></p>
+                    CPF: <input type="text" class="dp-input-small" value="${emp.cpf || ''}" onblur="atualizarValor('${emp.id}','cpf',this.value)">
+                    RG: <input type="text" class="dp-input-small" value="${emp.rg || ''}" onblur="atualizarValor('${emp.id}','rg',this.value)">
+                    CTPS: <input type="text" class="dp-input-small" value="${emp.ctps || ''}" onblur="atualizarValor('${emp.id}','ctps',this.value)">
+                </div>
 
-            const div = document.createElement('div'); div.className = 'item-card';
-            div.style.borderLeft = "4px solid var(--primary-blue)";
-            div.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <div style="flex:1">
-                        <strong style="color:var(--primary-blue)">${emp.nome}</strong><br>
-                        <small>Admissão: ${dataAdmFormat}</small><br>
-                        <small>Tempo: ${tempoCasa} | Exp: ${statusExp}</small>
+                <div style="background:rgba(255,255,255,0.03); padding:8px; border-radius:8px;">
+                    <p style="margin:0 0 5px 0; color:var(--accent-orange)"><b>LOCALIZAÇÃO</b></p>
+                    Rua: <input type="text" class="dp-input-small" value="${emp.endereco || ''}" onblur="atualizarValor('${emp.id}','endereco',this.value)">
+                    Bairro: <input type="text" class="dp-input-small" value="${emp.bairro || ''}" onblur="atualizarValor('${emp.id}','bairro',this.value)">
+                    Cidade: <input type="text" class="dp-input-small" value="${emp.cidade || ''}" onblur="atualizarValor('${emp.id}','cidade',this.value)">
+                </div>
+
+                <div style="background:rgba(255,255,255,0.03); padding:8px; border-radius:8px; grid-column: span 2;">
+                    <p style="margin:0 0 5px 0; color:var(--accent-green)"><b>STATUS DE CONTRATAÇÃO</b></p>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px;">
+                        <label><input type="checkbox" ${emp.check_docs?'checked':''} onchange="atualizarCheck('${emp.id}','check_docs',this.checked)"> Docs</label>
+                        <label><input type="checkbox" ${emp.check_contrato?'checked':''} onchange="atualizarCheck('${emp.id}','check_contrato',this.checked)"> Contrato</label>
+                        <label><input type="checkbox" ${emp.check_aso?'checked':''} onchange="atualizarCheck('${emp.id}','check_aso',this.checked)"> ASO</label>
+                        <label><input type="checkbox" ${emp.check_vt?'checked':''} onchange="atualizarCheck('${emp.id}','check_vt',this.checked)"> VT</label>
+                        <label><input type="checkbox" ${emp.check_cracha?'checked':''} onchange="atualizarCheck('${emp.id}','check_cracha',this.checked)"> Crachá</label>
                     </div>
-                    <button onclick="enviarZapDPCompleto('${emp.id}', '${emp.nome.replace(/'/g, "\\'")}', '${tempoCasa}', '${statusExp}')" style="background:#25d366; border:none; color:white; padding:8px 12px; border-radius:8px; font-size:0.8rem; cursor:pointer"><i class="fab fa-whatsapp"></i> Enviar</button>
                 </div>
-                
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:10px; font-size:0.75rem; background:rgba(255,255,255,0.03); padding:10px; border-radius:10px;">
-                    <label><input type="checkbox" id="chk-docs-${emp.id}" ${emp.check_docs?'checked':''} onchange="atualizarCheck('${emp.id}','check_docs',this.checked)"> Documentos</label>
-                    <label><input type="checkbox" id="chk-contrato-${emp.id}" ${emp.check_contrato?'checked':''} onchange="atualizarCheck('${emp.id}','check_contrato',this.checked)"> Contrato</label>
-                    <label><input type="checkbox" id="chk-aso-${emp.id}" ${emp.check_aso?'checked':''} onchange="atualizarCheck('${emp.id}','check_aso',this.checked)"> ASO</label>
-                    <label><input type="checkbox" id="chk-epi-${emp.id}" ${emp.check_epi?'checked':''} onchange="atualizarCheck('${emp.id}','check_epi',this.checked)"> EPI</label>
-                    <label><input type="checkbox" id="chk-vt-${emp.id}" ${emp.check_vt?'checked':''} onchange="atualizarCheck('${emp.id}','check_vt',this.checked)"> Cartão VT</label>
-                    <label><input type="checkbox" id="chk-cracha-${emp.id}" ${emp.check_cracha?'checked':''} onchange="atualizarCheck('${emp.id}','check_cracha',this.checked)"> Crachá</label>
-                </div>
-
-                <div style="margin-top:10px; display:flex; flex-direction:column; gap:5px;">
-                    <input type="text" id="tam-uni-${emp.id}" class="dp-input-small" placeholder="Tamanho Uniforme" value="${emp.tamanho_uniforme || ''}" onblur="atualizarValor('${emp.id}','tamanho_uniforme',this.value)">
-                    <input type="text" id="link-zap-${emp.id}" class="dp-input-small" placeholder="Link de Envio" value="${emp.ultimo_envio_zap || ''}" onblur="atualizarValor('${emp.id}','ultimo_envio_zap',this.value)">
-                    <input type="date" id="data-zap-${emp.id}" class="dp-input-small" value="${emp.data_zap || ''}" onblur="atualizarValor('${emp.id}','data_zap',this.value)">
-                </div>
-            `;
-            container.appendChild(div);
-        });
-    }
-
+            </div>
+        `;
+        container.appendChild(div);
+    });
+}
     async function atualizarCheck(id, campo, valor) {
         await _supabase.from('funcionarios').update({ [campo]: valor }).eq('id', id);
     }
@@ -1041,6 +1038,45 @@ function calcularTotalRemessa() {
     } catch (e) {
         alert("❌ Erro: " + e.message);
     }
+}
+    // Função para gerar o PDF da ficha do funcionário
+function gerarPDF(id) {
+    const elemento = document.getElementById(`card-dp-${id}`);
+    const options = {
+        margin: 10,
+        filename: `Ficha_DP_${id}.pdf`,
+        html2canvas: { scale: 2, backgroundColor: '#1e293b' }, // Mantém o fundo escuro do seu layout
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    
+    // Esconde os botões no PDF para ficar limpo
+    const botoes = elemento.querySelectorAll('button');
+    botoes.forEach(b => b.style.visibility = 'hidden');
+
+    html2pdf().set(options).from(elemento).save().then(() => {
+        botoes.forEach(b => b.style.visibility = 'visible');
+    });
+}
+
+// Função de envio de WhatsApp com todos os dados novos
+async function enviarZapDPCompleto(id) {
+    const { data: emp } = await _supabase.from('funcionarios').select('*').eq('id', id).single();
+    
+    const simOuNao = (v) => v ? '✅' : '❌';
+    
+    const texto = `*GESTÃO D.P. - FICHA COMPLETA*%0A%0A` +
+        `👤 *Nome:* ${emp.nome}%0A` +
+        `💳 *CPF:* ${emp.cpf || 'Não informado'}%0A` +
+        `📄 *RG:* ${emp.rg || 'Não informado'}%0A` +
+        `🏠 *Cidade:* ${emp.cidade || 'Não informada'}%0A` +
+        `📅 *Admissão:* ${emp.data_admissa || 'N/D'}%0A%0A` +
+        `*CHECKLIST:*%0A` +
+        `${simOuNao(emp.check_docs)} Documentos%0A` +
+        `${simOuNao(emp.check_contrato)} Contrato%0A` +
+        `${simOuNao(emp.check_aso)} ASO%0A` +
+        `${simOuNao(emp.check_vt)} Vale Transporte`;
+
+    window.open(`https://wa.me/?text=${texto}`, '_blank');
 }
    </script>
 </body>
