@@ -379,6 +379,44 @@
 
         <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;">
             <div>
+                <div id="modalNovoDP" class="modal-overlay" style="display:none; z-index: 2000;">
+    <div class="modal-content" style="max-width: 600px;">
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="margin:0">Gestão D.P. / Contratos</h3>
+            <i class="fas fa-times" onclick="closeModal('modalNovoDP')" style="cursor:pointer"></i>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="historico-box" style="margin:0; border-left-color: var(--primary-blue);">
+                <small style="color:var(--primary-blue)">DADOS PESSOAIS</small>
+                <input type="text" id="dp_nome" class="dp-input-small" placeholder="Nome Completo">
+                <input type="text" id="dp_cpf" class="dp-input-small" placeholder="CPF">
+                <input type="text" id="dp_rg" class="dp-input-small" placeholder="RG">
+                <input type="date" id="dp_nascimento" class="dp-input-small" title="Nascimento">
+                <input type="text" id="dp_celular" class="dp-input-small" placeholder="Celular">
+            </div>
+
+            <div class="historico-box" style="margin:0; border-left-color: var(--accent-orange);">
+                <small style="color:var(--accent-orange)">ENDEREÇO / CARGO</small>
+                <input type="text" id="dp_endereco" class="dp-input-small" placeholder="Endereço">
+                <input type="text" id="dp_funcao" class="dp-input-small" placeholder="Função">
+                <input type="text" id="dp_equipe" class="dp-input-small" placeholder="Equipe">
+                <input type="date" id="dp_data_admissa" class="dp-input-small" title="Admissão">
+            </div>
+        </div>
+
+        <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
+            <button onclick="enviarDadosWhatsApp()" class="btn-save" style="background: #25D366; flex: 1; box-shadow: 0 5px 0 #128c7e;">
+                <i class="fab fa-whatsapp"></i> WhatsApp
+            </button>
+            <button onclick="gerarPDF_DP()" class="btn-save" style="background: #ef4444; flex: 1; box-shadow: 0 5px 0 #991b1b;">
+                <i class="fas fa-file-pdf"></i> Baixar PDF
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
                 <small>Total da Remessa:</small><br>
                 <strong id="total-remessa" style="font-size: 1.2rem; color: var(--accent-green)">R$ 0,00</strong>
             </div>
