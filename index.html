@@ -946,7 +946,7 @@ function calcularTotalRemessa() {
     document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
 }
 
-  async function sincronizarLinkDireto() {
+ async function sincronizarLinkDireto() {
     const linkInput = prompt("Cole o link da planilha PUBLICADA como CSV:");
     if (!linkInput) return;
 
@@ -978,9 +978,13 @@ function calcularTotalRemessa() {
                 return p.length === 3 ? `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}` : null;
             };
 
-            const eVerdadeiro = (v) => v && (v.toUpperCase() === 'TRUE' || v.toUpperCase() === 'SIM' || v === '1');
+            // FUNÇÃO CORRIGIDA: Se estiver vazio ou não for SIM/TRUE, retorna false explicitamente
+            const eVerdadeiro = (v) => {
+                if (!v) return false; 
+                const valor = v.toUpperCase();
+                return valor === 'TRUE' || valor === 'SIM' || valor === '1';
+            };
 
-            // MAPEAMENTO EXATO CONFORME SEU SQL E SUA LISTA DE COLUNAS
             return {
                 nome: col[0] || null,
                 endereco: col[1] || '',
@@ -1004,7 +1008,7 @@ function calcularTotalRemessa() {
                 data_zap: formatarData(col[19]),
                 check_vt: eVerdadeiro(col[20]),
                 check_cracha: eVerdadeiro(col[21]),
-                codigo: col[22] || null, // Se estiver vazio, o Supabase gera erro por ser Unique se houver duplicata vazia
+                codigo: col[22] || null, 
                 cidade: col[23] || '',
                 nascimento: formatarData(col[24]),
                 cpf: col[25] || '',
@@ -1032,8 +1036,7 @@ function calcularTotalRemessa() {
         console.error("Erro detalhado:", e);
         alert("❌ Erro na sincronização: " + e.message);
     }
-}
-                
+}                
 </script>
 </body>
 </html>
