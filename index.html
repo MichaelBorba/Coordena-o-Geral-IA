@@ -946,7 +946,7 @@ function calcularTotalRemessa() {
     document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
 }
 
-    async function sincronizarLinkDireto() {
+   async function sincronizarLinkDireto() {
     const linkInput = prompt("Cole o link da planilha PUBLICADA como CSV:");
     if (!linkInput) return;
 
@@ -968,87 +968,81 @@ function calcularTotalRemessa() {
 
         const separador = linhas[0].includes(';') ? ';' : ',';
 
-        const novosFuncionarios = linhas.slice(1).map((linha, index) => {
-            try {
-                const regex = new RegExp(`${separador}(?=(?:(?:[^"]*"){2})*[^"]*$)`);
-                const col = linha.split(regex).map(c => (c || '').trim().replace(/^"|"$/g, ''));
+        const novosFuncionarios = linhas.slice(1).map((linha) => {
+            const regex = new RegExp(`${separador}(?=(?:(?:[^"]*"){2})*[^"]*$)`);
+            const col = linha.split(regex).map(c => (c || '').trim().replace(/^"|"$/g, ''));
+            
+            const formatarData = (v) => {
+                if (!v || !v.includes('/')) return null;
+                const p = v.split('/');
+                return p.length === 3 ? `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}` : null;
+            };
+
+            const paraBoolean = (v) => {
+                if (!v) return false;
+                const check = v.toString().toUpperCase().trim();
+                return check === 'TRUE' || check === 'SIM' || check === '1';
+            };
+
+            // REORDENAÇÃO BASEADA NO SEU FEEDBACK
+            return {
+                nome: col[0] || null,
+                endereco: col[1] || '',
+                bairro: col[2] || '',
+                // Você disse: "no cep apareceu o estado" e "no estado a cidade"
+                // Isso indica que Cidade, Estado e CEP estão vindo em sequência:
+                cidade: col[3] || '',  
+                estado: col[4] || '',  
+                cep: col[5] || '',     
+
+                // Você disse: "na coluna funcao apareceu o cep"
+                // Se o CEP está na coluna 5, a Função deve vir logo depois ou antes.
+                // Vou seguir a lógica da sua planilha real:
+                funcao: col[6] || '',
+                horario: col[7] || '',
+                equipe: col[8] || '',
                 
-                const formatarData = (v) => {
-                    if (!v || !v.includes('/')) return null;
-                    const p = v.split('/');
-                    return p.length === 3 ? `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}` : null;
-                };
+                // Dados de Documentos (que você disse que apareceram em Alinhamento/Advertência)
+                alinhamentos: col[9] || '0',
+                advertencias: col[10] || '0',
+                foto: col[11] || '',
+                
+                data_admissa: formatarData(col[12]),
+                
+                // Checks
+                check_docs: paraBoolean(col[13]),
+                check_aso: paraBoolean(col[14]),
+                check_contrato: paraBoolean(col[15]),
+                check_uniforme: paraBoolean(col[16]),
+                check_epi: paraBoolean(col[17]),
+                
+                tamanho_uniforme: col[18] || '',
+                ultimo_envio_zap: col[19] || '',
+                data_zap: formatarData(col[20]),
+                check_vt: paraBoolean(col[21]),
+                check_cracha: paraBoolean(col[22]),
+                
+                codigo: col[23] || null,
+                nascimento: formatarData(col[24]),
+                cpf: col[25] || '',
+                rg: col[26] || '',
+                titulo_eleitor: col[27] || '',
+                ctps: col[28] || '',
+                habilitacao: col[29] || '',
+                desligamento: formatarData(col[30]),
+                qtde_horas_mes: col[31] || '',
+                celular: col[32] || ''
+            };
+        }).filter(f => f.nome && f.nome.toLowerCase() !== "nome");
 
-                // Função de conversão forçada para Boolean
-                const paraBoolean = (v) => {
-                    if (!v) return false;
-                    const check = v.toString().toUpperCase().trim();
-                    return check === 'TRUE' || check === 'SIM' || check === '1';
-                };
+        const { data, error } = await _supabase.from('funcionarios').insert(novosFuncionarios).select();
+        if (error) throw error;
 
-                return {
-                    nome: col[0] || "Sem Nome",
-                    endereco: col[1] || '',
-                    bairro: col[2] || '',
-                    estado: col[3] || '',
-                    cep: col[4] || '',
-                    funcao: col[5] || '',
-                    horario: col[6] || '',
-                    equipe: col[7] || '',
-                    alinhamentos: col[8] || '0',
-                    advertencias: col[9] || '0',
-                    foto: col[10] || '',
-                    data_admissa: formatarData(col[11]),
-                    check_docs: paraBoolean(col[12]),
-                    check_aso: paraBoolean(col[13]),
-                    check_contrato: paraBoolean(col[14]), 
-                    check_uniforme: paraBoolean(col[15]),
-                    check_epi: paraBoolean(col[16]),
-                    tamanho_uniforme: col[17] || '',
-                    ultimo_envio_zap: col[18] || '',
-                    data_zap: formatarData(col[19]),
-                    check_vt: paraBoolean(col[20]),
-                    check_cracha: paraBoolean(col[21]),
-                    codigo: col[22] || null, 
-                    cidade: col[23] || '',
-                    nascimento: formatarData(col[24]),
-                    cpf: col[25] || '',
-                    rg: col[26] || '',
-                    titulo_eleitor: col[27] || '',
-                    ctps: col[28] || '',
-                    habilitacao: col[29] || '',
-                    desligamento: formatarData(col[30]),
-                    qtde_horas_mes: col[31] || '',
-                    celular: col[32] || ''
-                };
-            } catch (err) {
-                console.error(`Erro na linha ${index + 2}:`, err);
-                return null;
-            }
-        }).filter(f => f !== null && f.nome && f.nome.toLowerCase() !== "nome"); 
-
-        if (novosFuncionarios.length === 0) {
-            alert("Nenhum dado processado corretamente.");
-            return;
-        }
-
-        const { data, error } = await _supabase
-            .from('funcionarios')
-            .insert(novosFuncionarios)
-            .select();
-
-        if (error) {
-            console.error("Erro do Supabase:", error);
-            // Se o erro ainda for de boolean, o alert abaixo vai nos mostrar qual campo é
-            throw error;
-        }
-
-        alert(`✅ SUCESSO! ${data.length} funcionários sincronizados.`);
+        alert(`✅ SUCESSO! ${data.length} registros sincronizados.`);
         if (typeof listarEquipe === 'function') listarEquipe();
         
     } catch (e) {
-        console.error("Erro completo:", e);
-        alert("❌ Erro: " + (e.message || e.details || "Erro desconhecido"));
+        alert("❌ Erro: " + e.message);
     }
 }
 </script>
