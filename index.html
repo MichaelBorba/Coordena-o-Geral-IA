@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -49,32 +50,6 @@
         .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; padding: 25px; border-radius: 25px 25px 0 0; max-height: 85vh; overflow-y: auto; }
         .historico-box { background: #0f172a; padding: 10px; border-radius: 10px; font-size: 0.85rem; margin-top: 10px; white-space: pre-wrap; border-left: 3px solid var(--primary-blue); }
         .dp-input-small { padding: 8px !important; font-size: 0.7rem !important; margin-bottom: 5px !important; }
-        .modal-content-dp {
-    background: #f4f4f9;
-    margin: 5% auto;
-    padding: 20px;
-    width: 80%;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
-.dp-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-}
-.dp-section {
-    background: #fff;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-}
-.dp-section h3 { margin-top: 0; color: #333; font-size: 16px; border-bottom: 1px solid #eee; }
-.dp-section input { width: 100%; margin: 5px 0; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-.dp-actions { margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
-.btn-zap { background: #25D366; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-.btn-pdf { background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-.btn-save { background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-        
     </style>
 </head>
 <body>
@@ -179,54 +154,6 @@
         <button onclick="closeModal('modalAddEmployee')" style="background:none; border:none; color:var(--text-dim); width:100%; margin-top:15px; cursor:pointer">Cancelar</button>
     </div></div>
 
-    <div id="modalDP" class="modal" style="display:none;">
-    <div class="modal-content-dp">
-        <span class="close" onclick="fecharModalDP()">&times;</span>
-        <h2>Gestão D.P. / Contratos</h2>
-        
-        <div class="dp-grid">
-            <div class="dp-section">
-                <h3>Dados Pessoais</h3>
-                <input type="text" id="dp_nome" placeholder="Nome Completo">
-                <input type="text" id="dp_cpf" placeholder="CPF">
-                <input type="text" id="dp_rg" placeholder="RG">
-                <input type="date" id="dp_nascimento" title="Data de Nascimento">
-                <input type="text" id="dp_celular" placeholder="Celular">
-            </div>
-
-            <div class="dp-section">
-                <h3>Endereço</h3>
-                <input type="text" id="dp_endereco" placeholder="Endereço">
-                <input type="text" id="dp_bairro" placeholder="Bairro">
-                <input type="text" id="dp_cidade" placeholder="Cidade">
-                <input type="text" id="dp_cep" placeholder="CEP">
-            </div>
-
-            <div class="dp-section">
-                <h3>Profissional</h3>
-                <input type="text" id="dp_funcao" placeholder="Função">
-                <input type="date" id="dp_data_admissa" title="Data de Admissão">
-                <input type="text" id="dp_equipe" placeholder="Equipe">
-                <input type="text" id="dp_codigo" placeholder="Matrícula/Código">
-            </div>
-
-            <div class="dp-section">
-                <h3>Checklist</h3>
-                <label><input type="checkbox" id="dp_check_docs"> Documentação OK</label>
-                <label><input type="checkbox" id="dp_check_aso"> ASO</label>
-                <label><input type="checkbox" id="dp_check_contrato"> Contrato Assinado</label>
-                <label><input type="checkbox" id="dp_check_vt"> Vale Transporte</label>
-                <label><input type="checkbox" id="dp_check_epi"> Entrega de EPI</label>
-            </div>
-        </div>
-
-        <div class="dp-actions">
-            <button onclick="enviarDadosWhatsApp()" class="btn-zap">Enviar p/ WhatsApp</button>
-            <button onclick="gerarPDF_DP()" class="btn-pdf">Baixar PDF</button>
-            <button onclick="salvarAlteracoesDP()" class="btn-save">Salvar Alterações</button>
-        </div>
-    </div>
-</div>
     <!-- MODAL D.P. -->
     <div id="modalDP" class="modal-overlay">
         <div class="modal-content">
@@ -379,44 +306,6 @@
 
         <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;">
             <div>
-                <div id="modalNovoDP" class="modal-overlay" style="display:none; z-index: 2000;">
-    <div class="modal-content" style="max-width: 600px;">
-        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h3 style="margin:0">Gestão D.P. / Contratos</h3>
-            <i class="fas fa-times" onclick="closeModal('modalNovoDP')" style="cursor:pointer"></i>
-        </div>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div class="historico-box" style="margin:0; border-left-color: var(--primary-blue);">
-                <small style="color:var(--primary-blue)">DADOS PESSOAIS</small>
-                <input type="text" id="dp_nome" class="dp-input-small" placeholder="Nome Completo">
-                <input type="text" id="dp_cpf" class="dp-input-small" placeholder="CPF">
-                <input type="text" id="dp_rg" class="dp-input-small" placeholder="RG">
-                <input type="date" id="dp_nascimento" class="dp-input-small" title="Nascimento">
-                <input type="text" id="dp_celular" class="dp-input-small" placeholder="Celular">
-            </div>
-
-            <div class="historico-box" style="margin:0; border-left-color: var(--accent-orange);">
-                <small style="color:var(--accent-orange)">ENDEREÇO / CARGO</small>
-                <input type="text" id="dp_endereco" class="dp-input-small" placeholder="Endereço">
-                <input type="text" id="dp_funcao" class="dp-input-small" placeholder="Função">
-                <input type="text" id="dp_equipe" class="dp-input-small" placeholder="Equipe">
-                <input type="date" id="dp_data_admissa" class="dp-input-small" title="Admissão">
-            </div>
-        </div>
-
-        <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
-            <button onclick="enviarDadosWhatsApp()" class="btn-save" style="background: #25D366; flex: 1; box-shadow: 0 5px 0 #128c7e;">
-                <i class="fab fa-whatsapp"></i> WhatsApp
-            </button>
-            <button onclick="gerarPDF_DP()" class="btn-save" style="background: #ef4444; flex: 1; box-shadow: 0 5px 0 #991b1b;">
-                <i class="fas fa-file-pdf"></i> Baixar PDF
-            </button>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
                 <small>Total da Remessa:</small><br>
                 <strong id="total-remessa" style="font-size: 1.2rem; color: var(--accent-green)">R$ 0,00</strong>
             </div>
@@ -1153,21 +1042,6 @@ function calcularTotalRemessa() {
         alert("❌ Erro: " + e.message);
     }
 }
-
-    // No início do seu <script>
-let funcionarioAtualId = null;
-
-// Depois, pode colar as funções:
-async function abrirGestaoDP(id) { ... }
-function enviarDadosWhatsApp() { ... }
-function gerarPDF_DP() { ... }
-function fecharModalDP() { ... }
    </script>
-    <div id="modalDP" class="modal" style="display:none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);">
-        <div class="modal-content-dp">
-             </div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </body>
 </html>
