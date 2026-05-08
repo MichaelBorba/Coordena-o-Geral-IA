@@ -946,7 +946,7 @@ function calcularTotalRemessa() {
     document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
 }
 
-async function sincronizarLinkDireto() {
+    async function sincronizarLinkDireto() {
     const linkInput = prompt("Cole o link da planilha PUBLICADA como CSV:");
     if (!linkInput) return;
 
@@ -984,7 +984,7 @@ async function sincronizarLinkDireto() {
                 return check === 'TRUE' || check === 'SIM' || check === '1';
             };
 
-            // AJUSTE DE ÍNDICES BASEADO NO SEU LOG:
+            // REORDENAÇÃO DEFINITIVA BASEADA NO LOG DA LARISSA TEIXEIRA
             return {
                 nome: col[0] || null,             // Col 0
                 endereco: col[1] || '',           // Col 1
@@ -993,53 +993,51 @@ async function sincronizarLinkDireto() {
                 estado: col[4] || '',             // Col 4
                 cep: col[5] || '',                // Col 5
                 
-                // Mapeando o que estava caindo em 'funcao', 'horario', etc:
-                nascimento: formatarData(col[6]), // Estava na Col 6 (caindo em funcao)
-                cpf: col[7] || '',                // Estava na Col 7 (caindo em horario)
-                rg: col[8] || '',                 // Estava na Col 8 (caindo em alinhamentos)
-                titulo_eleitor: col[9] || '',     // Estava na Col 9 (caindo em advertencias)
-                ctps: col[10] || '',              // Estava na Col 10 (caindo em equipe)
-                habilitacao: col[11] || '',       // Estava na Col 11 (caindo em foto)
+                // DATA DE ADMISSAO (Você confirmou que é o que estava caindo em 'funcao')
+                data_admissa: formatarData(col[6]), // Col 6
 
-                // Agora sim, as colunas de trabalho que vêm DEPOIS dos documentos na sua planilha:
-                funcao: col[12] || '',            // Col 12
-                horario: col[13] || '',           // Col 13
-                equipe: col[14] || '',            // Col 14
-                alinhamentos: col[15] || '0',     // Col 15
-                advertencias: col[16] || '0',     // Col 16
-                foto: col[17] || '',              // Col 17
-                data_admissa: formatarData(col[18]), // Col 18
+                // DOCUMENTOS (CPF, RG, etc)
+                cpf: col[7] || '',                // Col 7
+                rg: col[8] || '',                 // Col 8
+                titulo_eleitor: col[9] || '',     // Col 9
+                ctps: col[10] || '',              // Col 10
+                habilitacao: col[11] || '',       // Col 11
+                nascimento: formatarData(col[12]),// Col 12
+
+                // DADOS DE TRABALHO
+                funcao: col[13] || '',            // Col 13
+                horario: col[14] || '',           // Col 14
+                celular: col[15] || '',           // Col 15 (Onde estava caindo o telefone no log)
+                qtde_horas_mes: col[16] || '',    // Col 16
+                equipe: col[17] || '',            // Col 17
                 
-                // Campos de Checkbox (ajustados para a sequência provável)
-                check_docs: paraBoolean(col[19]),
-                check_aso: paraBoolean(col[20]),
-                check_contrato: paraBoolean(col[21]),
-                check_uniforme: paraBoolean(col[22]),
-                check_epi: paraBoolean(col[23]),
+                // OUTROS CAMPOS
+                alinhamentos: col[18] || '0',     // Col 18
+                advertencias: col[19] || '0',     // Col 19
+                foto: col[20] || '',              // Col 20
                 
-                tamanho_uniforme: col[24] || '',
-                ultimo_envio_zap: col[25] || '',
-                data_zap: formatarData(col[26]),
-                check_vt: paraBoolean(col[27]),
-                check_cracha: paraBoolean(col[28]),
+                // CHECKS
+                check_docs: paraBoolean(col[21]),
+                check_aso: paraBoolean(col[22]),
+                check_contrato: paraBoolean(col[23]),
+                check_uniforme: paraBoolean(col[24]),
+                check_epi: paraBoolean(col[25]),
                 
-                codigo: col[29] || null,
-                desligamento: formatarData(col[30]),
-                qtde_horas_mes: col[31] || '',
-                celular: col[32] || ''
+                tamanho_uniforme: col[26] || '',
+                codigo: col[27] || null           // Col 27
             };
         }).filter(f => f.nome && f.nome.toLowerCase() !== "nome");
 
         const { data, error } = await _supabase.from('funcionarios').insert(novosFuncionarios).select();
         if (error) throw error;
 
-        alert(`✅ SINCRONIZADO! ${data.length} funcionários organizados.`);
+        alert(`✅ Sincronizado com sucesso! ${data.length} registros.`);
         if (typeof listarEquipe === 'function') listarEquipe();
         
     } catch (e) {
-        console.error("Erro:", e);
         alert("❌ Erro: " + e.message);
     }
-}</script>
+}
+</script>
 </body>
 </html>
