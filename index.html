@@ -952,7 +952,6 @@ function calcularTotalRemessa() {
 
     try {
         let urlSinc = linkInput;
-        // Converte link de edição em link de exportação direta
         if (linkInput.includes('/edit')) {
             const id = linkInput.split('/d/')[1].split('/')[0];
             urlSinc = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`;
@@ -960,15 +959,10 @@ function calcularTotalRemessa() {
 
         const res = await fetch(urlSinc);
         const csvText = await res.text();
-        
-        // Remove linhas totalmente em branco
         const linhas = csvText.split(/\r?\n/).map(l => l.trim()).filter(l => l !== "");
         
-        console.log("Total de linhas detectadas:", linhas.length);
-        console.log("Conteúdo da primeira linha:", linhas[0]);
-
         if (linhas.length < 2) {
-            alert("A planilha parece estar vazia. Certifique-se de que ela foi 'Publicada na Web' como CSV.");
+            alert("A planilha parece estar vazia ou não foi publicada corretamente.");
             return;
         }
 
@@ -986,6 +980,7 @@ function calcularTotalRemessa() {
 
             const eVerdadeiro = (v) => v && (v.toUpperCase() === 'TRUE' || v.toUpperCase() === 'SIM' || v === '1');
 
+            // MAPEAMENTO EXATO CONFORME SEU SQL E SUA LISTA DE COLUNAS
             return {
                 nome: col[0] || null,
                 endereco: col[1] || '',
@@ -995,8 +990,8 @@ function calcularTotalRemessa() {
                 funcao: col[5] || '',
                 horario: col[6] || '',
                 equipe: col[7] || '',
-                alinhamientos: col[8] || '', 
-                advertencias: col[9] || '',  
+                alinhamentos: col[8] || '0',
+                advertencias: col[9] || '0',
                 foto: col[10] || '',
                 data_admissa: formatarData(col[11]),
                 check_docs: eVerdadeiro(col[12]),
@@ -1009,7 +1004,7 @@ function calcularTotalRemessa() {
                 data_zap: formatarData(col[19]),
                 check_vt: eVerdadeiro(col[20]),
                 check_cracha: eVerdadeiro(col[21]),
-                codigo: col[22] || '',
+                codigo: col[22] || null, // Se estiver vazio, o Supabase gera erro por ser Unique se houver duplicata vazia
                 cidade: col[23] || '',
                 nascimento: formatarData(col[24]),
                 cpf: col[25] || '',
@@ -1022,11 +1017,6 @@ function calcularTotalRemessa() {
                 celular: col[32] || ''
             };
         }).filter(f => f.nome && f.nome.toLowerCase() !== "nome"); 
-
-        if (novosFuncionarios.length === 0) {
-            alert("Nenhum dado válido encontrado após o processamento.");
-            return;
-        }
 
         const { data, error } = await _supabase
             .from('funcionarios')
@@ -1042,7 +1032,7 @@ function calcularTotalRemessa() {
         console.error("Erro detalhado:", e);
         alert("❌ Erro na sincronização: " + e.message);
     }
-  }
+}
                 
 </script>
 </body>
