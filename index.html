@@ -945,8 +945,7 @@ function calcularTotalRemessa() {
     inputs.forEach(i => total += Number(i.value || 0));
     document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
 }
-
- async function sincronizarLinkDireto() {
+async function sincronizarLinkDireto() {
     const linkInput = prompt("Cole o link da planilha PUBLICADA como CSV:");
     if (!linkInput) return;
 
@@ -978,7 +977,7 @@ function calcularTotalRemessa() {
                 return p.length === 3 ? `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}` : null;
             };
 
-            // FUNÇÃO CORRIGIDA: Se estiver vazio ou não for SIM/TRUE, retorna false explicitamente
+            // SOLUÇÃO DO ERRO: Se estiver vazio ou não for SIM/TRUE, retorna false explicitamente
             const eVerdadeiro = (v) => {
                 if (!v) return false; 
                 const valor = v.toUpperCase();
@@ -1036,7 +1035,7 @@ function calcularTotalRemessa() {
         console.error("Erro detalhado:", e);
         alert("❌ Erro na sincronização: " + e.message);
     }
-}                
+}
 </script>
 </body>
 </html>
