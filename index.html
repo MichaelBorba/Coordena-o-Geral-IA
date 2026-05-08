@@ -945,7 +945,8 @@ function calcularTotalRemessa() {
     inputs.forEach(i => total += Number(i.value || 0));
     document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
 }
-async function sincronizarLinkDireto() {
+
+    async function sincronizarLinkDireto() {
     const linkInput = prompt("Cole o link da planilha PUBLICADA como CSV:");
     if (!linkInput) return;
 
@@ -961,79 +962,93 @@ async function sincronizarLinkDireto() {
         const linhas = csvText.split(/\r?\n/).map(l => l.trim()).filter(l => l !== "");
         
         if (linhas.length < 2) {
-            alert("A planilha parece estar vazia ou não foi publicada corretamente.");
+            alert("A planilha parece estar vazia.");
             return;
         }
 
         const separador = linhas[0].includes(';') ? ';' : ',';
 
-        const novosFuncionarios = linhas.slice(1).map((linha) => {
-            const regex = new RegExp(`${separador}(?=(?:(?:[^"]*"){2})*[^"]*$)`);
-            const col = linha.split(regex).map(c => c.trim().replace(/^"|"$/g, ''));
-            
-            const formatarData = (v) => {
-                if (!v || !v.includes('/')) return null;
-                const p = v.split('/');
-                return p.length === 3 ? `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}` : null;
-            };
+        const novosFuncionarios = linhas.slice(1).map((linha, index) => {
+            try {
+                const regex = new RegExp(`${separador}(?=(?:(?:[^"]*"){2})*[^"]*$)`);
+                const col = linha.split(regex).map(c => (c || '').trim().replace(/^"|"$/g, ''));
+                
+                const formatarData = (v) => {
+                    if (!v || !v.includes('/')) return null;
+                    const p = v.split('/');
+                    return p.length === 3 ? `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}` : null;
+                };
 
-            // SOLUÇÃO DO ERRO: Se estiver vazio ou não for SIM/TRUE, retorna false explicitamente
-            const eVerdadeiro = (v) => {
-                if (!v) return false; 
-                const valor = v.toUpperCase();
-                return valor === 'TRUE' || valor === 'SIM' || valor === '1';
-            };
+                // Função de conversão forçada para Boolean
+                const paraBoolean = (v) => {
+                    if (!v) return false;
+                    const check = v.toString().toUpperCase().trim();
+                    return check === 'TRUE' || check === 'SIM' || check === '1';
+                };
 
-            return {
-                nome: col[0] || null,
-                endereco: col[1] || '',
-                bairro: col[2] || '',
-                estado: col[3] || '',
-                cep: col[4] || '',
-                funcao: col[5] || '',
-                horario: col[6] || '',
-                equipe: col[7] || '',
-                alinhamentos: col[8] || '0',
-                advertencias: col[9] || '0',
-                foto: col[10] || '',
-                data_admissa: formatarData(col[11]),
-                check_docs: eVerdadeiro(col[12]),
-                check_aso: eVerdadeiro(col[13]),
-                check_contrato: eVerdadeiro(col[14]), 
-                check_uniforme: eVerdadeiro(col[15]),
-                check_epi: eVerdadeiro(col[16]),
-                tamanho_uniforme: col[17] || '',
-                ultimo_envio_zap: col[18] || '',
-                data_zap: formatarData(col[19]),
-                check_vt: eVerdadeiro(col[20]),
-                check_cracha: eVerdadeiro(col[21]),
-                codigo: col[22] || null, 
-                cidade: col[23] || '',
-                nascimento: formatarData(col[24]),
-                cpf: col[25] || '',
-                rg: col[26] || '',
-                titulo_eleitor: col[27] || '',
-                ctps: col[28] || '',
-                habilitacao: col[29] || '',
-                desligamento: formatarData(col[30]),
-                qtde_horas_mes: col[31] || '',
-                celular: col[32] || ''
-            };
-        }).filter(f => f.nome && f.nome.toLowerCase() !== "nome"); 
+                return {
+                    nome: col[0] || "Sem Nome",
+                    endereco: col[1] || '',
+                    bairro: col[2] || '',
+                    estado: col[3] || '',
+                    cep: col[4] || '',
+                    funcao: col[5] || '',
+                    horario: col[6] || '',
+                    equipe: col[7] || '',
+                    alinhamentos: col[8] || '0',
+                    advertencias: col[9] || '0',
+                    foto: col[10] || '',
+                    data_admissa: formatarData(col[11]),
+                    check_docs: paraBoolean(col[12]),
+                    check_aso: paraBoolean(col[13]),
+                    check_contrato: paraBoolean(col[14]), 
+                    check_uniforme: paraBoolean(col[15]),
+                    check_epi: paraBoolean(col[16]),
+                    tamanho_uniforme: col[17] || '',
+                    ultimo_envio_zap: col[18] || '',
+                    data_zap: formatarData(col[19]),
+                    check_vt: paraBoolean(col[20]),
+                    check_cracha: paraBoolean(col[21]),
+                    codigo: col[22] || null, 
+                    cidade: col[23] || '',
+                    nascimento: formatarData(col[24]),
+                    cpf: col[25] || '',
+                    rg: col[26] || '',
+                    titulo_eleitor: col[27] || '',
+                    ctps: col[28] || '',
+                    habilitacao: col[29] || '',
+                    desligamento: formatarData(col[30]),
+                    qtde_horas_mes: col[31] || '',
+                    celular: col[32] || ''
+                };
+            } catch (err) {
+                console.error(`Erro na linha ${index + 2}:`, err);
+                return null;
+            }
+        }).filter(f => f !== null && f.nome && f.nome.toLowerCase() !== "nome"); 
+
+        if (novosFuncionarios.length === 0) {
+            alert("Nenhum dado processado corretamente.");
+            return;
+        }
 
         const { data, error } = await _supabase
             .from('funcionarios')
             .insert(novosFuncionarios)
             .select();
 
-        if (error) throw error;
+        if (error) {
+            console.error("Erro do Supabase:", error);
+            // Se o erro ainda for de boolean, o alert abaixo vai nos mostrar qual campo é
+            throw error;
+        }
 
         alert(`✅ SUCESSO! ${data.length} funcionários sincronizados.`);
         if (typeof listarEquipe === 'function') listarEquipe();
         
     } catch (e) {
-        console.error("Erro detalhado:", e);
-        alert("❌ Erro na sincronização: " + e.message);
+        console.error("Erro completo:", e);
+        alert("❌ Erro: " + (e.message || e.details || "Erro desconhecido"));
     }
 }
 </script>
