@@ -984,33 +984,33 @@ async function sincronizarLinkDireto() {
                 return check === 'TRUE' || check === 'SIM' || check === '1';
             };
 
-            // REORDENAÇÃO COMPLETA BASEADA NO SEU LOG:
+            // AJUSTE DE ÍNDICES BASEADO NO SEU LOG:
             return {
-                nome: col[0] || null,             // Col 0: Nome
-                endereco: col[1] || '',           // Col 1: Endereço
-                bairro: col[2] || '',             // Col 2: Bairro
-                cidade: col[3] || '',             // Col 3: Cidade
-                estado: col[4] || '',             // Col 4: Estado
-                cep: col[5] || '',                // Col 5: CEP
+                nome: col[0] || null,             // Col 0
+                endereco: col[1] || '',           // Col 1
+                bairro: col[2] || '',             // Col 2
+                cidade: col[3] || '',             // Col 3
+                estado: col[4] || '',             // Col 4
+                cep: col[5] || '',                // Col 5
                 
-                // Agora os dados que estavam "pulando" para os lugares errados:
-                nascimento: formatarData(col[6]), // Col 6: Era o que caía em 'funcao'
-                cpf: col[7] || '',                // Col 7: Era o que caía em 'horario'
-                rg: col[8] || '',                 // Col 8: Era o que caía em 'alinhamentos'
-                titulo_eleitor: col[9] || '',     // Col 9: Era o que caía em 'advertencia'
-                ctps: col[10] || '',              // Col 10: Era o que caía em 'equipe'
-                habilitacao: col[11] || '',       // Col 11: Era o que caía em 'foto'
+                // Mapeando o que estava caindo em 'funcao', 'horario', etc:
+                nascimento: formatarData(col[6]), // Estava na Col 6 (caindo em funcao)
+                cpf: col[7] || '',                // Estava na Col 7 (caindo em horario)
+                rg: col[8] || '',                 // Estava na Col 8 (caindo em alinhamentos)
+                titulo_eleitor: col[9] || '',     // Estava na Col 9 (caindo em advertencias)
+                ctps: col[10] || '',              // Estava na Col 10 (caindo em equipe)
+                habilitacao: col[11] || '',       // Estava na Col 11 (caindo em foto)
 
-                // Provavelmente a sua planilha segue com os dados reais a partir daqui:
-                funcao: col[12] || '',
-                horario: col[13] || '',
-                equipe: col[14] || '',
-                alinhamentos: col[15] || '0',
-                advertencias: col[16] || '0',
-                foto: col[17] || '',
-                data_admissa: formatarData(col[18]),
+                // Agora sim, as colunas de trabalho que vêm DEPOIS dos documentos na sua planilha:
+                funcao: col[12] || '',            // Col 12
+                horario: col[13] || '',           // Col 13
+                equipe: col[14] || '',            // Col 14
+                alinhamentos: col[15] || '0',     // Col 15
+                advertencias: col[16] || '0',     // Col 16
+                foto: col[17] || '',              // Col 17
+                data_admissa: formatarData(col[18]), // Col 18
                 
-                // Seus campos de CHECK (ajuste a posição se necessário)
+                // Campos de Checkbox (ajustados para a sequência provável)
                 check_docs: paraBoolean(col[19]),
                 check_aso: paraBoolean(col[20]),
                 check_contrato: paraBoolean(col[21]),
@@ -1018,22 +1018,28 @@ async function sincronizarLinkDireto() {
                 check_epi: paraBoolean(col[23]),
                 
                 tamanho_uniforme: col[24] || '',
-                codigo: col[25] || null,
-                qtde_horas_mes: col[26] || '',
-                celular: col[27] || ''
+                ultimo_envio_zap: col[25] || '',
+                data_zap: formatarData(col[26]),
+                check_vt: paraBoolean(col[27]),
+                check_cracha: paraBoolean(col[28]),
+                
+                codigo: col[29] || null,
+                desligamento: formatarData(col[30]),
+                qtde_horas_mes: col[31] || '',
+                celular: col[32] || ''
             };
         }).filter(f => f.nome && f.nome.toLowerCase() !== "nome");
 
         const { data, error } = await _supabase.from('funcionarios').insert(novosFuncionarios).select();
         if (error) throw error;
 
-        alert(`✅ AGORA SIM! ${data.length} registros sincronizados corretamente.`);
+        alert(`✅ SINCRONIZADO! ${data.length} funcionários organizados.`);
         if (typeof listarEquipe === 'function') listarEquipe();
         
     } catch (e) {
+        console.error("Erro:", e);
         alert("❌ Erro: " + e.message);
     }
-}   
-</script>
+}</script>
 </body>
 </html>
