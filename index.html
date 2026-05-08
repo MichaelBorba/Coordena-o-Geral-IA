@@ -946,7 +946,7 @@ function calcularTotalRemessa() {
     document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
 }
 
-async function sincronizarLinkDireto() {
+    async function sincronizarLinkDireto() {
     const linkInput = prompt("Cole o link da planilha PUBLICADA como CSV:");
     if (!linkInput) return;
 
@@ -973,9 +973,17 @@ async function sincronizarLinkDireto() {
             const col = linha.split(regex).map(c => (c || '').trim().replace(/^"|"$/g, ''));
             
             const formatarData = (v) => {
-                if (!v || !v.includes('/')) return null;
-                const p = v.split('/');
-                return p.length === 3 ? `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}` : null;
+                if (!v) return null;
+                // Se a data já vier no formato AAAA-MM-DD (ISO)
+                if (v.includes('-') && v.split('-')[0].length === 4) return v;
+                // Se vier no formato brasileiro DD/MM/AAAA
+                if (v.includes('/')) {
+                    const p = v.split('/');
+                    if (p.length === 3) {
+                        return `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
+                    }
+                }
+                return null;
             };
 
             const paraBoolean = (v) => {
@@ -992,22 +1000,21 @@ async function sincronizarLinkDireto() {
                 estado: col[4] || '',
                 cep: col[5] || '',
                 
-                data_admissa: formatarData(col[6]),
+                data_admissa: formatarData(col[6]), // Col 6
 
                 cpf: col[7] || '',
                 rg: col[8] || '',
                 titulo_eleitor: col[9] || '',
                 ctps: col[10] || '',
                 habilitacao: col[11] || '',
-                nascimento: formatarData(col[12]),
+                
+                // --- NASCIMENTO ---
+                nascimento: formatarData(col[12]), // Col 12
 
-                // --- AJUSTE AQUI ---
-                // Se a função estava caindo no horário, 
-                // invertemos os índices para alinhar com sua planilha real:
-                funcao: col[14] || '',            // Puxa do 14 (onde estava caindo o cargo)
-                horario: col[13] || '',           // Puxa do 13 (o que provavelmente está vazio)
-                // -------------------
-
+                // --- AJUSTE DE FUNÇÃO/HORÁRIO ---
+                funcao: col[14] || '',            // Invertido: agora o cargo vai para a Função
+                horario: col[13] || '',           // Invertido: o valor vazio ou horário vai para Horário
+                
                 celular: col[15] || '',
                 qtde_horas_mes: col[16] || '',
                 equipe: col[17] || '',
@@ -1030,7 +1037,7 @@ async function sincronizarLinkDireto() {
         const { data, error } = await _supabase.from('funcionarios').insert(novosFuncionarios).select();
         if (error) throw error;
 
-        alert(`✅ Agora sim! ${data.length} registros sincronizados corretamente.`);
+        alert(`✅ Sucesso! ${data.length} funcionários sincronizados com as colunas corrigidas.`);
         if (typeof listarEquipe === 'function') listarEquipe();
         
     } catch (e) {
