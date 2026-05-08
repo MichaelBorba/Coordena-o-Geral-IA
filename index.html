@@ -946,7 +946,7 @@ function calcularTotalRemessa() {
     document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
 }
 
-   async function sincronizarLinkDireto() {
+async function sincronizarLinkDireto() {
     const linkInput = prompt("Cole o link da planilha PUBLICADA como CSV:");
     if (!linkInput) return;
 
@@ -984,7 +984,7 @@ function calcularTotalRemessa() {
                 return check === 'TRUE' || check === 'SIM' || check === '1';
             };
 
-            // AJUSTE FINO BASEADO NO LOG DO PEDRO SANTOS
+            // REORDENAÇÃO AJUSTADA PELO LOG DA FERNANDA ALVES
             return {
                 nome: col[0] || null,             // Col 0
                 endereco: col[1] || '',           // Col 1
@@ -993,27 +993,25 @@ function calcularTotalRemessa() {
                 estado: col[4] || '',             // Col 4
                 cep: col[5] || '',                // Col 5
                 
-                // Documentos e Datas
+                // Documentos e Datas (Ajustando posições)
                 data_admissa: formatarData(col[6]), // Col 6
-                cpf: col[7] || '',                  // Col 7
-                rg: col[8] || '',                   // Col 8
-                titulo_eleitor: col[9] || '',       // Col 9
-                ctps: col[10] || '',                // Col 10
-                nascimento: formatarData(col[11]),  // Col 11 (Onde deve estar a data)
+                nascimento: formatarData(col[7]),   // Col 7 (Movido para perto da admissão)
+                cpf: col[8] || '',                  // Col 8
+                rg: col[9] || '',                   // Col 9
+                titulo_eleitor: col[10] || '',      // Col 10
+                ctps: col[11] || '',                // Col 11
                 
                 // Dados Profissionais
-                funcao: col[12] || '',              // Col 12 (Coordenador)
+                funcao: col[12] || '',              // Col 12 (Onde deve estar "Analista")
                 horario: col[13] || '',             // Col 13
                 celular: col[14] || '',             // Col 14
                 qtde_horas_mes: col[15] || '',      // Col 15
                 equipe: col[16] || '',              // Col 16
                 
-                // Outros
                 alinhamentos: col[17] || '0',       // Col 17
                 advertencias: col[18] || '0',       // Col 18
                 foto: col[19] || '',                // Col 19
                 
-                // Checks
                 check_docs: paraBoolean(col[20]),
                 check_aso: paraBoolean(col[21]),
                 check_contrato: paraBoolean(col[22]),
@@ -1021,20 +1019,20 @@ function calcularTotalRemessa() {
                 check_epi: paraBoolean(col[24]),
                 
                 tamanho_uniforme: col[25] || '',
-                codigo: col[26] || null             // Col 26
+                codigo: col[26] || null             
             };
         }).filter(f => f.nome && f.nome.toLowerCase() !== "nome");
 
         const { data, error } = await _supabase.from('funcionarios').insert(novosFuncionarios).select();
         if (error) throw error;
 
-        alert(`✅ Sincronizado com sucesso! ${data.length} registros.`);
+        alert(`✅ Sincronizado! ${data.length} registros processados.`);
         if (typeof listarEquipe === 'function') listarEquipe();
         
     } catch (e) {
         alert("❌ Erro: " + e.message);
     }
-}
+}   
 </script>
 </body>
 </html>
