@@ -1039,53 +1039,22 @@ function calcularTotalRemessa() {
         alert("❌ Erro: " + e.message);
     }
 }
-    async function gerarPDF(id) {
-    const { data: emp, error } = await _supabase.from('funcionarios').select('*').eq('id', id).single();
-    
-    if (error || !emp) {
-        alert("Erro ao buscar dados para o PDF");
-        return;
-    }
-
-    // Preenchendo os campos do molde
-    document.getElementById('pdf-nome').innerText = emp.nome || '---';
-    document.getElementById('pdf-funcao').innerText = emp.funcao || '---';
-    document.getElementById('pdf-admissao').innerText = emp.data_admissa || '---';
-    document.getElementById('pdf-celular').innerText = emp.celular || '---';
-    document.getElementById('pdf-codigo').innerText = emp.codigo || '---';
-    document.getElementById('pdf-equipe').innerText = emp.equipe || '---';
-    document.getElementById('pdf-cpf').innerText = emp.cpf || '---';
-    document.getElementById('pdf-rg').innerText = emp.rg || '---';
-    document.getElementById('pdf-ctps').innerText = emp.ctps || '---';
-    document.getElementById('pdf-titulo').innerText = emp.titulo_eleitor || '---';
-    document.getElementById('pdf-cnh').innerText = emp.habilitacao || '---';
-    document.getElementById('pdf-nascimento').innerText = emp.nascimento || '---';
-    document.getElementById('pdf-endereco').innerText = emp.endereco || '---';
-    document.getElementById('pdf-bairro').innerText = emp.bairro || '---';
-    document.getElementById('pdf-cidade').innerText = emp.cidade || '---';
-    document.getElementById('pdf-estado').innerText = emp.estado || '---';
-    document.getElementById('pdf-cep').innerText = emp.cep || '---';
-    document.getElementById('pdf-horario').innerText = emp.horario || '---';
-    document.getElementById('pdf-horas').innerText = emp.qtde_horas_mes || '---';
-    document.getElementById('pdf-uniforme').innerText = emp.tamanho_uniforme || '---';
-    
-    // NOVOS CAMPOS AQUI:
-    document.getElementById('pdf-alinhamentos').innerText = emp.alinhamentos || '0';
-    document.getElementById('pdf-advertencias').innerText = emp.advertencias || '0';
-
-    const elemento = document.getElementById('template-ficha-pdf');
-    elemento.style.display = 'block'; 
-
+    // Função para gerar o PDF da ficha do funcionário
+function gerarPDF(id) {
+    const elemento = document.getElementById(`card-dp-${id}`);
     const options = {
         margin: 10,
-        filename: `FICHA_${emp.nome}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, backgroundColor: '#ffffff' },
+        filename: `Ficha_DP_${id}.pdf`,
+        html2canvas: { scale: 2, backgroundColor: '#1e293b' }, // Mantém o fundo escuro do seu layout
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
+    
+    // Esconde os botões no PDF para ficar limpo
+    const botoes = elemento.querySelectorAll('button');
+    botoes.forEach(b => b.style.visibility = 'hidden');
 
     html2pdf().set(options).from(elemento).save().then(() => {
-        elemento.style.display = 'none'; 
+        botoes.forEach(b => b.style.visibility = 'visible');
     });
 }
 
@@ -1109,44 +1078,6 @@ async function enviarZapDPCompleto(id) {
 
     window.open(`https://wa.me/?text=${texto}`, '_blank');
 }
-    <div id="template-ficha-pdf" style="display: none;">
-    <div style="padding: 30px; font-family: Arial, sans-serif; color: #000; background: #fff; line-height: 1.6;">
-        <h2 style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px;">FICHA DE REGISTRO DE EMPREGADO</h2>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
-            <div>
-                <p><b>NOME COMPLETO:</b> <span id="pdf-nome"></span></p>
-                <p><b>FUNÇÃO:</b> <span id="pdf-funcao"></span></p>
-                <p><b>ADMISSÃO:</b> <span id="pdf-admissao"></span></p>
-                <p><b>CELULAR:</b> <span id="pdf-celular"></span></p>
-            </div>
-            <div style="text-align: right;">
-                <p><b>CÓDIGO:</b> <span id="pdf-codigo"></span></p>
-                <p><b>EQUIPE:</b> <span id="pdf-equipe"></span></p>
-            </div>
-        </div>
-
-        <h3 style="background: #eee; padding: 5px; margin-top: 20px;">DOCUMENTAÇÃO</h3>
-        <p><b>CPF:</b> <span id="pdf-cpf"></span> | <b>RG:</b> <span id="pdf-rg"></span></p>
-        <p><b>CTPS:</b> <span id="pdf-ctps"></span> | <b>TÍTULO ELEITOR:</b> <span id="pdf-titulo"></span></p>
-        <p><b>HABILITAÇÃO:</b> <span id="pdf-cnh"></span> | <b>NASCIMENTO:</b> <span id="pdf-nascimento"></span></p>
-
-        <h3 style="background: #eee; padding: 5px; margin-top: 20px;">ENDEREÇO E LOCALIZAÇÃO</h3>
-        <p><b>ENDEREÇO:</b> <span id="pdf-endereco"></span></p>
-        <p><b>BAIRRO:</b> <span id="pdf-bairro"></span> | <b>CIDADE:</b> <span id="pdf-cidade"></span> - <span id="pdf-estado"></span></p>
-        <p><b>CEP:</b> <span id="pdf-cep"></span></p>
-
-        <h3 style="background: #eee; padding: 5px; margin-top: 20px;">HISTÓRICO E COMPLEMENTOS</h3>
-        <p><b>HORÁRIO:</b> <span id="pdf-horario"></span> | <b>CARGA HORÁRIA:</b> <span id="pdf-horas"></span>h/mês</p>
-        <p><b>ALINHAMENTOS:</b> <span id="pdf-alinhamentos"></span> | <b>ADVERTÊNCIAS:</b> <span id="pdf-advertencias"></span></p>
-        <p><b>TAMANHO UNIFORME:</b> <span id="pdf-uniforme"></span></p>
-        
-        <div style="margin-top: 50px; display: grid; grid-template-columns: 1fr 1fr; gap: 50px; text-align: center;">
-            <div style="border-top: 1px solid #000; padding-top: 5px;">Assinatura do Empregado</div>
-            <div style="border-top: 1px solid #000; padding-top: 5px;">Assinatura do Empregador</div>
-        </div>
-    </div>
-</div>
    </script>
 </body>
 </html>
