@@ -946,7 +946,7 @@ function calcularTotalRemessa() {
     document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
 }
 
-    async function sincronizarLinkDireto() {
+   async function sincronizarLinkDireto() {
     const linkInput = prompt("Cole o link da planilha PUBLICADA como CSV:");
     if (!linkInput) return;
 
@@ -984,7 +984,7 @@ function calcularTotalRemessa() {
                 return check === 'TRUE' || check === 'SIM' || check === '1';
             };
 
-            // REORDENAÇÃO DEFINITIVA BASEADA NO LOG DA LARISSA TEIXEIRA
+            // AJUSTE FINO BASEADO NO LOG DO PEDRO SANTOS
             return {
                 nome: col[0] || null,             // Col 0
                 endereco: col[1] || '',           // Col 1
@@ -993,38 +993,35 @@ function calcularTotalRemessa() {
                 estado: col[4] || '',             // Col 4
                 cep: col[5] || '',                // Col 5
                 
-                // DATA DE ADMISSAO (Você confirmou que é o que estava caindo em 'funcao')
+                // Documentos e Datas
                 data_admissa: formatarData(col[6]), // Col 6
-
-                // DOCUMENTOS (CPF, RG, etc)
-                cpf: col[7] || '',                // Col 7
-                rg: col[8] || '',                 // Col 8
-                titulo_eleitor: col[9] || '',     // Col 9
-                ctps: col[10] || '',              // Col 10
-                habilitacao: col[11] || '',       // Col 11
-                nascimento: formatarData(col[12]),// Col 12
-
-                // DADOS DE TRABALHO
-                funcao: col[13] || '',            // Col 13
-                horario: col[14] || '',           // Col 14
-                celular: col[15] || '',           // Col 15 (Onde estava caindo o telefone no log)
-                qtde_horas_mes: col[16] || '',    // Col 16
-                equipe: col[17] || '',            // Col 17
+                cpf: col[7] || '',                  // Col 7
+                rg: col[8] || '',                   // Col 8
+                titulo_eleitor: col[9] || '',       // Col 9
+                ctps: col[10] || '',                // Col 10
+                nascimento: formatarData(col[11]),  // Col 11 (Onde deve estar a data)
                 
-                // OUTROS CAMPOS
-                alinhamentos: col[18] || '0',     // Col 18
-                advertencias: col[19] || '0',     // Col 19
-                foto: col[20] || '',              // Col 20
+                // Dados Profissionais
+                funcao: col[12] || '',              // Col 12 (Coordenador)
+                horario: col[13] || '',             // Col 13
+                celular: col[14] || '',             // Col 14
+                qtde_horas_mes: col[15] || '',      // Col 15
+                equipe: col[16] || '',              // Col 16
                 
-                // CHECKS
-                check_docs: paraBoolean(col[21]),
-                check_aso: paraBoolean(col[22]),
-                check_contrato: paraBoolean(col[23]),
-                check_uniforme: paraBoolean(col[24]),
-                check_epi: paraBoolean(col[25]),
+                // Outros
+                alinhamentos: col[17] || '0',       // Col 17
+                advertencias: col[18] || '0',       // Col 18
+                foto: col[19] || '',                // Col 19
                 
-                tamanho_uniforme: col[26] || '',
-                codigo: col[27] || null           // Col 27
+                // Checks
+                check_docs: paraBoolean(col[20]),
+                check_aso: paraBoolean(col[21]),
+                check_contrato: paraBoolean(col[22]),
+                check_uniforme: paraBoolean(col[23]),
+                check_epi: paraBoolean(col[24]),
+                
+                tamanho_uniforme: col[25] || '',
+                codigo: col[26] || null             // Col 26
             };
         }).filter(f => f.nome && f.nome.toLowerCase() !== "nome");
 
