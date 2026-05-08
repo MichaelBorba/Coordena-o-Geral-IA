@@ -984,39 +984,38 @@ async function sincronizarLinkDireto() {
                 return check === 'TRUE' || check === 'SIM' || check === '1';
             };
 
-            // REORDENAÇÃO DEFINITIVA BASEADA NO LOG DA LARISSA TEIXEIRA
             return {
-                nome: col[0] || null,             // Col 0
-                endereco: col[1] || '',           // Col 1
-                bairro: col[2] || '',             // Col 2
-                cidade: col[3] || '',             // Col 3
-                estado: col[4] || '',             // Col 4
-                cep: col[5] || '',                // Col 5
+                nome: col[0] || null,
+                endereco: col[1] || '',
+                bairro: col[2] || '',
+                cidade: col[3] || '',
+                estado: col[4] || '',
+                cep: col[5] || '',
                 
-                // DATA DE ADMISSAO (Você confirmou que é o que estava caindo em 'funcao')
-                data_admissa: formatarData(col[6]), // Col 6
+                data_admissa: formatarData(col[6]),
 
-                // DOCUMENTOS (CPF, RG, etc)
-                cpf: col[7] || '',                // Col 7
-                rg: col[8] || '',                 // Col 8
-                titulo_eleitor: col[9] || '',     // Col 9
-                ctps: col[10] || '',              // Col 10
-                habilitacao: col[11] || '',       // Col 11
-                nascimento: formatarData(col[12]),// Col 12
+                cpf: col[7] || '',
+                rg: col[8] || '',
+                titulo_eleitor: col[9] || '',
+                ctps: col[10] || '',
+                habilitacao: col[11] || '',
+                nascimento: formatarData(col[12]),
 
-                // DADOS DE TRABALHO
-                funcao: col[13] || '',            // Col 13
-                horario: col[14] || '',           // Col 14
-                celular: col[15] || '',           // Col 15 (Onde estava caindo o telefone no log)
-                qtde_horas_mes: col[16] || '',    // Col 16
-                equipe: col[17] || '',            // Col 17
+                // --- AJUSTE AQUI ---
+                // Se a função estava caindo no horário, 
+                // invertemos os índices para alinhar com sua planilha real:
+                funcao: col[14] || '',            // Puxa do 14 (onde estava caindo o cargo)
+                horario: col[13] || '',           // Puxa do 13 (o que provavelmente está vazio)
+                // -------------------
+
+                celular: col[15] || '',
+                qtde_horas_mes: col[16] || '',
+                equipe: col[17] || '',
                 
-                // OUTROS CAMPOS
-                alinhamentos: col[18] || '0',     // Col 18
-                advertencias: col[19] || '0',     // Col 19
-                foto: col[20] || '',              // Col 20
+                alinhamentos: col[18] || '0',
+                advertencias: col[19] || '0',
+                foto: col[20] || '',
                 
-                // CHECKS
                 check_docs: paraBoolean(col[21]),
                 check_aso: paraBoolean(col[22]),
                 check_contrato: paraBoolean(col[23]),
@@ -1024,14 +1023,14 @@ async function sincronizarLinkDireto() {
                 check_epi: paraBoolean(col[25]),
                 
                 tamanho_uniforme: col[26] || '',
-                codigo: col[27] || null           // Col 27
+                codigo: col[27] || null
             };
         }).filter(f => f.nome && f.nome.toLowerCase() !== "nome");
 
         const { data, error } = await _supabase.from('funcionarios').insert(novosFuncionarios).select();
         if (error) throw error;
 
-        alert(`✅ Sincronizado com sucesso! ${data.length} registros.`);
+        alert(`✅ Agora sim! ${data.length} registros sincronizados corretamente.`);
         if (typeof listarEquipe === 'function') listarEquipe();
         
     } catch (e) {
