@@ -974,9 +974,7 @@ function calcularTotalRemessa() {
             
             const formatarData = (v) => {
                 if (!v) return null;
-                // Se a data já vier no formato AAAA-MM-DD (ISO)
                 if (v.includes('-') && v.split('-')[0].length === 4) return v;
-                // Se vier no formato brasileiro DD/MM/AAAA
                 if (v.includes('/')) {
                     const p = v.split('/');
                     if (p.length === 3) {
@@ -1000,7 +998,9 @@ function calcularTotalRemessa() {
                 estado: col[4] || '',
                 cep: col[5] || '',
                 
-                data_admissa: formatarData(col[6]), // Col 6
+                // --- AJUSTE: NASCIMENTO E ADMISSÃO TROCADOS ---
+                nascimento: formatarData(col[6]),   // Era col[12], agora col[6]
+                data_admissa: formatarData(col[12]), // Era col[6], agora col[12]
 
                 cpf: col[7] || '',
                 rg: col[8] || '',
@@ -1008,12 +1008,9 @@ function calcularTotalRemessa() {
                 ctps: col[10] || '',
                 habilitacao: col[11] || '',
                 
-                // --- NASCIMENTO ---
-                nascimento: formatarData(col[12]), // Col 12
-
-                // --- AJUSTE DE FUNÇÃO/HORÁRIO ---
-                funcao: col[14] || '',            // Invertido: agora o cargo vai para a Função
-                horario: col[13] || '',           // Invertido: o valor vazio ou horário vai para Horário
+                // --- AJUSTE: FUNÇÃO E HORÁRIO ---
+                funcao: col[14] || '',            
+                horario: col[13] || '',           
                 
                 celular: col[15] || '',
                 qtde_horas_mes: col[16] || '',
@@ -1037,13 +1034,13 @@ function calcularTotalRemessa() {
         const { data, error } = await _supabase.from('funcionarios').insert(novosFuncionarios).select();
         if (error) throw error;
 
-        alert(`✅ Sucesso! ${data.length} funcionários sincronizados com as colunas corrigidas.`);
+        alert(`✅ Sincronização concluída com sucesso!`);
         if (typeof listarEquipe === 'function') listarEquipe();
         
     } catch (e) {
         alert("❌ Erro: " + e.message);
     }
 }
-</script>
+   </script>
 </body>
 </html>
