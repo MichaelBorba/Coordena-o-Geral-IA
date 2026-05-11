@@ -75,7 +75,54 @@
 .input-grid-financeiro input[type="date"] {
     padding-right: 5px !important;
 }
-        
+
+        /* Layout de Conferência Split Screen */
+.conferencia-grid-layout {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr; /* Lado esquerdo maior para a imagem */
+    gap: 20px;
+    height: 70vh; /* Altura fixa para permitir scroll independente */
+    overflow: hidden;
+}
+
+#visor-notas {
+    background: #020617;
+    border-radius: 12px;
+    overflow-y: auto; /* Scroll apenas nas imagens */
+    padding: 15px;
+    border: 2px solid #334155;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.imagem-nota-container {
+    width: 100%;
+    position: relative;
+    border-bottom: 2px dashed #334155;
+    padding-bottom: 20px;
+}
+
+.imagem-nota-container img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+#form-notas-container {
+    overflow-y: auto; /* Scroll apenas nos formulários */
+    padding-right: 10px;
+}
+
+/* Garante que o somatório no rodapé fique sempre visível */
+.footer-financeiro {
+    background: var(--card-bg);
+    padding: 15px;
+    border-top: 2px solid #334155;
+    margin-top: 10px;
+    border-radius: 0 0 15px 15px;
+}
     </style>
 </head>
 <body>
@@ -867,78 +914,92 @@ function handleFinanceiroUpload(input) {
 function renderizarListaFinanceiro() {
     const visor = document.getElementById('visor-notas');
     const formContainer = document.getElementById('form-notas-container');
+    const containerPai = document.querySelector('#modalFinanceiro .modal-content > div:nth-child(2)');
     
-    if (window.arquivosAtuais.length === 0) {
+    if (!window.arquivosAtuais || window.arquivosAtuais.length === 0) {
         resetarInterfaceFinanceiro();
         return;
     }
+
+    // Ativa o layout de duas colunas (conforme o CSS enviado anteriormente)
+    containerPai.className = 'conferencia-grid-layout';
 
     visor.innerHTML = ''; 
     formContainer.innerHTML = '';
 
     window.arquivosAtuais.forEach((item, index) => {
-        // Lado Esquerdo: Imagem Ampliada
-        const imgContainer = document.createElement('div');
-        imgContainer.className = "imagem-nota-container";
-        imgContainer.style = "position: relative; width: 100%; margin-bottom: 30px; border: 2px solid #334155; border-radius: 12px; overflow: hidden;";
-        imgContainer.innerHTML = `
-            <img src="${item.src}" id="nota-img-${index}" style="width: 100%; display: block;">
-            <button type="button" onclick="removerNota(${index})" style="position: absolute; top: 15px; right: 15px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; font-weight: bold; z-index: 10;">X</button>
-        `;
-        visor.appendChild(imgContainer);
-
-        // Lado Direito: Formulário Prático
-        const div = document.createElement('div');
-        div.className = 'historico-box';
-        div.style = "margin-bottom: 25px; padding: 15px; border-left: 4px solid #f59e0b; background: #1e293b;";
-        div.innerHTML = `
-            <div style="display:flex; justify-content:space-between; margin-bottom: 12px;">
-                <strong style="color: #f59e0b;">CONFERÊNCIA NOTA ${index + 1}</strong>
+        // LADO ESQUERDO: Visualização da Imagem (Ampla)
+        const imgDiv = document.createElement('div');
+        imgDiv.className = "imagem-nota-container";
+        imgDiv.id = `scroll-nota-${index}`;
+        imgDiv.innerHTML = `
+            <div style="background: var(--primary-blue); color: white; padding: 5px 10px; border-radius: 5px 5px 0 0; font-size: 0.7rem; font-weight: bold;">
+                VISUALIZAÇÃO DA NOTA #${index + 1}
             </div>
-            
-            <div class="input-grid-financeiro">
-                <div class="full-column">
-                    <label style="font-size: 0.7rem; color: #94a3b8;">Código/Número da NF:</label>
-                    <input type="text" class="codigo-nf-financeiro" placeholder="Ex: 000.123" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:8px;">
-                </div>
+            <img src="${item.src}">
+        `;
+        visor.appendChild(imgDiv);
 
+        // LADO DIREITO: Formulário com sua lista de categorias completa
+        const formDiv = document.createElement('div');
+        formDiv.className = 'item-card';
+        formDiv.style = "margin-bottom: 20px; border-left: 4px solid var(--accent-orange);";
+        formDiv.innerHTML = `
+            <strong style="color: var(--accent-orange);">DADOS DA NF #${index + 1}</strong>
+            <div class="input-grid-financeiro" style="display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 10px;">
                 <div>
-                    <label style="font-size: 0.7rem; color: #94a3b8;">Data:</label>
-                    <input type="date" class="data-financeiro" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:8px;">
+                    <label style="font-size: 0.7rem; color: var(--text-dim);">Código/Número da NF:</label>
+                    <input type="text" class="codigo-nf-financeiro" placeholder="Ex: 000.123" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:8px;">
                 </div>
-
                 <div>
-                    <label style="font-size: 0.7rem; color: #94a3b8;">Valor R$:</label>
-                    <input type="number" step="0.01" class="input-financeiro" onfocus="focarNota(${index})" oninput="calcularTotalRemessa()" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:8px;">
+                    <label style="font-size: 0.7rem; color: var(--text-dim);">Data:</label>
+                    <input type="date" class="data-financeiro" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:8px;">
                 </div>
-
-                <div class="full-column">
-                    <label style="font-size: 0.7rem; color: #94a3b8;">Categoria de Despesa:</label>
-                    <select class="cat-financeiro" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:8px;">
+                <div>
+                    <label style="font-size: 0.7rem; color: var(--text-dim);">Valor R$:</label>
+                    <input type="number" step="0.01" class="input-financeiro" placeholder="0,00" oninput="calcularTotalRemessa()" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:8px;">
+                </div>
+                <div>
+                    <label style="font-size: 0.7rem; color: var(--text-dim);">Categoria de Despesa:</label>
+                    <select class="cat-financeiro" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:8px;">
                         <option value="">Selecione...</option>
-                        <option>Gênero Alimentício</option><option>Material de Escritório</option><option>Material de Higiene e Limpeza</option>
-                        <option>Material de Copa e Cozinha</option><option>Material Didático</option><option>Conservação de Edifícios</option>
-                        <option>Conservação de Móveis, Máquinas e Equipamentos</option><option>Material de Sinalização Visual (placas)</option>
-                        <option>EPI</option><option>Medicamentos</option><option>Aluguel carro/combustível</option><option>Gás</option>
-                        <option>Controle de Pragas / Sanitização e Dedetização</option><option>Extintores de Incêndio</option>
-                        <option>Transporte para Usuários - Taxi- Ônibus- App</option><option>Serviços Gráficos</option>
-                        <option>Oficinas e Capacitações</option><option>Material de Cama-mesa e banho</option><option>Uniformes</option>
-                        <option>Materiais elétricos</option><option>Ferramentas</option><option>Material permanente - mesa e cadeira</option>
-                        <option>Material permanente - roupeiros</option><option>Material permanente - Ventilador de Parede</option>
+                        <option>Gênero Alimentício</option>
+                        <option>Material de Escritório</option>
+                        <option>Material de Higiene e Limpeza</option>
+                        <option>Material de Copa e Cozinha</option>
+                        <option>Material Didático</option>
+                        <option>Conservação de Edifícios</option>
+                        <option>Conservação de Móveis, Máquinas e Equipamentos</option>
+                        <option>Material de Sinalização Visual (placas)</option>
+                        <option>EPI</option>
+                        <option>Medicamentos</option>
+                        <option>Aluguel carro/combustível</option>
+                        <option>Gás</option>
+                        <option>Controle de Pragas / Sanitização e Dedetização</option>
+                        <option>Extintores de Incêndio</option>
+                        <option>Transporte para Usuários - Taxi- Ônibus- App</option>
+                        <option>Serviços Gráficos</option>
+                        <option>Oficinas e Capacitações</option>
+                        <option>Material de Cama-mesa e banho</option>
+                        <option>Uniformes</option>
+                        <option>Materiais elétricos</option>
+                        <option>Ferramentas</option>
+                        <option>Material permanente - mesa e cadeira</option>
+                        <option>Material permanente - roupeiros</option>
+                        <option>Material permanente - Ventilador de Parede</option>
                         <option>Material permanente - Refrigerador industrial</option>
                     </select>
                 </div>
             </div>
+            <button type="button" onclick="removerNota(${index})" style="background:none; border:none; color:var(--accent-red); font-size:0.7rem; cursor:pointer; margin-top:8px;">
+                <i class="fas fa-trash"></i> Remover esta nota
+            </button>
         `;
-        formContainer.appendChild(div);
+        formContainer.appendChild(formDiv);
     });
     
-    // Aplica a classe de grid ao container pai no modal financeiro
-    document.querySelector('#modalFinanceiro .modal-content > div:nth-child(2)').className = 'conferencia-grid-layout';
-    
     calcularTotalRemessa();
-}
-    
+}    
 
 function removerNota(index) {
     window.arquivosAtuais.splice(index, 1);
