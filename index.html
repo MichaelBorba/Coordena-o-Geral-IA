@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -51,31 +49,31 @@
         .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; padding: 25px; border-radius: 25px 25px 0 0; max-height: 85vh; overflow-y: auto; }
         .historico-box { background: #0f172a; padding: 10px; border-radius: 10px; font-size: 0.85rem; margin-top: 10px; white-space: pre-wrap; border-left: 3px solid var(--primary-blue); }
         .dp-input-small { padding: 8px !important; font-size: 0.7rem !important; margin-bottom: 5px !important; }
-        /* Ajuste para o Financeiro ficar mais largo e prático */
-#modalFinanceiro .modal-content {
-    max-width: 95% !important; /* Expande o modal */
-    width: 95% !important;
-}
-
-.conferencia-grid-layout {
-    display: grid;
-    grid-template-columns: 1.4fr 1fr; /* 1.4 para nota (esquerda), 1 para form (direita) */
-    gap: 20px;
-    width: 100%;
-}
-
+        /* Ajuste de espaçamento nos inputs do Financeiro */
 .input-grid-financeiro {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Inputs em duas colunas */
-    gap: 10px;
+    grid-template-columns: 1fr 1fr; 
+    gap: 15px; /* Aumentado o espaço entre colunas */
+    margin-top: 10px;
 }
 
-.full-column {
-    grid-column: span 2;
+.input-grid-financeiro div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* Espaço entre o nome do campo e o campo de digitação */
 }
 
-@media (max-width: 800px) {
-    .conferencia-grid-layout { grid-template-columns: 1fr; }
+.input-grid-financeiro input, 
+.input-grid-financeiro select {
+    height: 45px; /* Define uma altura padrão confortável */
+    padding: 0 12px !important; /* Espaço interno para o texto não encostar na borda */
+    font-size: 14px;
+    box-sizing: border-box; /* Garante que o padding não quebre a largura */
+}
+
+/* Ajuste específico para o campo de data que costuma vir com ícone */
+.input-grid-financeiro input[type="date"] {
+    padding-right: 5px !important;
 }
         
     </style>
