@@ -532,25 +532,40 @@
         await _supabase.from('funcionarios').update({ [campo]: valor }).eq('id', id);
     }
 
-    function enviarZapDPCompleto(id, nome, tempo, status) {
-        const check = (elId) => document.getElementById(elId).checked ? '✅' : '❌';
-        const val = (elId) => document.getElementById(elId).value || 'Não informado';
+    async function enviarZapDPCompleto(id) {
+    try {
+        // Busca os dados do funcionário para garantir que a mensagem vá preenchida
+        const { data: emp, error } = await _supabase.from('funcionarios').select('*').eq('id', id).single();
         
-        const texto = `*GESTÃO D.P. - ${nome}*\n` +
-                      `*Tempo de Empresa:* ${tempo}\n` +
-                      `*Situação:* ${status}\n\n` +
-                      `*CHECKLIST DOCUMENTOS:*\n` +
-                      `${check('chk-docs-'+id)} Docs | ${check('chk-contrato-'+id)} Contrato\n` +
-                      `${check('chk-aso-'+id)} ASO | ${check('chk-epi-'+id)} EPI\n` +
-                      `${check('chk-vt-'+id)} VT | ${check('chk-cracha-'+id)} Crachá\n\n` +
-                      `*INFORMAÇÕES ADICIONAIS:*\n` +
-                      `👕 *Uniforme:* ${val('tam-uni-'+id)}\n` +
-                      `📅 *Data do Envio:* ${val('data-zap-'+id)}\n` +
-                      `🔗 *Link:* ${val('link-zap-'+id)}`;
+        if (error || !emp) {
+            alert("Erro ao localizar dados do funcionário para o WhatsApp.");
+            return;
+        }
 
-        window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
+        const simOuNao = (v) => v ? '✅ Sim' : '❌ Não';
+
+        // Montagem da mensagem estruturada
+        const texto = `*GESTÃO D.P. - FICHA DE FUNCIONÁRIO*%0A%0A` +
+            `👤 *Nome:* ${emp.nome}%0A` +
+            `💳 *CPF:* ${emp.cpf || '---'}%0A` +
+            `🏢 *Função:* ${emp.funcao || '---'}%0A` +
+            `📍 *Equipe:* ${emp.equipe || '---'}%0A%0A` +
+            `*STATUS DOCUMENTAÇÃO:*%0A` +
+            `📄 RG: ${simOuNao(emp.doc_rg)}%0A` +
+            `📜 CPF: ${simOuNao(emp.doc_cpf)}%0A` +
+            `📑 Contrato: ${simOuNao(emp.doc_contrato)}%0A` +
+            `🏥 ASO: ${simOuNao(emp.doc_aso)}%0A%0A` +
+            `📝 *ALINHAMENTOS:*%0A${emp.alinhamentos || 'Nenhum registro.'}`;
+
+        // Abre o WhatsApp (Substitua pelo seu número se quiser fixar um destinatário)
+        window.open(`https://wa.me/?text=${texto}`, '_blank');
+        
+    } catch (err) {
+        console.error("Erro no Zap:", err);
+        alert("Ocorreu um erro ao gerar a mensagem.");
     }
-
+                                   }
+                                                          
     let eventosCache = [];
     async function initCalendar() {
         const agora = new Date();
