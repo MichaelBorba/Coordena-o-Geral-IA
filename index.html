@@ -123,6 +123,33 @@
     margin-top: 10px;
     border-radius: 0 0 15px 15px;
 }
+        /* Container que segura as imagens */
+#visor-notas {
+    background: #020617;
+    border-radius: 12px;
+    overflow-y: auto; /* Permite rolagem vertical */
+    padding: 15px;
+    border: 2px solid #334155;
+    height: 70vh; /* Mantém uma altura fixa para o painel */
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* Container individual de cada nota */
+.imagem-nota-container {
+    width: 100%;
+    flex-shrink: 0; /* Impede que a nota seja "esmagada" para caber no painel */
+}
+
+/* A Imagem em si */
+.imagem-nota-container img {
+    width: 100%; /* Ocupa toda a largura disponível */
+    height: auto !important; /* Força a altura a ser proporcional, ficando grande */
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+}
     </style>
 </head>
 <body>
@@ -914,93 +941,86 @@ function handleFinanceiroUpload(input) {
 function renderizarListaFinanceiro() {
     const visor = document.getElementById('visor-notas');
     const formContainer = document.getElementById('form-notas-container');
-    const containerPai = document.querySelector('#modalFinanceiro .modal-content > div:nth-child(2)');
+    
+    // Seleciona o container que envolve o visor e o formulário para aplicar o grid
+    const containerInterface = document.querySelector('.conferencia-grid-layout') || visor.parentElement;
     
     if (!window.arquivosAtuais || window.arquivosAtuais.length === 0) {
         resetarInterfaceFinanceiro();
         return;
     }
 
-    // Ativa o layout de duas colunas (conforme o CSS enviado anteriormente)
-    containerPai.className = 'conferencia-grid-layout';
+    // Aplica a classe do CSS que você já tem
+    containerInterface.classList.add('conferencia-grid-layout');
 
     visor.innerHTML = ''; 
     formContainer.innerHTML = '';
 
     window.arquivosAtuais.forEach((item, index) => {
-        // LADO ESQUERDO: Visualização da Imagem (Ampla)
+        // --- LADO ESQUERDO: VISOR DE IMAGENS ---
         const imgDiv = document.createElement('div');
         imgDiv.className = "imagem-nota-container";
         imgDiv.id = `scroll-nota-${index}`;
         imgDiv.innerHTML = `
-            <div style="background: var(--primary-blue); color: white; padding: 5px 10px; border-radius: 5px 5px 0 0; font-size: 0.7rem; font-weight: bold;">
-                VISUALIZAÇÃO DA NOTA #${index + 1}
+            <div style="background: #3b82f6; color: white; padding: 10px; border-radius: 8px 8px 0 0; font-size: 0.8rem; font-weight: bold; text-align: center; margin-bottom: -5px;">
+                NOTA FISCAL #${index + 1}
             </div>
-            <img src="${item.src}">
+            <img src="${item.src}" alt="Nota Fiscal ${index + 1}">
         `;
         visor.appendChild(imgDiv);
 
-        // LADO DIREITO: Formulário com sua lista de categorias completa
+        // --- LADO DIREITO: FORMULÁRIO DE DIGITAÇÃO ---
         const formDiv = document.createElement('div');
         formDiv.className = 'item-card';
-        formDiv.style = "margin-bottom: 20px; border-left: 4px solid var(--accent-orange);";
+        formDiv.style = "margin-bottom: 25px; border-left: 5px solid #f59e0b; padding: 15px; background: #1e293b; border-radius: 10px;";
         formDiv.innerHTML = `
-            <strong style="color: var(--accent-orange);">DADOS DA NF #${index + 1}</strong>
-            <div class="input-grid-financeiro" style="display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 10px;">
-                <div>
-                    <label style="font-size: 0.7rem; color: var(--text-dim);">Código/Número da NF:</label>
-                    <input type="text" class="codigo-nf-financeiro" placeholder="Ex: 000.123" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:8px;">
-                </div>
-                <div>
-                    <label style="font-size: 0.7rem; color: var(--text-dim);">Data:</label>
-                    <input type="date" class="data-financeiro" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:8px;">
-                </div>
-                <div>
-                    <label style="font-size: 0.7rem; color: var(--text-dim);">Valor R$:</label>
-                    <input type="number" step="0.01" class="input-financeiro" placeholder="0,00" oninput="calcularTotalRemessa()" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:8px;">
-                </div>
-                <div>
-                    <label style="font-size: 0.7rem; color: var(--text-dim);">Categoria de Despesa:</label>
-                    <select class="cat-financeiro" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:8px;">
-                        <option value="">Selecione...</option>
-                        <option>Gênero Alimentício</option>
-                        <option>Material de Escritório</option>
-                        <option>Material de Higiene e Limpeza</option>
-                        <option>Material de Copa e Cozinha</option>
-                        <option>Material Didático</option>
-                        <option>Conservação de Edifícios</option>
-                        <option>Conservação de Móveis, Máquinas e Equipamentos</option>
-                        <option>Material de Sinalização Visual (placas)</option>
-                        <option>EPI</option>
-                        <option>Medicamentos</option>
-                        <option>Aluguel carro/combustível</option>
-                        <option>Gás</option>
-                        <option>Controle de Pragas / Sanitização e Dedetização</option>
-                        <option>Extintores de Incêndio</option>
-                        <option>Transporte para Usuários - Taxi- Ônibus- App</option>
-                        <option>Serviços Gráficos</option>
-                        <option>Oficinas e Capacitações</option>
-                        <option>Material de Cama-mesa e banho</option>
-                        <option>Uniformes</option>
-                        <option>Materiais elétricos</option>
-                        <option>Ferramentas</option>
-                        <option>Material permanente - mesa e cadeira</option>
-                        <option>Material permanente - roupeiros</option>
-                        <option>Material permanente - Ventilador de Parede</option>
-                        <option>Material permanente - Refrigerador industrial</option>
-                    </select>
-                </div>
+            <strong style="color: #f59e0b; font-size: 0.9rem; display: block; margin-bottom: 12px;">CONFERÊNCIA DA NF #${index + 1}</strong>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                
+                <input type="text" class="codigo-nf-financeiro" placeholder="Número da Nota" onfocus="focarNota(${index})" 
+                    style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
+                
+                <input type="date" class="data-financeiro" onfocus="focarNota(${index})" 
+                    style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
+                
+                <input type="number" step="0.01" class="input-financeiro" placeholder="Valor Total R$" oninput="calcularTotalRemessa()" onfocus="focarNota(${index})" 
+                    style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
+                
+                <select class="cat-financeiro" onfocus="focarNota(${index})" 
+                    style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
+                    <option value="">Selecione a Categoria...</option>
+                    <option>Gênero Alimentício</option><option>Material de Escritório</option><option>Material de Higiene e Limpeza</option>
+                    <option>Material de Copa e Cozinha</option><option>Material Didático</option><option>Conservação de Edifícios</option>
+                    <option>Conservação de Móveis, Máquinas e Equipamentos</option><option>Material de Sinalização Visual (placas)</option>
+                    <option>EPI</option><option>Medicamentos</option><option>Aluguel carro/combustível</option><option>Gás</option>
+                    <option>Controle de Pragas / Sanitização e Dedetização</option><option>Extintores de Incêndio</option>
+                    <option>Transporte para Usuários - Taxi- Ônibus- App</option><option>Serviços Gráficos</option>
+                    <option>Oficinas e Capacitações</option><option>Material de Cama-mesa e banho</option><option>Uniformes</option>
+                    <option>Materiais elétricos</option><option>Ferramentas</option><option>Material permanente - mesa e cadeira</option>
+                    <option>Material permanente - roupeiros</option><option>Material permanente - Ventilador de Parede</option>
+                    <option>Material permanente - Refrigerador industrial</option>
+                </select>
             </div>
-            <button type="button" onclick="removerNota(${index})" style="background:none; border:none; color:var(--accent-red); font-size:0.7rem; cursor:pointer; margin-top:8px;">
-                <i class="fas fa-trash"></i> Remover esta nota
-            </button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                <button type="button" onclick="removerNota(${index})" style="background:none; border:none; color:#ef4444; font-size:0.75rem; cursor:pointer;">
+                    <i class="fas fa-trash"></i> Remover Nota
+                </button>
+                <span style="font-size: 0.7rem; color: #64748b;">ID: ${index + 1}</span>
+            </div>
         `;
         formContainer.appendChild(formDiv);
     });
     
     calcularTotalRemessa();
-}    
+}
 
+// Função para dar scroll na imagem quando clicar no input
+function focarNota(index) {
+    const elementoImg = document.getElementById(`scroll-nota-${index}`);
+    if (elementoImg) {
+        elementoImg.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
 function removerNota(index) {
     window.arquivosAtuais.splice(index, 1);
     renderizarListaFinanceiro();
