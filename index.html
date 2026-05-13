@@ -8,77 +8,90 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    
-<style>
+
+ <style>
+    /* 1. SEU ESTILO ORIGINAL INTEGRAL */
     :root {
         --bg-dark: #0f172a; --card-bg: #1e293b; --primary-blue: #3b82f6;
         --accent-orange: #f59e0b; --accent-red: #ef4444; --text-main: #f8fafc;
         --text-dim: #94a3b8; --accent-purple: #a855f7; --card-shadow: #020617;
         --accent-green: #22c55e;
     }
-
     body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 15px; display: flex; justify-content: center; }
-
-    /* CONTAINER: No mobile 450px, no PC expande */
+    
     .app-container { width: 100%; max-width: 450px; min-height: 95vh; position: relative; transition: max-width 0.3s ease; }
+    
+    header { display: flex; align-items: center; justify-content: space-between; padding: 15px 5px; }
+    .avatar { width: 42px; height: 42px; border-radius: 50%; background: #334155; border: 2px solid var(--primary-blue); overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .module-card { 
+        background: linear-gradient(145deg, #243147, #1a2333); 
+        padding: 25px 15px; border-radius: 24px; text-align: center; cursor: pointer; 
+        transition: all 0.1s ease; border: 1px solid rgba(255, 255, 255, 0.05); 
+        box-shadow: 0 8px 0 var(--card-shadow), 0 15px 20px rgba(0, 0, 0, 0.4); 
+    }
+    .module-card:active { transform: translateY(4px); box-shadow: 0 4px 0 var(--card-shadow); }
+    .module-card i { font-size: 2.2rem; margin-bottom: 15px; display: block; }
+    .module-card span { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; }
+    
+    .icon-blue { color: #60a5fa; } .icon-lightblue { color: #93c5fd; } .icon-green { color: #4ade80; } 
+    .icon-dp { color: #cbd5e1; } .icon-gold { color: var(--accent-orange); } .icon-purple { color: var(--accent-purple); }
 
-    header { display: flex; align-items: center; justify-content: space-between; padding: 15px 5px; width: 100%; }
-
-    /* GRID DE MÓDULOS (Dashboard) */
-    .grid-modules { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 25px 0; width: 100%; }
-
-    /* VIEWS: Garante que quando trocar de tela, ela ocupe tudo */
-    .view { display: none; width: 100%; animation: fadeIn 0.3s ease; }
+    .view { display: none; animation: fadeIn 0.3s ease; width: 100%; }
     .view.active { display: flex; flex-direction: column; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* REGRAS ESPECÍFICAS PARA COMPUTADOR (PC) */
+    .grid-modules { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin: 25px 0; }
+    
+    /* Estilos de Lista e Cards de Itens */
+    .item-card { background: var(--card-bg); padding: 15px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #334155; display: flex; flex-direction: column; gap: 12px; }
+    .emp-info-row { display: flex; align-items: center; gap: 12px; width: 100%; }
+    .item-card img.thumb-emp { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; background: #0f172a; border: 2px solid #3b82f6; }
+
+    /* 2. REGRAS DE EXPANSÃO PARA PC (ESTILO DASHBOARD DA IMAGEM) */
     @media (min-width: 1024px) {
+        /* O Container agora pode crescer */
         .app-container { max-width: 1200px; }
 
-        /* Faz os botões ficarem em 4 colunas como na imagem */
+        /* Os botões ficam em 4 colunas como na imagem */
         .grid-modules { 
             grid-template-columns: repeat(4, 1fr); 
-            gap: 25px; 
+            gap: 30px; 
         }
 
-        /* Correção para as outras telas (Equipe, D.P, etc) não ficarem esmagadas */
-        #employee-list, #lista-dp-funcionarios, #acolhidos-list-content {
+        /* AJUSTE CRÍTICO: Impede que as telas fiquem em baixo dos botões */
+        .view.active:not(#view-dashboard) {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            min-height: 100%;
+            background: var(--bg-dark); /* Cobre o dashboard quando aberto */
+            z-index: 50;
+            padding-top: 10px;
+        }
+
+        /* Melhora as listas no PC para não ficarem esticadas */
+        #employee-list, #lista-dp-funcionarios, #lista-acolhidos {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
 
-        /* Se uma view interna estiver ativa, escondemos o grid de módulos do fundo */
-        .view.active:not(#view-dashboard) {
-            position: absolute;
-            top: 80px; /* Abaixo do header */
-            left: 0;
-            background: var(--bg-dark);
-            min-height: 100%;
-            z-index: 10;
+        /* Deixa os modais centralizados e maiores no PC */
+        .modal-content {
+            margin: auto;
+            border-radius: 25px;
+            max-width: 600px;
         }
     }
 
-    /* ESTILOS DOS CARDS (Mantendo seu padrão visual) */
-    .module-card { 
-        background: linear-gradient(145deg, #243147, #1a2333); 
-        padding: 25px 15px; border-radius: 24px; text-align: center; cursor: pointer; 
-        transition: all 0.2s ease; border: 1px solid rgba(255, 255, 255, 0.05); 
-        box-shadow: 0 8px 0 var(--card-shadow), 0 15px 20px rgba(0, 0, 0, 0.4); 
-    }
-    .module-card:hover { transform: translateY(-5px); }
-    .module-card i { font-size: 2.2rem; margin-bottom: 15px; display: block; }
-    .module-card span { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; }
-
-    /* Outros estilos necessários para o funcionamento */
-    .item-card { background: var(--card-bg); padding: 15px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #334155; }
+    /* Manutenção de estilos de formulários do seu original */
     input, textarea, select { width: 100%; background: var(--bg-dark); border: 1px solid #334155; border-radius: 10px; padding: 12px; color: white; margin-bottom: 10px; box-sizing: border-box; }
-    .btn-save { width: 100%; background: var(--primary-blue); color: white; border: none; padding: 15px; border-radius: 15px; font-weight: 700; cursor: pointer; }
+    .btn-save { width: 100%; background: var(--primary-blue); color: white; border: none; padding: 15px; border-radius: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 5px 0 #1d4ed8; }
+                         </style>
     
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-</style>
-
-      
 </head>
 <body>
 
