@@ -1350,6 +1350,61 @@ async function atualizarPreviewsDashboard() {
 
 // Chame a função
 window.addEventListener('load', atualizarPreviewsDashboard);
+
+    async function carregarPreviaEquipe() {
+    try {
+        const { data: emps, error } = await _supabase.from('funcionarios').select('nome, cargo').limit(3);
+        const container = document.getElementById('preview-equipe');
+        
+        if (error) throw error;
+
+        if (emps && emps.length > 0) {
+            let html = '<ul style="list-style:none; padding:0; margin:0; font-size:0.75rem;">';
+            emps.forEach(e => {
+                html += `<li style="margin-bottom:3px;"><i class="fas fa-check-circle" style="color:var(--accent-green); font-size:10px;"></i> ${e.nome.split(' ')[0]} - <span style="color:var(--text-dim)">${e.cargo || 'Geral'}</span></li>`;
+            });
+            html += `<li style="color:var(--primary-blue); font-weight:bold; margin-top:5px;">+ Ver todos</li></ul>`;
+            container.innerHTML = html;
+        } else {
+            container.innerHTML = '<small>Nenhum funcionário cadastrado.</small>';
+        }
+    } catch (err) {
+        document.getElementById('preview-equipe').innerHTML = '<small>Erro ao carregar lista.</small>';
+    }
+}
+
+async function carregarPreviaPatrimonio() {
+    try {
+        const { data: itens, error } = await _supabase.from('patrimonio').select('item, quantidade').limit(3);
+        const container = document.getElementById('preview-patrimonio');
+
+        if (error) throw error;
+
+        if (itens && itens.length > 0) {
+            let html = '<div style="font-size:0.75rem;">';
+            itens.forEach(i => {
+                html += `<div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.05); padding:2px 0;">
+                            <span>${i.item}</span>
+                            <strong style="color:var(--accent-orange)">${i.quantidade}</strong>
+                         </div>`;
+            });
+            html += `<div style="text-align:right; margin-top:4px; color:var(--accent-orange);">...</div></div>`;
+            container.innerHTML = html;
+        } else {
+            container.innerHTML = '<small>Estoque vazio.</small>';
+        }
+    } catch (err) {
+        document.getElementById('preview-patrimonio').innerHTML = '<small>Erro ao carregar estoque.</small>';
+    }
+}
+
+// Chamar as funções quando o Dashboard abrir
+// Se você já tem uma função 'loadDashboard' ou similar, coloque as chamadas dentro dela.
+// Caso contrário, use:
+window.addEventListener('DOMContentLoaded', () => {
+    carregarPreviaEquipe();
+    carregarPreviaPatrimonio();
+});
    </script>
 </body>
 </html>
