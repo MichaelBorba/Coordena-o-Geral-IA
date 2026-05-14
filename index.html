@@ -455,10 +455,34 @@
     </div>
     
 <script>
-const _supabase = supabase.createClient(
-    'https://envuzusmubunlrrhhclu.supabase.co', 
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudnV6dXNtdWJ1bmxycmhoY2x1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjI2MjYzNDcsImV4cCI6MjAzODIwMjM0N30.3kHaQdlvJk8rXQmM0DtZ3KcVJXtq3jzU4lknUXmj_E4'
-);
+    // Variável global para o cliente
+    let _supabase;
+
+    function iniciarSistema() {
+        // Verifica se a biblioteca carregou de fato
+        if (typeof supabase === 'undefined') {
+            console.error("Erro: A biblioteca Supabase não carregou. Tentando novamente em 1s...");
+            setTimeout(iniciarSistema, 1000);
+            return;
+        }
+
+        // Se carregou, cria o cliente com a sua chave (mj_E4)
+        _supabase = supabase.createClient(
+            'https://envuzusmubunlrrhhclu.supabase.co', 
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudnV6dXNtdWJ1bmxycmhoY2x1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjI2MjYzNDcsImV4cCI6MjAzODIwMjM0N30.3kHaQdlvJk8rXQmM0DtZ3KcVJXtq3jzU4lknUXmj_E4'
+        );
+
+        console.log("Supabase conectado com sucesso!");
+        
+        // Agora sim, chama as funções de carregar dados
+        listarEquipe();
+        listarAtas();
+    }
+
+    // Dispara o início assim que o HTML estiver pronto
+    document.addEventListener('DOMContentLoaded', iniciarSistema);
+
+    // ... suas outras funções (listarEquipe, salvar, etc) continuam abaixo ...
 
     function changeView(id) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
