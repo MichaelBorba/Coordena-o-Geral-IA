@@ -169,22 +169,86 @@
             <i class="fas fa-calendar-alt" style="font-size: 1.5rem; color: var(--primary-blue); cursor: pointer;" onclick="changeView('view-calendar')"></i>
         </header>
         
-        <main class="grid-modules">
-            <div class="module-card" onclick="changeView('view-employees')">
-                <i class="fas fa-users icon-blue"></i>
-                <span>Funcionários</span>
+       <main class="grid-modules">
+    <div class="module-card" onclick="changeView('view-employees')">
+        <div class="card-header">
+            <i class="fas fa-users icon-blue"></i>
+            <span>Funcionários</span>
+        </div>
+        <div class="card-preview">
+            <div id="preview-equipe-resumo">
+                <small>Equipe Ativa:</small>
+                <div style="display:flex; gap:-5px; margin-top:5px;">
+                    <span style="font-size: 0.75rem; color: var(--primary-blue)">Carregando lista...</span>
+                </div>
             </div>
-            <div class="module-card" onclick="changeView('view-atas')">
-                <i class="far fa-file-alt icon-lightblue"></i>
-                <span>Atas</span>
+        </div>
+    </div>
+
+    <div class="module-card" onclick="changeView('view-atas')">
+        <div class="card-header">
+            <i class="far fa-file-alt icon-lightblue"></i>
+            <span>Atas</span>
+        </div>
+        <div class="card-preview">
+            <div id="preview-ultima-ata">
+                <small>Última reunião:</small><br>
+                <strong style="color: var(--text-main)">Buscando...</strong>
             </div>
-            <div class="module-card"><i class="fas fa-chart-line icon-green"></i><span>Relatórios</span></div>
-            <div class="module-card" onclick="abrirModuloDP()"><i class="far fa-id-badge icon-dp"></i><span>D.P.</span></div>
-            <div class="module-card" onclick="openPatrimonio()"><i class="fas fa-boxes icon-gold"></i><span>Patrimônio</span></div>
-            <div class="module-card"><i class="fas fa-cloud-upload-alt icon-purple"></i><span>Upload</span></div>
-            <div class="module-card" onclick="openAcolhidos()"><i class="fas fa-bed icon-purple"></i><span>Acolhidos</span></div>
-            <div class="module-card" onclick="openFinanceiro()"><i class="fas fa-file-invoice-dollar" style="color: var(--accent-orange);"></i><span>Financeiro</span></div>
-        </main>
+        </div>
+    </div>
+
+    <div class="module-card" onclick="openFinanceiro()">
+        <div class="card-header">
+            <i class="fas fa-file-invoice-dollar" style="color: var(--accent-orange);"></i>
+            <span>Financeiro</span>
+        </div>
+        <div class="card-preview">
+            <small>Status da Remessa:</small><br>
+            <strong style="color: var(--accent-orange)">R$ <span id="preview-valor-financeiro">0,00</span></strong>
+            <p style="font-size: 0.7rem;">(Aguardando conferência)</p>
+        </div>
+    </div>
+
+    <div class="module-card" onclick="abrirModuloDP()">
+        <div class="card-header">
+            <i class="far fa-id-badge icon-dp"></i>
+            <span>D.P.</span>
+        </div>
+        <div class="card-preview">
+            <div class="preview-item">
+                <span>Pendências:</span>
+                <span class="status-tag" style="background: var(--accent-red)">3</span>
+            </div>
+            <small>Gerenciar Contratos e Documentos</small>
+        </div>
+    </div>
+
+    <div class="module-card" onclick="openAcolhidos()">
+        <div class="card-header">
+            <i class="fas fa-bed icon-purple"></i>
+            <span>Acolhidos</span>
+        </div>
+        <div class="card-preview">
+            <div class="preview-item"><span>Total:</span> <strong id="preview-acolhidos-total">0</strong></div>
+            <div class="preview-item"><span>Vagas:</span> <strong id="preview-acolhidos-vagas" style="color: var(--accent-green)">0</strong></div>
+        </div>
+    </div>
+
+    <div class="module-card" onclick="openPatrimonio()">
+        <div class="card-header">
+            <i class="fas fa-boxes icon-gold"></i>
+            <span>Patrimônio</span>
+        </div>
+        <div class="card-preview">
+            <div id="preview-patri-resumo">
+                <small>Inventário Geral:</small><br>
+                <strong>Buscando itens...</strong>
+            </div>
+        </div>
+    </div>
+
+    </main>
     </div>
 
          <div id="view-employees" class="view">
