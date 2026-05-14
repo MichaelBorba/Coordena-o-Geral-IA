@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -39,6 +38,7 @@
         .card-actions-top { margin-left: auto; display: flex; gap: 12px; color: var(--text-dim); }
         .emp-controls-footer { display: flex; gap: 8px; border-top: 1px solid #334155; padding-top: 12px; justify-content: space-between; }
         input, textarea, select { width: 100%; background: var(--bg-dark); border: 1px solid #334155; border-radius: 10px; padding: 12px; color: white; margin-bottom: 10px; box-sizing: border-box; }
+        input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary-blue); box-shadow: 0 0 5px rgba(59, 130, 246, 0.3); }
         .btn-save { width: 100%; background: var(--primary-blue); color: white; border: none; padding: 15px; border-radius: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 5px 0 #1d4ed8; }
         .btn-action { flex: 1; border: none; border-radius: 8px; padding: 10px; font-weight: 700; cursor: pointer; font-size: 0.7rem; transition: transform 0.1s; }
         .calendar-container { background: var(--card-bg); padding: 15px; border-radius: 20px; border: 1px solid #334155; }
@@ -51,67 +51,27 @@
         .historico-box { background: #0f172a; padding: 10px; border-radius: 10px; font-size: 0.85rem; margin-top: 10px; white-space: pre-wrap; border-left: 3px solid var(--primary-blue); }
         .dp-input-small { padding: 8px !important; font-size: 0.7rem !important; margin-bottom: 5px !important; }
         
+        /* NF FORM STYLES */
+        .nf-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .nf-form-group { display: flex; flex-direction: column; }
+        .nf-form-group label { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 3px; }
+        .nf-form-group input, .nf-form-group select { margin: 0; }
+        
         /* PREVIEW EQUIPE CAROUSEL */
         .preview-equipe-carousel {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            margin-top: 10px;
-            scroll-behavior: smooth;
-            padding: 5px 0;
+            display: flex; gap: 10px; overflow-x: auto; margin-top: 10px; scroll-behavior: smooth; padding: 5px 0;
         }
-        .preview-equipe-carousel::-webkit-scrollbar {
-            height: 3px;
-        }
-        .preview-equipe-carousel::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .preview-equipe-carousel::-webkit-scrollbar-thumb {
-            background: var(--primary-blue);
-            border-radius: 10px;
-        }
-        .emp-thumb {
-            flex: 0 0 50px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: 2px solid var(--primary-blue);
-            object-fit: cover;
-            background: #334155;
-        }
-        .emp-name-small {
-            font-size: 0.65rem;
-            color: var(--text-dim);
-            text-align: center;
-            max-width: 60px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+        .preview-equipe-carousel::-webkit-scrollbar { height: 3px; }
+        .preview-equipe-carousel::-webkit-scrollbar-track { background: transparent; }
+        .preview-equipe-carousel::-webkit-scrollbar-thumb { background: var(--primary-blue); border-radius: 10px; }
+        .emp-thumb { flex: 0 0 50px; width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--primary-blue); object-fit: cover; background: #334155; }
+        .emp-name-small { font-size: 0.65rem; color: var(--text-dim); text-align: center; max-width: 60px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
         /* STATS BOX */
-        .stats-box {
-            display: flex;
-            gap: 15px;
-            margin-top: 8px;
-        }
-        .stat-item {
-            flex: 1;
-            background: rgba(59, 130, 246, 0.1);
-            padding: 8px;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid #334155;
-        }
-        .stat-number {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--primary-blue);
-        }
-        .stat-label {
-            font-size: 0.65rem;
-            color: var(--text-dim);
-        }
+        .stats-box { display: flex; gap: 15px; margin-top: 8px; }
+        .stat-item { flex: 1; background: rgba(59, 130, 246, 0.1); padding: 8px; border-radius: 8px; text-align: center; border: 1px solid #334155; }
+        .stat-number { font-size: 1.2rem; font-weight: 700; color: var(--primary-blue); }
+        .stat-label { font-size: 0.65rem; color: var(--text-dim); }
     </style>
 </head>
 <body>
@@ -219,39 +179,9 @@
             </div>
         </div>
     </div>
-
     </main>
     </div>
 
-         <div id="view-employees" class="view">
-        <header>
-            <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; cursor:pointer">
-                <i class="fas fa-arrow-left"></i>
-            </button>
-            <span style="font-weight: 600;">Equipe</span>
-            <div style="width:20px"></div>
-        </header>
-        
-        <div id="employee-list" style="margin-top:20px; padding-bottom: 100px;"></div>
-        
-        <div style="position: fixed; bottom: 30px; right: 20px; display: flex; gap: 15px; z-index: 999;">
-            <button onclick="sincronizarLinkDireto()" title="Sincronizar Planilha"
-                style="width: 60px; height: 60px; background: var(--accent-purple); border-radius: 50%; border: none; color: white; font-size: 20px; box-shadow: 0 6px 0 #7e22ce; cursor: pointer;"
-                onmousedown="this.style.boxShadow='0 2px 0 #7e22ce'; this.style.transform='translateY(4px)'"
-                onmouseup="this.style.boxShadow='0 6px 0 #7e22ce'; this.style.transform='translateY(0)'">
-                <i class="fas fa-sync-alt"></i>
-            </button>
-
-            <button onclick="prepararNovoEmp()" title="Novo Funcionário"
-                style="width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer;"
-                onmousedown="this.style.boxShadow='0 2px 0 #1d4ed8'; this.style.transform='translateY(4px)'"
-                onmouseup="this.style.boxShadow='0 6px 0 #1d4ed8'; this.style.transform='translateY(0)'">
-                <i class="fas fa-plus"></i>
-            </button>
-        </div>
-         </div>
-    
-    
     <!-- VIEW EQUIPE -->
     <div id="view-employees" class="view">
         <header>
@@ -260,10 +190,23 @@
             <div style="width:20px"></div>
         </header>
         <div id="employee-list" style="margin-top:20px; padding-bottom: 100px;"></div>
-        <button class="fab-add" onclick="prepararNovoEmp()"><i class="fas fa-plus"></i></button>
+        <div style="position: fixed; bottom: 30px; right: 20px; display: flex; gap: 15px; z-index: 999;">
+            <button onclick="sincronizarLinkDireto()" title="Sincronizar Planilha"
+                style="width: 60px; height: 60px; background: var(--accent-purple); border-radius: 50%; border: none; color: white; font-size: 20px; box-shadow: 0 6px 0 #7e22ce; cursor: pointer;"
+                onmousedown="this.style.boxShadow='0 2px 0 #7e22ce'; this.style.transform='translateY(4px)'"
+                onmouseup="this.style.boxShadow='0 6px 0 #7e22ce'; this.style.transform='translateY(0)'">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+            <button onclick="prepararNovoEmp()" title="Novo Funcionário"
+                style="width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer;"
+                onmousedown="this.style.boxShadow='0 2px 0 #1d4ed8'; this.style.transform='translateY(4px)'"
+                onmouseup="this.style.boxShadow='0 6px 0 #1d4ed8'; this.style.transform='translateY(0)'">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
     </div>
 
-    <!-- MODAL CADASTRO -->
+    <!-- MODAL CADASTRO FUNCIONÁRIO -->
     <div id="modalAddEmployee" class="modal-overlay"><div class="modal-content">
         <h3>Dados do Funcionário</h3>
         <div class="emp-photo-container" onclick="document.getElementById('input-foto-emp').click()">
@@ -275,7 +218,6 @@
         <input type="text" id="newEmpName" placeholder="Nome">
         <input type="text" id="newEmpRole" placeholder="Função">
         <input type="text" id="newEmpTime" placeholder="Horário">
-        
         <select id="newEmpEquipe">
             <option value="">Selecione a Equipe</option>
             <option value="Equipe 1 Diurna">Equipe 1 Diurna</option>
@@ -283,10 +225,8 @@
             <option value="Equipe 1 Noturna">Equipe 1 Noturna</option>
             <option value="Equipe 2 Noturna">Equipe 2 Noturna</option>
         </select>
-
         <label style="font-size: 0.8rem; color: var(--text-dim); display:block; margin-bottom:5px; text-align:left;">Data de Admissão:</label>
         <input type="date" id="newEmpAdm">
-
         <button class="btn-save" onclick="salvarFuncionario()">Salvar</button>
         <button onclick="closeModal('modalAddEmployee')" style="background:none; border:none; color:var(--text-dim); width:100%; margin-top:15px; cursor:pointer">Cancelar</button>
     </div></div>
@@ -302,7 +242,7 @@
         </div>
     </div>
 
-    <!-- OUTRAS VIEWS E MODAIS -->
+    <!-- VIEW CALENDÁRIO -->
     <div id="view-calendar" class="view">
         <header>
             <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; cursor:pointer"><i class="fas fa-arrow-left"></i></button>
@@ -319,6 +259,7 @@
         </div>
     </div>
 
+    <!-- VIEW ATAS -->
     <div id="view-atas" class="view">
         <header>
             <button onclick="changeView('view-dashboard')" style="background:none; border:none; color:white; cursor:pointer"><i class="fas fa-arrow-left"></i></button>
@@ -330,6 +271,7 @@
         <button class="fab-add" onclick="openModal('modalAddAta')"><i class="fas fa-plus"></i></button>
     </div>
 
+    <!-- MODAL EVENTO -->
     <div id="modalEvento" class="modal-overlay"><div class="modal-content">
         <h3>Agendar Evento</h3>
         <input type="text" id="eventTitulo" placeholder="Título do Evento">
@@ -339,6 +281,7 @@
         <button onclick="closeModal('modalEvento')" style="background:none; border:none; color:var(--text-dim); width:100%; margin-top:15px; cursor:pointer">Cancelar</button>
     </div></div>
 
+    <!-- MODAL ADICIONAR ATA -->
     <div id="modalAddAta" class="modal-overlay"><div class="modal-content">
         <h3>Nova Ata</h3>
         <input type="text" id="newAtaName" placeholder="Título">
@@ -348,6 +291,7 @@
         <button onclick="closeModal('modalAddAta')" style="background:none; border:none; color:var(--text-dim); width:100%; margin-top:15px; cursor:pointer">Cancelar</button>
     </div></div>
 
+    <!-- MODAL PATRIMÔNIO -->
     <div id="modalPatrimonio" class="modal-overlay"><div class="modal-content">
         <div style="display:flex; gap:15px; margin-bottom: 20px;">
             <button onclick="switchPatriTab('novo')" style="background:none; border:none; color:white; font-weight:700; cursor:pointer">Lançar</button>
@@ -363,12 +307,14 @@
         <div id="patriLista" style="display:none; max-height:300px; overflow-y:auto;"><div id="itensCadastrados"></div></div>
     </div></div>
 
+    <!-- MODAL HISTÓRICO -->
     <div id="modalHistorico" class="modal-overlay"><div class="modal-content">
         <h3 id="histNome">Prontuário</h3>
         <div id="histConteudo"></div>
         <button onclick="closeModal('modalHistorico')" class="btn-save" style="margin-top:20px; background:#334155">Fechar</button>
     </div></div>
 
+    <!-- MODAL REGISTRO -->
     <div id="modalRegistro" class="modal-overlay"><div class="modal-content">
         <h3 id="tituloRegistro">Registro</h3>
         <input type="hidden" id="regEmpId"><input type="hidden" id="regTipo">
@@ -377,676 +323,810 @@
         <button onclick="closeModal('modalRegistro')" style="background:none; border:none; color:var(--text-dim); width:100%; margin-top:15px; cursor:pointer">Voltar</button>
     </div></div>
 
-<div id="modalAcolhidos" class="modal-overlay" style="display: none;" onclick="if(event.target === this) closeModal('modalAcolhidos')">
-    <div class="modal-content">
-        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h3 style="margin:0">Gestão de Acolhidos</h3>
-            <i class="fas fa-times" onclick="closeModal('modalAcolhidos')" style="cursor:pointer; font-size: 1.2rem;"></i>
-        </div>
-        
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
-            <div class="historico-box" style="text-align:center; margin:0;">
-                <small>Total Acolhidos</small><br>
-                <strong id="count-acolhidos">0</strong>
+    <!-- MODAL ACOLHIDOS -->
+    <div id="modalAcolhidos" class="modal-overlay" style="display: none;" onclick="if(event.target === this) closeModal('modalAcolhidos')">
+        <div class="modal-content">
+            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin:0">Gestão de Acolhidos</h3>
+                <i class="fas fa-times" onclick="closeModal('modalAcolhidos')" style="cursor:pointer; font-size: 1.2rem;"></i>
             </div>
-            <div class="historico-box" style="text-align:center; margin:0; border-left-color: var(--accent-green);">
-                <small>Camas Livres</small><br>
-                <strong id="count-livres">0</strong>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:15px;">
+                <div class="historico-box" style="text-align:center; margin:0;">
+                    <small>Total Acolhidos</small><br>
+                    <strong id="count-acolhidos">0</strong>
+                </div>
+                <div class="historico-box" style="text-align:center; margin:0; border-left-color: var(--accent-green);">
+                    <small>Camas Livres</small><br>
+                    <strong id="count-livres">0</strong>
+                </div>
             </div>
-        </div>
-
-        <div style="display:flex; gap:10px; margin-bottom:15px;">
-            <button class="btn-save" style="flex:1;" onclick="document.getElementById('input-excel').click()">
-                <i class="fas fa-plus"></i> Acrescentar
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <button class="btn-save" style="flex:1;" onclick="document.getElementById('input-excel').click()">
+                    <i class="fas fa-plus"></i> Acrescentar
+                </button>
+                <button class="btn-save" style="flex:1; background:var(--accent-purple); box-shadow: 0 5px 0 #7e22ce;" onclick="toggleMapaQuartos()">
+                    <i class="fas fa-door-open"></i> Mapa
+                </button>
+            </div>
+            <input type="file" id="input-excel" accept=".xlsx, .xls" style="display:none" onchange="importarExcel(this)">
+            <div id="lista-acolhidos" style="max-height:400px; overflow-y:auto;"></div>
+            <div id="mapa-quartos" style="display:none; margin-top:15px;"></div>
+            <button class="btn-save" style="width:100%; margin-top:15px; background:#475569; box-shadow:0 5px 0 #1e293b;" onclick="closeModal('modalAcolhidos')">
+                Voltar ao Painel
             </button>
-            <button class="btn-save" style="flex:1; background:var(--accent-purple); box-shadow: 0 5px 0 #7e22ce;" onclick="toggleMapaQuartos()">
-                <i class="fas fa-door-open"></i> Mapa
-            </button>
         </div>
-        
-        <input type="file" id="input-excel" accept=".xlsx, .xls" style="display:none" onchange="importarExcel(this)">
-        
-        <div id="lista-acolhidos" style="max-height:400px; overflow-y:auto;"></div>
-        <div id="mapa-quartos" style="display:none; margin-top:15px;"></div>
-
-        <button class="btn-save" style="width:100%; margin-top:15px; background:#475569; box-shadow:0 5px 0 #1e293b;" onclick="closeModal('modalAcolhidos')">
-            Voltar ao Painel
-        </button>
     </div>
-</div>
 
+    <!-- MODAL FINANCEIRO / CONFERÊNCIA DE NF -->
     <div id="modalFinanceiro" class="modal-overlay" style="display:none;">
-    <div class="modal-content" style="max-width: 95%; height: 90vh; display: flex; flex-direction: column;">
-        <div style="display:flex; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid #334155;">
-            <h3 style="margin:0">Conferência de Notas</h3>
-            <i class="fas fa-times" onclick="closeModal('modalFinanceiro')" style="cursor:pointer"></i>
-        </div>
+        <div class="modal-content" style="max-width: 95%; height: 90vh; display: flex; flex-direction: column;">
+            <div style="display:flex; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid #334155;">
+                <h3 style="margin:0">Conferência de Notas Fiscais</h3>
+                <i class="fas fa-times" onclick="closeModal('modalFinanceiro')" style="cursor:pointer"></i>
+            </div>
 
-        <div style="display: flex; flex: 1; overflow: hidden; gap: 15px; margin-top: 15px;">
-            
-            <div id="visor-notas" style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; align-items: center; background: #020617; border-radius: 10px;">
-    <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8; display: flex; flex-direction: column; align-items: center;">
-        <i class="fas fa-images fa-3x"></i><br>
-        <button type="button" class="btn-save" onclick="document.getElementById('upload-lote').click()">Carregar Notas</button>
-    </div>
-    <div id="container-fotos-lista" style="width: 100%;"></div>
-</div>
+            <div style="display: flex; flex: 1; overflow: hidden; gap: 15px; margin-top: 15px;">
+                
+                <!-- VISOR DE NOTAS -->
+                <div id="visor-notas" style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; align-items: center; background: #020617; border-radius: 10px;">
+                    <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8; display: flex; flex-direction: column; align-items: center;">
+                        <i class="fas fa-images fa-3x"></i><br>
+                        <button type="button" class="btn-save" onclick="document.getElementById('upload-lote').click()">Carregar Notas</button>
+                    </div>
+                    <div id="container-fotos-lista" style="width: 100%;"></div>
+                </div>
+
                 <input type="file" id="upload-lote" multiple accept="image/*, application/pdf" style="display:none" onchange="handleFinanceiroUpload(this)">
-            </div>
+                
+                <!-- FORMULÁRIO DE DIGITAÇÃO -->
+                <div style="flex: 0.8; background: var(--card-bg); border-radius: 15px; padding: 15px; overflow-y: auto;">
+                    <div id="form-notas-container">
+                        <p style="color: var(--text-dim); font-size: 0.8rem;">Selecione as notas para iniciar a digitação.</p>
+                    </div>
 
-            <div style="flex: 0.8; background: var(--card-bg); border-radius: 15px; padding: 15px; overflow-y: auto;">
-                <div id="form-notas-container">
-                    <p style="color: var(--text-dim); font-size: 0.8rem;">Selecione as notas para iniciar a digitação.</p>
+                    <!-- FORMULÁRIO OCULTO PARA DIGITAÇÃO -->
+                    <div id="nf-form-completo" style="display: none;">
+                        <h4 style="color: var(--primary-blue); margin-top: 0;">Dados da NF</h4>
+                        
+                        <div class="nf-form-grid">
+                            <div class="nf-form-group">
+                                <label>Número NF</label>
+                                <input type="text" id="nf-numero" placeholder="000001">
+                            </div>
+                            <div class="nf-form-group">
+                                <label>Série</label>
+                                <input type="text" id="nf-serie" placeholder="001">
+                            </div>
+                        </div>
+
+                        <div class="nf-form-grid">
+                            <div class="nf-form-group">
+                                <label>Fornecedor</label>
+                                <input type="text" id="nf-fornecedor" placeholder="Nome do fornecedor">
+                            </div>
+                            <div class="nf-form-group">
+                                <label>CNPJ</label>
+                                <input type="text" id="nf-cnpj" placeholder="00.000.000/0000-00">
+                            </div>
+                        </div>
+
+                        <div class="nf-form-grid">
+                            <div class="nf-form-group">
+                                <label>Data de Emissão</label>
+                                <input type="date" id="nf-data-emissao">
+                            </div>
+                            <div class="nf-form-group">
+                                <label>Natureza</label>
+                                <select id="nf-natureza">
+                                    <option>Venda</option>
+                                    <option>Devolução</option>
+                                    <option>Transferência</option>
+                                    <option>Entrada</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <h4 style="color: var(--accent-orange); margin-top: 15px;">Itens</h4>
+                        
+                        <div class="nf-form-grid">
+                            <div class="nf-form-group">
+                                <label>Descrição</label>
+                                <input type="text" id="nf-item-desc" placeholder="Descrição do item">
+                            </div>
+                            <div class="nf-form-group">
+                                <label>Quantidade</label>
+                                <input type="number" id="nf-item-qtd" placeholder="0" min="0" step="0.01">
+                            </div>
+                        </div>
+
+                        <div class="nf-form-grid">
+                            <div class="nf-form-group">
+                                <label>Valor Unitário</label>
+                                <input type="number" id="nf-item-valor-unit" placeholder="0.00" min="0" step="0.01">
+                            </div>
+                            <div class="nf-form-group">
+                                <label>Valor Total Item</label>
+                                <input type="number" id="nf-item-valor-total" placeholder="0.00" min="0" step="0.01">
+                            </div>
+                        </div>
+
+                        <h4 style="color: var(--accent-green); margin-top: 15px;">Totalizadores</h4>
+                        
+                        <div class="nf-form-grid">
+                            <div class="nf-form-group">
+                                <label>Subtotal</label>
+                                <input type="number" id="nf-subtotal" placeholder="0.00" min="0" step="0.01">
+                            </div>
+                            <div class="nf-form-group">
+                                <label>Impostos</label>
+                                <input type="number" id="nf-impostos" placeholder="0.00" min="0" step="0.01">
+                            </div>
+                        </div>
+
+                        <div class="nf-form-grid">
+                            <div class="nf-form-group">
+                                <label>Desconto</label>
+                                <input type="number" id="nf-desconto" placeholder="0.00" min="0" step="0.01">
+                            </div>
+                            <div class="nf-form-group">
+                                <label>Valor Total</label>
+                                <input type="number" id="nf-valor-total" placeholder="0.00" min="0" step="0.01" style="border-color: var(--accent-green); font-weight: bold;">
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 10px;">
+                            <label style="color: var(--text-dim); font-size: 0.75rem;">Observações</label>
+                            <textarea id="nf-observacoes" rows="2" placeholder="Observações adicionais..." style="margin: 0;"></textarea>
+                        </div>
+
+                        <button class="btn-save" style="margin-top: 10px; background: var(--accent-green);" onclick="salvarNF()">
+                            <i class="fas fa-save"></i> Salvar NF
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <small>Total da Remessa:</small><br>
-                <strong id="total-remessa" style="font-size: 1.2rem; color: var(--accent-green)">R$ 0,00</strong>
-            </div>
-            <button class="btn-save" style="background: var(--accent-green); box-shadow: 0 5px 0 #15803d;" onclick="enviarParaDP()">
-                <i class="fab fa-whatsapp"></i> Enviar para o DP
-            </button>
-        </div>
-    </div>
-    </div>
-    
-<script>
-
-       const _supabase = supabase.createClient('https://envuzusmubunlrrhhclu.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudnV6dXNtdWJ1bmxycmhoY2x1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjI2MjYzNDcsImV4cCI6MjAzODIwMjM0N30.3kHaQdlvJk8rXQmM0DtZ3KcVJXtq3jzU4lknUXmj_E4');
-
-    function changeView(id) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        if(id === 'view-employees') listarEquipe();
-        if(id === 'view-calendar') initCalendar();
-        if(id === 'view-atas') listarAtas();
-    }
-    
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-    // ===== FUNÇÕES PARA CARREGAR AS PREVIEWS =====
-    async function carregarPreviewEquipe() {
-        try {
-            const { data } = await _supabase.from('funcionarios').select('*').order('nome');
-            const carousel = document.getElementById('carousel-funcionarios');
-            const totalEquipe = document.getElementById('preview-total-equipe');
-            
-            if(!data || data.length === 0) {
-                totalEquipe.innerText = '0';
-                carousel.innerHTML = '<small style="color: var(--text-dim);">Sem funcionários</small>';
-                return;
-            }
-            
-            totalEquipe.innerText = data.length;
-            
-            // Pega apenas os 4 primeiros
-            const primeiros4 = data.slice(0, 4);
-            carousel.innerHTML = primeiros4.map(emp => `
-                <div style="text-align: center; flex: 0 0 auto;">
-                    <img src="${emp.foto || 'https://via.placeholder.com/50'}" class="emp-thumb" alt="${emp.nome}">
-                    <div class="emp-name-small">${emp.nome}</div>
+            <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <small>Total da Remessa:</small><br>
+                    <strong id="total-remessa" style="font-size: 1.2rem; color: var(--accent-green)">R$ 0,00</strong>
                 </div>
-            `).join('');
-        } catch (err) {
-            console.error("Erro ao carregar preview equipe:", err);
-        }
-    }
+                <button class="btn-save" style="background: var(--accent-green); box-shadow: 0 5px 0 #15803d;" onclick="enviarParaDP()">
+                    <i class="fab fa-whatsapp"></i> Enviar para o DP
+                </button>
+            </div>
+        </div>
+    </div>
 
-    async function carregarPreviewPatrimonio() {
-        try {
-            const { data } = await _supabase.from('patrimonio').select('*');
-            const totalItem = document.getElementById('preview-total-patri');
-            
-            if(!data || data.length === 0) {
-                totalItem.innerText = '0';
-                return;
-            }
-            
-            // Soma total de itens
-            const total = data.reduce((sum, item) => sum + (parseInt(item.quantidade) || 0), 0);
-            totalItem.innerText = total;
-        } catch (err) {
-            console.error("Erro ao carregar preview patrimônio:", err);
-        }
-    }
+    <script>
+        // ⚠️ CREDENCIAIS DO SUPABASE
+        const _supabase = supabase.createClient('https://envuzusmubunlrrhhclu.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudnV6dXNtdWJ1bmxycmhoY2x1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDk2NzgyMjksImV4cCI6MjAyNTI1ODIyOX0.Gy7zYqCgVkJ-eKj2jH_FGYp9L0-3NzYhL1H0gqNBgxg');
 
-    async function carregarPreviewAtas() {
-        try {
-            const { data } = await _supabase.from('atas').select('*').order('created_at', {ascending: false}).limit(1);
-            const container = document.getElementById('preview-ultima-ata');
-            
-            if(!data || data.length === 0) {
-                container.innerHTML = '<small>Última reunião:</small><br><strong style="color: var(--text-main)">Nenhuma ata</strong>';
-                return;
-            }
-            
-            const ata = data[0];
-            container.innerHTML = `<small>Última reunião:</small><br><strong style="color: var(--text-main)">${ata.nome}</strong><br><small style="color: var(--text-dim);">${ata.data_ata}</small>`;
-        } catch (err) {
-            console.error("Erro ao carregar preview atas:", err);
+        function changeView(id) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if(id === 'view-employees') listarEquipe();
+            if(id === 'view-calendar') initCalendar();
+            if(id === 'view-atas') listarAtas();
         }
-    }
-
-    async function carregarPreviewAcolhidos() {
-        try {
-            const { data } = await _supabase.from('acolhidos').select('*');
-            if(!data) return;
-            
-            const ocupados = data.filter(a => a.nome && a.nome.trim().toLowerCase() !== 'livre').length;
-            const livres = data.filter(a => !a.nome || a.nome.trim().toLowerCase() === 'livre').length;
-            
-            document.getElementById('preview-acolhidos-total').innerText = ocupados;
-            document.getElementById('preview-acolhidos-vagas').innerText = livres;
-        } catch (err) {
-            console.error("Erro ao carregar preview acolhidos:", err);
-        }
-    }
-
-    // Carrega as previews ao inicializar
-    window.addEventListener('load', () => {
-        carregarPreviewEquipe();
-        carregarPreviewPatrimonio();
-        carregarPreviewAtas();
-        carregarPreviewAcolhidos();
         
-        // Recarrega a cada 30 segundos
-        setInterval(() => {
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        // ===== PREVIEW FUNCTIONS =====
+        async function carregarPreviewEquipe() {
+            try {
+                const { data } = await _supabase.from('funcionarios').select('*').order('nome');
+                const carousel = document.getElementById('carousel-funcionarios');
+                const totalEquipe = document.getElementById('preview-total-equipe');
+                
+                if(!data || data.length === 0) {
+                    totalEquipe.innerText = '0';
+                    carousel.innerHTML = '<small style="color: var(--text-dim);">Sem funcionários</small>';
+                    return;
+                }
+                
+                totalEquipe.innerText = data.length;
+                const primeiros4 = data.slice(0, 4);
+                carousel.innerHTML = primeiros4.map(emp => `
+                    <div style="text-align: center; flex: 0 0 auto;">
+                        <img src="${emp.foto || 'https://via.placeholder.com/50'}" class="emp-thumb" alt="${emp.nome}">
+                        <div class="emp-name-small">${emp.nome}</div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error("Erro ao carregar preview equipe:", err);
+            }
+        }
+
+        async function carregarPreviewPatrimonio() {
+            try {
+                const { data } = await _supabase.from('patrimonio').select('*');
+                const totalItem = document.getElementById('preview-total-patri');
+                if(!data || data.length === 0) {
+                    totalItem.innerText = '0';
+                    return;
+                }
+                const total = data.reduce((sum, item) => sum + (parseInt(item.quantidade) || 0), 0);
+                totalItem.innerText = total;
+            } catch (err) {
+                console.error("Erro ao carregar preview patrimônio:", err);
+            }
+        }
+
+        async function carregarPreviewAtas() {
+            try {
+                const { data } = await _supabase.from('atas').select('*').order('created_at', {ascending: false}).limit(1);
+                const container = document.getElementById('preview-ultima-ata');
+                if(!data || data.length === 0) {
+                    container.innerHTML = '<small>Última reunião:</small><br><strong style="color: var(--text-main)">Nenhuma ata</strong>';
+                    return;
+                }
+                const ata = data[0];
+                container.innerHTML = `<small>Última reunião:</small><br><strong style="color: var(--text-main)">${ata.nome}</strong><br><small style="color: var(--text-dim);">${ata.data_ata}</small>`;
+            } catch (err) {
+                console.error("Erro ao carregar preview atas:", err);
+            }
+        }
+
+        async function carregarPreviewAcolhidos() {
+            try {
+                const { data } = await _supabase.from('acolhidos').select('*');
+                if(!data) return;
+                const ocupados = data.filter(a => a.nome && a.nome.trim().toLowerCase() !== 'livre').length;
+                const livres = data.filter(a => !a.nome || a.nome.trim().toLowerCase() === 'livre').length;
+                document.getElementById('preview-acolhidos-total').innerText = ocupados;
+                document.getElementById('preview-acolhidos-vagas').innerText = livres;
+            } catch (err) {
+                console.error("Erro ao carregar preview acolhidos:", err);
+            }
+        }
+
+        window.addEventListener('load', () => {
             carregarPreviewEquipe();
             carregarPreviewPatrimonio();
             carregarPreviewAtas();
             carregarPreviewAcolhidos();
-        }, 30000);
-    });
-
-    function uploadFotoCoord(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                document.getElementById('foto-coord-display').src = e.target.result;
-                document.getElementById('foto-coord-display').style.display = 'block';
-                document.getElementById('icon-coord-padrao').style.display = 'none';
-                localStorage.setItem('coord_img', e.target.result);
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    let tempFotoBase64 = "";
-
-    function previewFotoEmp(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                document.getElementById('preview-foto-emp').src = e.target.result;
-                document.getElementById('preview-foto-emp').style.display = 'block';
-                document.getElementById('icon-camera-emp').style.display = 'none';
-                tempFotoBase64 = e.target.result;
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    async function listarEquipe() {
-        const container = document.getElementById('employee-list');
-        container.innerHTML = "Buscando...";
-        const { data } = await _supabase.from('funcionarios').select('*').order('nome');
-        container.innerHTML = "";
-        
-        data?.forEach(emp => {
-            const div = document.createElement('div'); div.className = 'item-card';
-            div.innerHTML = `
-                <div class="emp-info-row">
-                    <img src="${emp.foto || 'https://via.placeholder.com/50'}" class="thumb-emp">
-                    <div>
-                        <strong style="font-size: 1rem; display:block;">${emp.nome}</strong>
-                        <small style="color:var(--text-dim)">${emp.funcao} | ${emp.horario}</small>
-                    </div>
-                    <div class="card-actions-top">
-                        <i class="fas fa-file-medical" style="color:var(--accent-purple); cursor:pointer" onclick="verHistorico('${emp.id}', '${emp.nome}')"></i>
-                        <i class="fas fa-edit" style="cursor:pointer" onclick="prepararEdicaoEmp('${emp.id}','${emp.nome}','${emp.funcao}','${emp.horario}','${emp.equipe}', '${emp.foto}', '${emp.data_admissa}')"></i>
-                        <i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('funcionarios','${emp.id}',listarEquipe)"></i>
-                    </div>
-                </div>
-                <div class="emp-controls-footer">
-                    <button class="btn-action" style="background:#3b82f622; color:#60a5fa" onclick="abrirModalRegistro('${emp.id}', 'alinhamentos')">
-                        <i class="fas fa-comments"></i> ALINHAMENTO
-                    </button>
-                    <button class="btn-action" style="background:#ef444422; color:#f87171" onclick="abrirModalRegistro('${emp.id}', 'advertencias')">
-                        <i class="fas fa-exclamation-triangle"></i> ADVERTÊNCIA
-                    </button>
-                </div>`;
-            container.appendChild(div);
+            setInterval(() => {
+                carregarPreviewEquipe();
+                carregarPreviewPatrimonio();
+                carregarPreviewAtas();
+                carregarPreviewAcolhidos();
+            }, 30000);
         });
-        carregarPreviewEquipe();
-    }
 
-    async function salvarFuncionario() {
-        const id = document.getElementById('editEmpId').value;
-        const payload = { 
-            nome: document.getElementById('newEmpName').value, 
-            funcao: document.getElementById('newEmpRole').value, 
-            horario: document.getElementById('newEmpTime').value, 
-            equipe: document.getElementById('newEmpEquipe').value,
-            data_admissa: document.getElementById('newEmpAdm').value, 
-            foto: tempFotoBase64
-        };
-        
-        if(id) {
-            await _supabase.from('funcionarios').update(payload).eq('id', id);
-        } else {
-            await _supabase.from('funcionarios').insert([payload]);
+        // ===== FOTO FUNCTIONS =====
+        function uploadFotoCoord(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    document.getElementById('foto-coord-display').src = e.target.result;
+                    document.getElementById('foto-coord-display').style.display = 'block';
+                    document.getElementById('icon-coord-padrao').style.display = 'none';
+                    localStorage.setItem('coord_img', e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
         }
-        closeModal('modalAddEmployee'); 
-        listarEquipe();
-    }
 
-    function prepararNovoEmp() {
-        document.getElementById('editEmpId').value = "";
-        document.getElementById('newEmpName').value = "";
-        document.getElementById('newEmpRole').value = "";
-        document.getElementById('newEmpTime').value = "";
-        document.getElementById('newEmpEquipe').value = "";
-        document.getElementById('newEmpAdm').value = "";
-        document.getElementById('preview-foto-emp').style.display = 'none';
-        document.getElementById('icon-camera-emp').style.display = 'block';
-        tempFotoBase64 = "";
-        openModal('modalAddEmployee');
-    }
+        let tempFotoBase64 = "";
 
-    function prepararEdicaoEmp(id, n, f, h, e, foto, adm) {
-        document.getElementById('editEmpId').value = id;
-        document.getElementById('newEmpName').value = n;
-        document.getElementById('newEmpRole').value = f;
-        document.getElementById('newEmpTime').value = h;
-        document.getElementById('newEmpEquipe').value = e || "";
-        document.getElementById('newEmpAdm').value = adm || "";
-        if(foto) {
-            document.getElementById('preview-foto-emp').src = foto;
-            document.getElementById('preview-foto-emp').style.display = 'block';
-            document.getElementById('icon-camera-emp').style.display = 'none';
-            tempFotoBase64 = foto;
-        } else {
+        function previewFotoEmp(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    document.getElementById('preview-foto-emp').src = e.target.result;
+                    document.getElementById('preview-foto-emp').style.display = 'block';
+                    document.getElementById('icon-camera-emp').style.display = 'none';
+                    tempFotoBase64 = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // ===== EQUIPE FUNCTIONS =====
+        async function listarEquipe() {
+            const container = document.getElementById('employee-list');
+            container.innerHTML = "Buscando...";
+            const { data } = await _supabase.from('funcionarios').select('*').order('nome');
+            container.innerHTML = "";
+            
+            data?.forEach(emp => {
+                const div = document.createElement('div'); 
+                div.className = 'item-card';
+                div.innerHTML = `
+                    <div class="emp-info-row">
+                        <img src="${emp.foto || 'https://via.placeholder.com/50'}" class="thumb-emp">
+                        <div>
+                            <strong style="font-size: 1rem; display:block;">${emp.nome}</strong>
+                            <small style="color:var(--text-dim)">${emp.funcao} | ${emp.horario}</small>
+                        </div>
+                        <div class="card-actions-top">
+                            <i class="fas fa-file-medical" style="color:var(--accent-purple); cursor:pointer" onclick="verHistorico('${emp.id}', '${emp.nome}')"></i>
+                            <i class="fas fa-edit" style="cursor:pointer" onclick="prepararEdicaoEmp('${emp.id}','${emp.nome}','${emp.funcao}','${emp.horario}','${emp.equipe}', '${emp.foto}', '${emp.data_admissa}')"></i>
+                            <i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('funcionarios','${emp.id}',listarEquipe)"></i>
+                        </div>
+                    </div>
+                    <div class="emp-controls-footer">
+                        <button class="btn-action" style="background:#3b82f622; color:#60a5fa" onclick="abrirModalRegistro('${emp.id}', 'alinhamentos')">
+                            <i class="fas fa-comments"></i> ALINHAMENTO
+                        </button>
+                        <button class="btn-action" style="background:#ef444422; color:#f87171" onclick="abrirModalRegistro('${emp.id}', 'advertencias')">
+                            <i class="fas fa-exclamation-triangle"></i> ADVERTÊNCIA
+                        </button>
+                    </div>`;
+                container.appendChild(div);
+            });
+            carregarPreviewEquipe();
+        }
+
+        async function salvarFuncionario() {
+            const id = document.getElementById('editEmpId').value;
+            const payload = { 
+                nome: document.getElementById('newEmpName').value, 
+                funcao: document.getElementById('newEmpRole').value, 
+                horario: document.getElementById('newEmpTime').value, 
+                equipe: document.getElementById('newEmpEquipe').value,
+                data_admissa: document.getElementById('newEmpAdm').value, 
+                foto: tempFotoBase64
+            };
+            
+            if(id) {
+                await _supabase.from('funcionarios').update(payload).eq('id', id);
+            } else {
+                await _supabase.from('funcionarios').insert([payload]);
+            }
+            closeModal('modalAddEmployee'); 
+            listarEquipe();
+        }
+
+        function prepararNovoEmp() {
+            document.getElementById('editEmpId').value = "";
+            document.getElementById('newEmpName').value = "";
+            document.getElementById('newEmpRole').value = "";
+            document.getElementById('newEmpTime').value = "";
+            document.getElementById('newEmpEquipe').value = "";
+            document.getElementById('newEmpAdm').value = "";
             document.getElementById('preview-foto-emp').style.display = 'none';
             document.getElementById('icon-camera-emp').style.display = 'block';
             tempFotoBase64 = "";
+            openModal('modalAddEmployee');
         }
-        openModal('modalAddEmployee');
-    }
 
-    async function abrirModuloDP() {
-    openModal('modalDP');
-    const container = document.getElementById('lista-dp-funcionarios');
-    container.innerHTML = "Buscando dados...";
-    
-    const { data } = await _supabase.from('funcionarios').select('*').order('nome');
-    container.innerHTML = "";
+        function prepararEdicaoEmp(id, n, f, h, e, foto, adm) {
+            document.getElementById('editEmpId').value = id;
+            document.getElementById('newEmpName').value = n;
+            document.getElementById('newEmpRole').value = f;
+            document.getElementById('newEmpTime').value = h;
+            document.getElementById('newEmpEquipe').value = e || "";
+            document.getElementById('newEmpAdm').value = adm || "";
+            if(foto) {
+                document.getElementById('preview-foto-emp').src = foto;
+                document.getElementById('preview-foto-emp').style.display = 'block';
+                document.getElementById('icon-camera-emp').style.display = 'none';
+                tempFotoBase64 = foto;
+            } else {
+                document.getElementById('preview-foto-emp').style.display = 'none';
+                document.getElementById('icon-camera-emp').style.display = 'block';
+                tempFotoBase64 = "";
+            }
+            openModal('modalAddEmployee');
+        }
 
-    data?.forEach(emp => {
-        const div = document.createElement('div'); 
-        div.className = 'item-card';
-        div.id = `card-dp-${emp.id}`;
-        div.style.borderLeft = "4px solid var(--primary-blue)";
-        
-        div.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <strong style="color:var(--primary-blue); font-size:1.1rem;">${emp.nome}</strong>
-                <div style="display:flex; gap:8px;">
-                    <button onclick="gerarPDF('${emp.id}')" style="background:#475569; border:none; color:white; padding:8px; border-radius:8px; cursor:pointer"><i class="fas fa-file-pdf"></i> PDF</button>
-                    <button onclick="enviarZapDPCompleto('${emp.id}')" style="background:#25d366; border:none; color:white; padding:8px; border-radius:8px; cursor:pointer"><i class="fab fa-whatsapp"></i> ZAP</button>
-                </div>
-            </div>
+        // ===== D.P. MODULE =====
+        async function abrirModuloDP() {
+            openModal('modalDP');
+            const container = document.getElementById('lista-dp-funcionarios');
+            container.innerHTML = "Buscando dados...";
+            const { data } = await _supabase.from('funcionarios').select('*').order('nome');
+            container.innerHTML = "";
 
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:0.75rem;">
-                <div style="background:rgba(255,255,255,0.03); padding:8px; border-radius:8px;">
-                    <p style="margin:0 0 5px 0; color:var(--accent-orange)"><b>DOCUMENTOS</b></p>
-                    CPF: <input type="text" class="dp-input-small" value="${emp.cpf || ''}" onblur="atualizarValor('${emp.id}','cpf',this.value)">
-                    RG: <input type="text" class="dp-input-small" value="${emp.rg || ''}" onblur="atualizarValor('${emp.id}','rg',this.value)">
-                    CTPS: <input type="text" class="dp-input-small" value="${emp.ctps || ''}" onblur="atualizarValor('${emp.id}','ctps',this.value)">
-                </div>
-
-                <div style="background:rgba(255,255,255,0.03); padding:8px; border-radius:8px;">
-                    <p style="margin:0 0 5px 0; color:var(--accent-orange)"><b>LOCALIZAÇÃO</b></p>
-                    Rua: <input type="text" class="dp-input-small" value="${emp.endereco || ''}" onblur="atualizarValor('${emp.id}','endereco',this.value)">
-                    Bairro: <input type="text" class="dp-input-small" value="${emp.bairro || ''}" onblur="atualizarValor('${emp.id}','bairro',this.value)">
-                    Cidade: <input type="text" class="dp-input-small" value="${emp.cidade || ''}" onblur="atualizarValor('${emp.id}','cidade',this.value)">
-                </div>
-
-                <div style="background:rgba(255,255,255,0.03); padding:8px; border-radius:8px; grid-column: span 2;">
-                    <p style="margin:0 0 5px 0; color:var(--accent-green)"><b>STATUS DE CONTRATAÇÃO</b></p>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px;">
-                        <label><input type="checkbox" ${emp.check_docs?'checked':''} onchange="atualizarCheck('${emp.id}','check_docs',this.checked)"> Docs</label>
-                        <label><input type="checkbox" ${emp.check_contrato?'checked':''} onchange="atualizarCheck('${emp.id}','check_contrato',this.checked)"> Contrato</label>
-                        <label><input type="checkbox" ${emp.check_aso?'checked':''} onchange="atualizarCheck('${emp.id}','check_aso',this.checked)"> ASO</label>
-                        <label><input type="checkbox" ${emp.check_vt?'checked':''} onchange="atualizarCheck('${emp.id}','check_vt',this.checked)"> VT</label>
-                        <label><input type="checkbox" ${emp.check_cracha?'checked':''} onchange="atualizarCheck('${emp.id}','check_cracha',this.checked)"> Crachá</label>
+            data?.forEach(emp => {
+                const div = document.createElement('div'); 
+                div.className = 'item-card';
+                div.id = `card-dp-${emp.id}`;
+                div.style.borderLeft = "4px solid var(--primary-blue)";
+                
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <strong style="color:var(--primary-blue); font-size:1.1rem;">${emp.nome}</strong>
+                        <div style="display:flex; gap:8px;">
+                            <button onclick="gerarPDF('${emp.id}')" style="background:#475569; border:none; color:white; padding:8px; border-radius:8px; cursor:pointer; font-size:0.7rem;"><i class="fas fa-file-pdf"></i> PDF</button>
+                            <button onclick="enviarZapDPCompleto('${emp.id}')" style="background:#25d366; border:none; color:white; padding:8px; border-radius:8px; cursor:pointer; font-size:0.7rem;"><i class="fab fa-whatsapp"></i> ZAP</button>
+                        </div>
                     </div>
+
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:0.75rem;">
+                        <div style="background:rgba(255,255,255,0.03); padding:8px; border-radius:8px;">
+                            <p style="margin:0 0 5px 0; color:var(--accent-orange)"><b>DOCUMENTOS</b></p>
+                            CPF: <input type="text" class="dp-input-small" value="${emp.cpf || ''}" onblur="atualizarValor('${emp.id}','cpf',this.value)">
+                            RG: <input type="text" class="dp-input-small" value="${emp.rg || ''}" onblur="atualizarValor('${emp.id}','rg',this.value)">
+                            CTPS: <input type="text" class="dp-input-small" value="${emp.ctps || ''}" onblur="atualizarValor('${emp.id}','ctps',this.value)">
+                        </div>
+
+                        <div style="background:rgba(255,255,255,0.03); padding:8px; border-radius:8px;">
+                            <p style="margin:0 0 5px 0; color:var(--accent-orange)"><b>LOCALIZAÇÃO</b></p>
+                            Rua: <input type="text" class="dp-input-small" value="${emp.endereco || ''}" onblur="atualizarValor('${emp.id}','endereco',this.value)">
+                            Bairro: <input type="text" class="dp-input-small" value="${emp.bairro || ''}" onblur="atualizarValor('${emp.id}','bairro',this.value)">
+                            Cidade: <input type="text" class="dp-input-small" value="${emp.cidade || ''}" onblur="atualizarValor('${emp.id}','cidade',this.value)">
+                        </div>
+
+                        <div style="background:rgba(255,255,255,0.03); padding:8px; border-radius:8px; grid-column: span 2;">
+                            <p style="margin:0 0 5px 0; color:var(--accent-green)"><b>STATUS DE CONTRATAÇÃO</b></p>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px;">
+                                <label><input type="checkbox" ${emp.check_docs?'checked':''} onchange="atualizarCheck('${emp.id}','check_docs',this.checked)"> Docs</label>
+                                <label><input type="checkbox" ${emp.check_contrato?'checked':''} onchange="atualizarCheck('${emp.id}','check_contrato',this.checked)"> Contrato</label>
+                                <label><input type="checkbox" ${emp.check_aso?'checked':''} onchange="atualizarCheck('${emp.id}','check_aso',this.checked)"> ASO</label>
+                                <label><input type="checkbox" ${emp.check_vt?'checked':''} onchange="atualizarCheck('${emp.id}','check_vt',this.checked)"> VT</label>
+                                <label><input type="checkbox" ${emp.check_cracha?'checked':''} onchange="atualizarCheck('${emp.id}','check_cracha',this.checked)"> Crachá</label>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        async function atualizarCheck(id, campo, valor) {
+            await _supabase.from('funcionarios').update({ [campo]: valor }).eq('id', id);
+        }
+
+        async function atualizarValor(id, campo, valor) {
+            await _supabase.from('funcionarios').update({ [campo]: valor }).eq('id', id);
+        }
+
+        function gerarPDF(id) {
+            alert("Funcionalidade de gerar PDF em desenvolvimento...");
+        }
+
+        async function enviarZapDPCompleto(id) {
+            try {
+                const { data: emp, error } = await _supabase.from('funcionarios').select('*').eq('id', id).single();
+                if (error || !emp) {
+                    alert("Erro ao localizar dados do funcionário para o WhatsApp.");
+                    return;
+                }
+                const simOuNao = (v) => v ? '✅ Sim' : '❌ Não';
+                const texto = `*GESTÃO D.P. - FICHA DE FUNCIONÁRIO*%0A%0A` +
+                    `👤 *Nome:* ${emp.nome}%0A` +
+                    `💳 *CPF:* ${emp.cpf || '---'}%0A` +
+                    `🏢 *Função:* ${emp.funcao || '---'}%0A` +
+                    `📍 *Equipe:* ${emp.equipe || '---'}%0A%0A` +
+                    `*STATUS DOCUMENTAÇÃO:*%0A` +
+                    `📄 RG: ${simOuNao(emp.doc_rg)}%0A` +
+                    `📜 CPF: ${simOuNao(emp.doc_cpf)}%0A` +
+                    `📑 Contrato: ${simOuNao(emp.doc_contrato)}%0A` +
+                    `🏥 ASO: ${simOuNao(emp.doc_aso)}%0A%0A` +
+                    `📝 *ALINHAMENTOS:*%0A${emp.alinhamentos || 'Nenhum registro.'}`;
+                window.open(`https://wa.me/?text=${texto}`, '_blank');
+            } catch (err) {
+                console.error("Erro no Zap:", err);
+                alert("Ocorreu um erro ao gerar a mensagem.");
+            }
+        }
+
+        // ===== CALENDÁRIO FUNCTIONS =====
+        let eventosCache = [];
+        async function initCalendar() {
+            const agora = new Date();
+            const nomesMeses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            const mesDiv = document.getElementById('mes-atual');
+            if(mesDiv) mesDiv.innerText = `${nomesMeses[agora.getMonth()]} ${agora.getFullYear()}`;
+            const { data } = await _supabase.from('eventos').select('*');
+            eventosCache = data || [];
+            renderizarCalendario(agora.getMonth(), agora.getFullYear());
+        }
+
+        function renderizarCalendario(mes, ano) {
+            const grid = document.getElementById('calendario-dias'); 
+            if(!grid) return;
+            grid.innerHTML = "";
+            ["D", "S", "T", "Q", "Q", "S", "S"].forEach(d => grid.innerHTML += `<div style="font-size:0.7rem; color:var(--text-dim); padding-bottom:5px;">${d}</div>`);
+            const primeiroDia = new Date(ano, mes, 1).getDay();
+            const totalDias = new Date(ano, mes + 1, 0).getDate();
+            for(let i = 0; i < primeiroDia; i++) grid.innerHTML += `<div></div>`;
+            for(let dia = 1; dia <= totalDias; dia++) {
+                const dataISO = `${ano}-${String(mes+1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+                const temEvento = eventosCache.some(e => e.data_evento === dataISO);
+                grid.innerHTML += `<div class="calendar-day ${temEvento ? 'has-event' : ''}" onclick="verEventosDia('${dataISO}', ${dia})">${dia}</div>`;
+            }
+        }
+
+        function verEventosDia(dataISO, dia) {
+            const lista = document.getElementById('lista-eventos-dia');
+            const eventosDia = eventosCache.filter(e => e.data_evento === dataISO);
+            document.getElementById('panel-data').innerText = `Dia ${dia}`;
+            document.getElementById('event-panel').style.display = 'block';
+            lista.innerHTML = eventosDia.length ? "" : "<small>Sem compromissos.</small>";
+            eventosDia.forEach(e => {
+                lista.innerHTML += `<div style="padding:8px 0; border-bottom:1px solid #334155; display:flex; justify-content:space-between">
+                    <span><b>${e.titulo}</b><br><small>${e.hora_evento}</small></span>
+                    <i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('eventos','${e.id}',initCalendar)"></i>
+                </div>`;
+            });
+        }
+
+        async function salvarEvento() {
+            await _supabase.from('eventos').insert([{ 
+                titulo: document.getElementById('eventTitulo').value, 
+                data_evento: document.getElementById('eventData').value, 
+                hora_evento: document.getElementById('eventHora').value 
+            }]);
+            closeModal('modalEvento'); 
+            initCalendar();
+        }
+
+        // ===== ATAS FUNCTIONS =====
+        async function listarAtas() {
+            const container = document.getElementById('lista-atas'); 
+            if(!container) return;
+            container.innerHTML = "";
+            const { data } = await _supabase.from('atas').select('*').order('created_at', {ascending: false});
+            data?.forEach(ata => {
+                const div = document.createElement('div'); 
+                div.className = 'item-card';
+                div.innerHTML = `<div onclick="abrirAta('${ata.link_drive}')" style="cursor:pointer; flex:1"><strong>${ata.nome}</strong><br><small>${ata.data_ata}</small></div>
+                <div style="display:flex; gap:10px;"><i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('atas','${ata.id}',listarAtas)"></i></div>`;
+                container.appendChild(div);
+            });
+            carregarPreviewAtas();
+        }
+
+        async function salvarAta() {
+            await _supabase.from('atas').insert([{ 
+                nome: document.getElementById('newAtaName').value, 
+                data_ata: document.getElementById('newAtaDate').value, 
+                link_drive: document.getElementById('newAtaLink').value.replace('/view', '/preview') 
+            }]);
+            closeModal('modalAddAta'); 
+            listarAtas();
+        }
+
+        function abrirAta(l) { 
+            const v = document.getElementById('ata-viewer'); 
+            v.src=l; 
+            v.style.display='block'; 
+            document.getElementById('btn-fechar-viewer').style.display='block'; 
+            document.getElementById('lista-atas').style.display='none'; 
+        }
+
+        function fecharViewer() { 
+            document.getElementById('ata-viewer').style.display='none'; 
+            document.getElementById('btn-fechar-viewer').style.display='none'; 
+            document.getElementById('lista-atas').style.display='block'; 
+        }
+
+        // ===== PATRIMÔNIO FUNCTIONS =====
+        function openPatrimonio() { 
+            openModal('modalPatrimonio'); 
+            listarPatri(); 
+        }
+
+        async function listarPatri() {
+            const container = document.getElementById('itensCadastrados'); 
+            if(!container) return;
+            container.innerHTML = "";
+            const { data } = await _supabase.from('patrimonio').select('*').order('item');
+            data?.forEach(p => {
+                const div = document.createElement('div'); 
+                div.className = 'item-card';
+                div.innerHTML = `<div style="flex:1"><strong>${p.item} (${p.quantidade})</strong><br><small>${p.estado}</small></div>
+                <i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('patrimonio','${p.id}',listarPatri)"></i>`;
+                container.appendChild(div);
+            });
+            carregarPreviewPatrimonio();
+        }
+
+        async function salvarPatrimonio() {
+            await _supabase.from('patrimonio').insert([{ 
+                item: document.getElementById('patItem').value, 
+                quantidade: document.getElementById('patQtd').value, 
+                estado: document.getElementById('patEstado').value
+            }]);
+            document.getElementById('patItem').value = '';
+            document.getElementById('patQtd').value = '1';
+            listarPatri(); 
+            switchPatriTab('lista');
+        }
+
+        function switchPatriTab(t) { 
+            document.getElementById('patriForm').style.display = t==='novo'?'block':'none'; 
+            document.getElementById('patriLista').style.display = t==='lista'?'block':'none'; 
+        }
+
+        // ===== HISTÓRICO FUNCTIONS =====
+        async function verHistorico(id, nome) {
+            document.getElementById('histNome').innerText = "Histórico: " + nome;
+            const { data } = await _supabase.from('funcionarios').select('alinhamentos, advertencias').eq('id', id).single();
+            document.getElementById('histConteudo').innerHTML = `
+                <small style="color:var(--primary-blue)"><b>ALINHAMENTOS:</b></small>
+                <div class="historico-box">${data?.alinhamentos || 'Sem registros.'}</div>
+                <br><small style="color:var(--accent-red)"><b>ADVERTÊNCIAS:</b></small>
+                <div class="historico-box" style="border-left-color:var(--accent-red)">${data?.advertencias || 'Sem registros.'}</div>`;
+            openModal('modalHistorico');
+        }
+
+        function abrirModalRegistro(id, tipo) {
+            document.getElementById('regEmpId').value = id;
+            document.getElementById('regTipo').value = tipo;
+            document.getElementById('regTexto').value = "";
+            document.getElementById('tituloRegistro').innerText = tipo === 'alinhamentos' ? "Novo Alinhamento" : "Nova Advertência";
+            openModal('modalRegistro');
+        }
+
+        async function confirmarRegistro() {
+            const id = document.getElementById('regEmpId').value;
+            const tipo = document.getElementById('regTipo').value;
+            const textoNovo = document.getElementById('regTexto').value;
+            if(!textoNovo) return alert("Digite o motivo.");
+            const { data } = await _supabase.from('funcionarios').select(tipo).eq('id', id).single();
+            const novoHist = (data?.[tipo] || "") + `\n[${new Date().toLocaleDateString('pt-BR')}]: ${textoNovo}`;
+            await _supabase.from('funcionarios').update({ [tipo]: novoHist }).eq('id', id);
+            closeModal('modalRegistro'); 
+            listarEquipe();
+        }
+
+        // ===== ACOLHIDOS FUNCTIONS =====
+        async function openAcolhidos() {
+            document.getElementById('lista-acolhidos').style.display = 'block';
+            document.getElementById('mapa-quartos').style.display = 'none';
+            openModal('modalAcolhidos');
+            renderizarAcolhidos();
+        }
+
+        async function renderizarAcolhidos() {
+            const { data, error } = await _supabase.from('acolhidos').select('*').order('quarto');
+            if (error) return;
+
+            const container = document.getElementById('lista-acolhidos');
+            const ocupados = data.filter(a => a.nome && a.nome.trim().toLowerCase() !== 'livre');
+            const livres = data.filter(a => !a.nome || a.nome.trim().toLowerCase() === 'livre');
+
+            document.getElementById('count-acolhidos').innerText = ocupados.length;
+            document.getElementById('count-livres').innerText = livres.length;
+            
+            container.innerHTML = data.map(a => `
+                <div class="item-card" style="padding:10px; margin-bottom:8px; border-left: 4px solid ${a.nome?.toLowerCase() === 'livre' ? '#22c55e' : '#3b82f6'}">
+                    <strong style="display:block">${a.nome}</strong>
+                    <small style="color:var(--text-dim)">Quarto: ${a.quarto} | Cama: ${a.cama} (${a.tipo})</small>
                 </div>
-            </div>
-        `;
-        container.appendChild(div);
-    });
-}
-    async function atualizarCheck(id, campo, valor) {
-        await _supabase.from('funcionarios').update({ [campo]: valor }).eq('id', id);
-    }
-
-    async function atualizarValor(id, campo, valor) {
-        await _supabase.from('funcionarios').update({ [campo]: valor }).eq('id', id);
-    }
-
-    async function enviarZapDPCompleto(id) {
-    try {
-        const { data: emp, error } = await _supabase.from('funcionarios').select('*').eq('id', id).single();
-        
-        if (error || !emp) {
-            alert("Erro ao localizar dados do funcionário para o WhatsApp.");
-            return;
+            `).join('');
+            carregarPreviewAcolhidos();
         }
 
-        const simOuNao = (v) => v ? '✅ Sim' : '❌ Não';
-
-        const texto = `*GESTÃO D.P. - FICHA DE FUNCIONÁRIO*%0A%0A` +
-            `👤 *Nome:* ${emp.nome}%0A` +
-            `💳 *CPF:* ${emp.cpf || '---'}%0A` +
-            `🏢 *Função:* ${emp.funcao || '---'}%0A` +
-            `📍 *Equipe:* ${emp.equipe || '---'}%0A%0A` +
-            `*STATUS DOCUMENTAÇÃO:*%0A` +
-            `📄 RG: ${simOuNao(emp.doc_rg)}%0A` +
-            `📜 CPF: ${simOuNao(emp.doc_cpf)}%0A` +
-            `📑 Contrato: ${simOuNao(emp.doc_contrato)}%0A` +
-            `🏥 ASO: ${simOuNao(emp.doc_aso)}%0A%0A` +
-            `📝 *ALINHAMENTOS:*%0A${emp.alinhamentos || 'Nenhum registro.'}`;
-
-        window.open(`https://wa.me/?text=${texto}`, '_blank');
-        
-    } catch (err) {
-        console.error("Erro no Zap:", err);
-        alert("Ocorreu um erro ao gerar a mensagem.");
-    }
-    }
-                                               
-    let eventosCache = [];
-    async function initCalendar() {
-        const agora = new Date();
-        const nomesMeses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-        const mesDiv = document.getElementById('mes-atual');
-        if(mesDiv) mesDiv.innerText = `${nomesMeses[agora.getMonth()]} ${agora.getFullYear()}`;
-        const { data } = await _supabase.from('eventos').select('*');
-        eventosCache = data || [];
-        renderizarCalendario(agora.getMonth(), agora.getFullYear());
-    }
-
-    function renderizarCalendario(mes, ano) {
-        const grid = document.getElementById('calendario-dias'); if(!grid) return;
-        grid.innerHTML = "";
-        ["D", "S", "T", "Q", "Q", "S", "S"].forEach(d => grid.innerHTML += `<div style="font-size:0.7rem; color:var(--text-dim); padding-bottom:5px;">${d}</div>`);
-        const primeiroDia = new Date(ano, mes, 1).getDay();
-        const totalDias = new Date(ano, mes + 1, 0).getDate();
-        for(let i = 0; i < primeiroDia; i++) grid.innerHTML += `<div></div>`;
-        for(let dia = 1; dia <= totalDias; dia++) {
-            const dataISO = `${ano}-${String(mes+1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-            const temEvento = eventosCache.some(e => e.data_evento === dataISO);
-            grid.innerHTML += `<div class="calendar-day ${temEvento ? 'has-event' : ''}" onclick="verEventosDia('${dataISO}', ${dia})">${dia}</div>`;
-        }
-    }
-
-    function verEventosDia(dataISO, dia) {
-        const lista = document.getElementById('lista-eventos-dia');
-        const eventosDia = eventosCache.filter(e => e.data_evento === dataISO);
-        document.getElementById('panel-data').innerText = `Dia ${dia}`;
-        document.getElementById('event-panel').style.display = 'block';
-        lista.innerHTML = eventosDia.length ? "" : "<small>Sem compromissos.</small>";
-        eventosDia.forEach(e => {
-            lista.innerHTML += `<div style="padding:8px 0; border-bottom:1px solid #334155; display:flex; justify-content:space-between">
-                <span><b>${e.titulo}</b><br><small>${e.hora_evento}</small></span>
-                <i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('eventos','${e.id}',initCalendar)"></i>
-            </div>`;
-        });
-    }
-
-    async function salvarEvento() {
-        await _supabase.from('eventos').insert([{ 
-            titulo: document.getElementById('eventTitulo').value, 
-            data_evento: document.getElementById('eventData').value, 
-            hora_evento: document.getElementById('eventHora').value 
-        }]);
-        closeModal('modalEvento'); initCalendar();
-    }
-
-    async function listarAtas() {
-        const container = document.getElementById('lista-atas'); if(!container) return;
-        container.innerHTML = "";
-        const { data } = await _supabase.from('atas').select('*').order('created_at', {ascending: false});
-        data?.forEach(ata => {
-            const div = document.createElement('div'); div.className = 'item-card';
-            div.innerHTML = `<div onclick="abrirAta('${ata.link_drive}')" style="cursor:pointer; flex:1"><strong>${ata.nome}</strong><br><small>${ata.data_ata}</small></div>
-            <div style="display:flex; gap:10px;"><i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('atas','${ata.id}',listarAtas)"></i></div>`;
-            container.appendChild(div);
-        });
-        carregarPreviewAtas();
-    }
-
-    async function salvarAta() {
-        await _supabase.from('atas').insert([{ 
-            nome: document.getElementById('newAtaName').value, 
-            data_ata: document.getElementById('newAtaDate').value, 
-            link_drive: document.getElementById('newAtaLink').value.replace('/view', '/preview') 
-        }]);
-        closeModal('modalAddAta'); listarAtas();
-    }
-
-    function abrirAta(l) { 
-         const v = document.getElementById('ata-viewer'); v.src=l; v.style.display='block'; 
-         document.getElementById('btn-fechar-viewer').style.display='block'; 
-         document.getElementById('lista-atas').style.display='none'; 
-      }
-    function fecharViewer() { 
-         document.getElementById('ata-viewer').style.display='none'; 
-         document.getElementById('btn-fechar-viewer').style.display='none'; 
-         document.getElementById('lista-atas').style.display='block'; 
-      }
-
-    function openPatrimonio() { openModal('modalPatrimonio'); listarPatri(); }
-    async function listarPatri() {
-        const container = document.getElementById('itensCadastrados'); if(!container) return;
-        container.innerHTML = "";
-        const { data } = await _supabase.from('patrimonio').select('*').order('item');
-        data?.forEach(p => {
-            const div = document.createElement('div'); div.className = 'item-card';
-            div.innerHTML = `<div style="flex:1"><strong>${p.item} (${p.quantidade})</strong><br><small>${p.estado}</small></div>
-            <i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('patrimonio','${p.id}',listarPatri)"></i>`;
-            container.appendChild(div);
-        });
-        carregarPreviewPatrimonio();
-    }
-    async function salvarPatrimonio() {
-        await _supabase.from('patrimonio').insert([{ item: document.getElementById('patItem').value, quantidade: document.getElementById('patQtd').value, estado: document.getElementById('patEstado').value }]);
-        document.getElementById('patItem').value = '';
-        document.getElementById('patQtd').value = '1';
-        listarPatri(); switchPatriTab('lista');
-    }
-    function switchPatriTab(t) { 
-         document.getElementById('patriForm').style.display = t==='novo'?'block':'none'; 
-         document.getElementById('patriLista').style.display = t==='lista'?'block':'none'; 
-      }
-
-    async function verHistorico(id, nome) {
-        document.getElementById('histNome').innerText = "Histórico: " + nome;
-        const { data } = await _supabase.from('funcionarios').select('alinhamentos, advertencias').eq('id', id).single();
-        document.getElementById('histConteudo').innerHTML = `
-            <small style="color:var(--primary-blue)"><b>ALINHAMENTOS:</b></small>
-            <div class="historico-box">${data.alinhamentos || 'Sem registros.'}</div>
-            <br><small style="color:var(--accent-red)"><b>ADVERTÊNCIAS:</b></small>
-            <div class="historico-box" style="border-left-color:var(--accent-red)">${data.advertencias || 'Sem registros.'}</div>`;
-        openModal('modalHistorico');
-    }
-
-    function abrirModalRegistro(id, tipo) {
-        document.getElementById('regEmpId').value = id;
-        document.getElementById('regTipo').value = tipo;
-        document.getElementById('regTexto').value = "";
-        document.getElementById('tituloRegistro').innerText = tipo === 'alinhamentos' ? "Novo Alinhamento" : "Nova Advertência";
-        openModal('modalRegistro');
-    }
-
-    async function confirmarRegistro() {
-        const id = document.getElementById('regEmpId').value;
-        const tipo = document.getElementById('regTipo').value;
-        const textoNovo = document.getElementById('regTexto').value;
-        if(!textoNovo) return alert("Digite o motivo.");
-        const { data } = await _supabase.from('funcionarios').select(tipo).eq('id', id).single();
-        const novoHist = (data[tipo] || "") + `\n[${new Date().toLocaleDateString('pt-BR')}]: ${textoNovo}`;
-        await _supabase.from('funcionarios').update({ [tipo]: novoHist }).eq('id', id);
-        closeModal('modalRegistro'); listarEquipe();
-    }
-
-    async function excluirItem(tab, id, cb) { 
-         if(confirm("Excluir definitivamente?")) { 
-             await _supabase.from(tab).delete().eq('id', id); 
-             if(cb) cb(); 
-             if(tab === 'eventos') document.getElementById('event-panel').style.display = 'none';
-        } 
-     }
-
-    window.onload = () => {
-        const salva = localStorage.getItem('coord_img');
-        if(salva) {
-            const display = document.getElementById('foto-coord-display');
-            const icon = document.getElementById('icon-coord-padrao');
-            if(display && icon) {
-                display.src = salva;
-                display.style.display = 'block';
-                icon.style.display = 'none';
-            }
-        }
-        carregarPreviewEquipe();
-        carregarPreviewPatrimonio();
-        carregarPreviewAtas();
-        carregarPreviewAcolhidos();
-    };
-
-    async function openAcolhidos() {
-        document.getElementById('lista-acolhidos').style.display = 'block';
-        document.getElementById('mapa-quartos').style.display = 'none';
-        openModal('modalAcolhidos');
-        renderizarAcolhidos();
-    }
-
-    async function renderizarAcolhidos() {
-        const { data, error } = await _supabase.from('acolhidos').select('*').order('quarto');
-        if (error) return;
-
-        const container = document.getElementById('lista-acolhidos');
-        const ocupados = data.filter(a => a.nome && a.nome.trim().toLowerCase() !== 'livre');
-        const livres = data.filter(a => !a.nome || a.nome.trim().toLowerCase() === 'livre');
-
-        document.getElementById('count-acolhidos').innerText = ocupados.length;
-        document.getElementById('count-livres').innerText = livres.length;
-        
-        container.innerHTML = data.map(a => `
-            <div class="item-card" style="padding:10px; margin-bottom:8px; border-left: 4px solid ${a.nome.toLowerCase() === 'livre' ? '#22c55e' : '#3b82f6'}">
-                <strong style="display:block">${a.nome}</strong>
-                <small style="color:var(--text-dim)">Quarto: ${a.quarto} | Cama: ${a.cama} (${a.tipo})</small>
-            </div>
-        `).join('');
-        carregarPreviewAcolhidos();
-    }
-
-    async function importarExcel(input) {
-        const file = input.files[0];
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const sheet = workbook.Sheets[workbook.SheetNames[0]];
-            const json = XLSX.utils.sheet_to_json(sheet);
-
-            const formatado = json.map(row => ({
-                nome: row.Nome || row.nome || 'Livre',
-                quarto: row.Quarto || row.quarto || '?',
-                cama: row.Cama || row.cama || '?',
-                tipo: row.Tipo || row.tipo || 'S/T'
-            }));
-
-            const { error } = await _supabase.from('acolhidos').insert(formatado);
-            if (!error) {
-                alert("Dados importados com sucesso!");
-                renderizarAcolhidos();
-            }
-        };
-        reader.readAsArrayBuffer(file);
-    }
-
-    function toggleMapaQuartos() {
-        const lista = document.getElementById('lista-acolhidos');
-        const mapa = document.getElementById('mapa-quartos');
-        if (mapa.style.display === 'none') {
-            lista.style.display = 'none';
-            mapa.style.display = 'block';
-        } else {
-            lista.style.display = 'block';
-            mapa.style.display = 'none';
-        }
-    }
-
-    function openFinanceiro() {
-        openModal('modalFinanceiro');
-    }
-
-    function handleFinanceiroUpload(input) {
-        const files = Array.from(input.files);
-        if(!window.arquivosAtuais) window.arquivosAtuais = [];
-        
-        files.forEach((file) => {
+        async function importarExcel(input) {
+            const file = input.files[0];
             const reader = new FileReader();
-            reader.onload = (e) => {
-                const itemNota = { 
-                    id: Date.now() + Math.random(), 
-                    src: e.target.result, 
-                    file: file 
-                };
-                window.arquivosAtuais.push(itemNota);
-                renderizarListaFinanceiro();
+            reader.onload = async (e) => {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const json = XLSX.utils.sheet_to_json(sheet);
+
+                const formatado = json.map(row => ({
+                    nome: row.Nome || row.nome || 'Livre',
+                    quarto: row.Quarto || row.quarto || '?',
+                    cama: row.Cama || row.cama || '?',
+                    tipo: row.Tipo || row.tipo || 'S/T'
+                }));
+
+                const { error } = await _supabase.from('acolhidos').insert(formatado);
+                if (!error) {
+                    alert("Dados importados com sucesso!");
+                    renderizarAcolhidos();
+                }
             };
-            reader.readAsDataURL(file);
-        });
-    }
-
-    function renderizarListaFinanceiro() {
-        const container = document.getElementById('container-fotos-lista');
-        const vazio = document.getElementById('conteudo-visor-vazio');
-        
-        if(!window.arquivosAtuais || window.arquivosAtuais.length === 0) {
-            container.innerHTML = '';
-            vazio.style.display = 'flex';
-            return;
+            reader.readAsArrayBuffer(file);
         }
-        
-        vazio.style.display = 'none';
-        container.innerHTML = window.arquivosAtuais.map(item => `
-            <div class="imagem-nota-container">
-                <img src="${item.src}" style="width: 100%; border-radius: 8px;">
-            </div>
-        `).join('');
-    }
 
-    function enviarParaDP() {
-        alert("Remessa enviada para o DP!");
-    }
+        function toggleMapaQuartos() {
+            const lista = document.getElementById('lista-acolhidos');
+            const mapa = document.getElementById('mapa-quartos');
+            if (mapa.style.display === 'none') {
+                lista.style.display = 'none';
+                mapa.style.display = 'block';
+            } else {
+                lista.style.display = 'block';
+                mapa.style.display = 'none';
+            }
+        }
 
-    // Placeholder para sincronizar
-    function sincronizarLinkDireto() {
-        alert("Sincronização iniciada!");
-    }
+        // ===== FINANCEIRO / NF FUNCTIONS =====
+        function openFinanceiro() {
+            openModal('modalFinanceiro');
+        }
 
-    // Placeholder para gerar PDF
-    function gerarPDF(id) {
-        alert("Gerando PDF do funcionário...");
-    }
-</script>
+        function handleFinanceiroUpload(input) {
+            if (input.files && input.files.length > 0) {
+                document.getElementById('nf-form-completo').style.display = 'block';
+                const container = document.getElementById('container-fotos-lista');
+                container.innerHTML = '';
+                
+                for (let file of input.files) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const preview = document.createElement('div');
+                        preview.style.cssText = 'margin: 5px 0; padding: 8px; background: #0f172a; border-radius: 8px; cursor: pointer;';
+                        if (file.type.startsWith('image')) {
+                            preview.innerHTML = `<img src="${e.target.result}" style="width: 100%; max-height: 100px; border-radius: 5px;">`;
+                        } else {
+                            preview.innerHTML = `<i class="fas fa-file-pdf"></i> ${file.name}`;
+                        }
+                        preview.onclick = () => preencherFormNF(file.name);
+                        container.appendChild(preview);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        }
+
+        function preencherFormNF(nomeArquivo) {
+            document.getElementById('newEmpName').value = nomeArquivo;
+        }
+
+        async function salvarNF() {
+            const nf = {
+                numero: document.getElementById('nf-numero').value,
+                serie: document.getElementById('nf-serie').value,
+                fornecedor: document.getElementById('nf-fornecedor').value,
+                cnpj: document.getElementById('nf-cnpj').value,
+                data_emissao: document.getElementById('nf-data-emissao').value,
+                natureza: document.getElementById('nf-natureza').value,
+                item_desc: document.getElementById('nf-item-desc').value,
+                item_qtd: parseFloat(document.getElementById('nf-item-qtd').value) || 0,
+                item_valor_unit: parseFloat(document.getElementById('nf-item-valor-unit').value) || 0,
+                item_valor_total: parseFloat(document.getElementById('nf-item-valor-total').value) || 0,
+                subtotal: parseFloat(document.getElementById('nf-subtotal').value) || 0,
+                impostos: parseFloat(document.getElementById('nf-impostos').value) || 0,
+                desconto: parseFloat(document.getElementById('nf-desconto').value) || 0,
+                valor_total: parseFloat(document.getElementById('nf-valor-total').value) || 0,
+                observacoes: document.getElementById('nf-observacoes').value
+            };
+
+            const { error } = await _supabase.from('notas_fiscais').insert([nf]);
+            
+            if (!error) {
+                alert('✅ Nota Fiscal salva com sucesso!');
+                document.getElementById('nf-form-completo').style.display = 'none';
+                document.getElementById('total-remessa').innerText = `R$ ${nf.valor_total.toFixed(2)}`;
+            } else {
+                alert('❌ Erro ao salvar NF: ' + error.message);
+            }
+        }
+
+        function sincronizarLinkDireto() {
+            alert("Funcionalidade de sincronização em desenvolvimento...");
+        }
+
+        function enviarParaDP() {
+            alert("Funcionalidade de envio para DP em desenvolvimento...");
+        }
+
+        async function excluirItem(tab, id, cb) { 
+            if(confirm("Excluir definitivamente?")) { 
+                await _supabase.from(tab).delete().eq('id', id); 
+                if(cb) cb(); 
+                if(tab === 'eventos') document.getElementById('event-panel').style.display = 'none';
+            } 
+        }
+
+        window.onload = () => {
+            const salva = localStorage.getItem('coord_img');
+            if(salva) {
+                const display = document.getElementById('foto-coord-display');
+                const icon = document.getElementById('icon-coord-padrao');
+                if(display && icon) {
+                    display.src = salva;
+                    display.style.display = 'block';
+                    icon.style.display = 'none';
+                }
+            }
+            carregarPreviewEquipe();
+            carregarPreviewPatrimonio();
+            carregarPreviewAtas();
+            carregarPreviewAcolhidos();
+        };
+    </script>
+
 </body>
 </html>
