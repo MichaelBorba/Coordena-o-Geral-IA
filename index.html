@@ -19,12 +19,12 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 15px; display: flex; justify-content: center; }
         .app-container { width: 100%; max-width: 450px; min-height: 95vh; position: relative; }
         header { display: flex; align-items: center; justify-content: space-between; padding: 15px 5px; }
-        .avatar { width: 42px; height: 42px; border-radius: 50%; background: #334155; border: 2px solid var(--primary-blue); overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .avatar { width: 42px; height: 42px; border-radius: 50%; background: #334155; border: 2px solid var(--primary-blue); overflow: hidden; display: flex; align-items: center; justify-content: center; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .emp-photo-container { width: 90px; height: 90px; border-radius: 50%; background: #334155; margin: 0 auto 15px; border: 3px solid var(--accent-orange); display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; }
+        .emp-photo-container { width: 90px; height: 90px; border-radius: 50%; background: #334155; margin: 0 auto 15px; border: 3px solid var(--accent-orange); display: flex; align-items: center; justify-content: center; }
         .emp-photo-container img { width: 100%; height: 100%; object-fit: cover; }
         .emp-photo-container i { font-size: 1.5rem; color: var(--text-dim); }
-        .module-card { background: linear-gradient(145deg, #243147, #1a2333); padding: 25px 15px; border-radius: 24px; text-align: center; cursor: pointer; transition: all 0.1s ease; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 8px 0 var(--card-shadow), 0 15px 20px rgba(0, 0, 0, 0.4); }
+        .module-card { background: linear-gradient(145deg, #243147, #1a2333); padding: 25px 15px; border-radius: 24px; text-align: center; cursor: pointer; transition: all 0.1s ease; border: 1px solid #334155; }
         .module-card:active { transform: translateY(4px); box-shadow: 0 4px 0 var(--card-shadow); }
         .module-card i { font-size: 2.2rem; margin-bottom: 15px; display: block; }
         .module-card span { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; }
@@ -45,112 +45,73 @@
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
         .calendar-day { padding: 10px 0; border-radius: 10px; cursor: pointer; font-size: 0.9rem; position: relative; }
         .calendar-day.has-event { background: var(--accent-orange); color: white; font-weight: bold; }
-        .fab-add { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer; z-index: 99; }
+        .fab-add { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
         .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; padding: 25px; border-radius: 25px 25px 0 0; max-height: 85vh; overflow-y: auto; }
         .historico-box { background: #0f172a; padding: 10px; border-radius: 10px; font-size: 0.85rem; margin-top: 10px; white-space: pre-wrap; border-left: 3px solid var(--primary-blue); }
         .dp-input-small { padding: 8px !important; font-size: 0.7rem !important; margin-bottom: 5px !important; }
-        /* Ajuste de espaçamento nos inputs do Financeiro */
-.input-grid-financeiro {
-    display: grid;
-    grid-template-columns: 1fr 1fr; 
-    gap: 15px; /* Aumentado o espaço entre colunas */
-    margin-top: 10px;
-}
-
-.input-grid-financeiro div {
-    display: flex;
-    flex-direction: column;
-    gap: 5px; /* Espaço entre o nome do campo e o campo de digitação */
-}
-
-.input-grid-financeiro input, 
-.input-grid-financeiro select {
-    height: 45px; /* Define uma altura padrão confortável */
-    padding: 0 12px !important; /* Espaço interno para o texto não encostar na borda */
-    font-size: 14px;
-    box-sizing: border-box; /* Garante que o padding não quebre a largura */
-}
-
-/* Ajuste específico para o campo de data que costuma vir com ícone */
-.input-grid-financeiro input[type="date"] {
-    padding-right: 5px !important;
-}
-
-        /* Layout de Conferência Split Screen */
-.conferencia-grid-layout {
-    display: grid;
-    grid-template-columns: 1.2fr 0.8fr; /* Lado esquerdo maior para a imagem */
-    gap: 20px;
-    height: 70vh; /* Altura fixa para permitir scroll independente */
-    overflow: hidden;
-}
-
-#visor-notas {
-    background: #020617;
-    border-radius: 12px;
-    overflow-y: auto; /* Scroll apenas nas imagens */
-    padding: 15px;
-    border: 2px solid #334155;
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-}
-
-.imagem-nota-container {
-    width: 100%;
-    position: relative;
-    border-bottom: 2px dashed #334155;
-    padding-bottom: 20px;
-}
-
-.imagem-nota-container img {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-}
-
-#form-notas-container {
-    overflow-y: auto; /* Scroll apenas nos formulários */
-    padding-right: 10px;
-}
-
-/* Garante que o somatório no rodapé fique sempre visível */
-.footer-financeiro {
-    background: var(--card-bg);
-    padding: 15px;
-    border-top: 2px solid #334155;
-    margin-top: 10px;
-    border-radius: 0 0 15px 15px;
-}
-        /* Container que segura as imagens */
-#visor-notas {
-    background: #020617;
-    border-radius: 12px;
-    overflow-y: auto; /* Permite rolagem vertical */
-    padding: 15px;
-    border: 2px solid #334155;
-    height: 70vh; /* Mantém uma altura fixa para o painel */
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-}
-
-/* Container individual de cada nota */
-.imagem-nota-container {
-    width: 100%;
-    flex-shrink: 0; /* Impede que a nota seja "esmagada" para caber no painel */
-}
-
-/* A Imagem em si */
-.imagem-nota-container img {
-    width: 100%; /* Ocupa toda a largura disponível */
-    height: auto !important; /* Força a altura a ser proporcional, ficando grande */
-    display: block;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-}
+        
+        /* PREVIEW EQUIPE CAROUSEL */
+        .preview-equipe-carousel {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            margin-top: 10px;
+            scroll-behavior: smooth;
+            padding: 5px 0;
+        }
+        .preview-equipe-carousel::-webkit-scrollbar {
+            height: 3px;
+        }
+        .preview-equipe-carousel::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .preview-equipe-carousel::-webkit-scrollbar-thumb {
+            background: var(--primary-blue);
+            border-radius: 10px;
+        }
+        .emp-thumb {
+            flex: 0 0 50px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid var(--primary-blue);
+            object-fit: cover;
+            background: #334155;
+        }
+        .emp-name-small {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            text-align: center;
+            max-width: 60px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* STATS BOX */
+        .stats-box {
+            display: flex;
+            gap: 15px;
+            margin-top: 8px;
+        }
+        .stat-item {
+            flex: 1;
+            background: rgba(59, 130, 246, 0.1);
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #334155;
+        }
+        .stat-number {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+        .stat-label {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+        }
     </style>
 </head>
 <body>
@@ -177,9 +138,15 @@
         </div>
         <div class="card-preview">
             <div id="preview-equipe-resumo">
-                <small>Equipe Ativa:</small>
-                <div style="display:flex; gap:-5px; margin-top:5px;">
-                    <span style="font-size: 0.75rem; color: var(--primary-blue)">Carregando lista...</span>
+                <div class="stats-box">
+                    <div class="stat-item">
+                        <div class="stat-number" id="preview-total-equipe">0</div>
+                        <div class="stat-label">Ativa</div>
+                    </div>
+                </div>
+                <div style="margin-top: 10px;">
+                    <small style="color: var(--text-dim);">Primeiros 4:</small>
+                    <div class="preview-equipe-carousel" id="carousel-funcionarios"></div>
                 </div>
             </div>
         </div>
@@ -242,8 +209,13 @@
         </div>
         <div class="card-preview">
             <div id="preview-patri-resumo">
-                <small>Inventário Geral:</small><br>
-                <strong>Buscando itens...</strong>
+                <div class="stats-box">
+                    <div class="stat-item">
+                        <div class="stat-number" id="preview-total-patri">0</div>
+                        <div class="stat-label">Itens</div>
+                    </div>
+                </div>
+                <small style="color: var(--text-dim); margin-top: 8px; display: block;">Inventário geral</small>
             </div>
         </div>
     </div>
@@ -264,14 +236,14 @@
         
         <div style="position: fixed; bottom: 30px; right: 20px; display: flex; gap: 15px; z-index: 999;">
             <button onclick="sincronizarLinkDireto()" title="Sincronizar Planilha"
-                style="width: 60px; height: 60px; background: var(--accent-purple); border-radius: 50%; border: none; color: white; font-size: 20px; box-shadow: 0 6px 0 #7e22ce; cursor: pointer; transition: all 0.1s;"
+                style="width: 60px; height: 60px; background: var(--accent-purple); border-radius: 50%; border: none; color: white; font-size: 20px; box-shadow: 0 6px 0 #7e22ce; cursor: pointer;"
                 onmousedown="this.style.boxShadow='0 2px 0 #7e22ce'; this.style.transform='translateY(4px)'"
                 onmouseup="this.style.boxShadow='0 6px 0 #7e22ce'; this.style.transform='translateY(0)'">
                 <i class="fas fa-sync-alt"></i>
             </button>
 
             <button onclick="prepararNovoEmp()" title="Novo Funcionário"
-                style="width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer; transition: all 0.1s;"
+                style="width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer;"
                 onmousedown="this.style.boxShadow='0 2px 0 #1d4ed8'; this.style.transform='translateY(4px)'"
                 onmouseup="this.style.boxShadow='0 6px 0 #1d4ed8'; this.style.transform='translateY(0)'">
                 <i class="fas fa-plus"></i>
@@ -452,7 +424,7 @@
 
         <div style="display: flex; flex: 1; overflow: hidden; gap: 15px; margin-top: 15px;">
             
-            <div id="visor-notas" style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; align-items: center; background: #020617; border-radius: 10px; position: relative;">
+            <div id="visor-notas" style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; align-items: center; background: #020617; border-radius: 10px;">
     <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8; display: flex; flex-direction: column; align-items: center;">
         <i class="fas fa-images fa-3x"></i><br>
         <button type="button" class="btn-save" onclick="document.getElementById('upload-lote').click()">Carregar Notas</button>
@@ -482,7 +454,7 @@
     </div>
     
 <script>
-    const _supabase = supabase.createClient('https://envuzusmubunlrrhhclu.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudnV6dXNtdWJ1bmxycmhoY2x1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NTMzMTcsImV4cCI6MjA5MzEyOTMxN30.pzepBGPOl9reoD4uLN0HUhpWaWfwv9pjLSkVdau7ntY');
+    const _supabase = supabase.createClient('https://envuzusmubunlrrhhclu.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudnV6dXNtdWJ1bmxycmhoY2x1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjI2MjYzNDcsImV4cCI6MjAzODIwMjM0N30.3kHaQdlvJk8rXQmM0DtZ3KcVJXtq3jzU4lknUXmj_E4');
 
     function changeView(id) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -494,6 +466,100 @@
     
     function openModal(id) { document.getElementById(id).style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    // ===== FUNÇÕES PARA CARREGAR AS PREVIEWS =====
+    async function carregarPreviewEquipe() {
+        try {
+            const { data } = await _supabase.from('funcionarios').select('*').order('nome');
+            const carousel = document.getElementById('carousel-funcionarios');
+            const totalEquipe = document.getElementById('preview-total-equipe');
+            
+            if(!data || data.length === 0) {
+                totalEquipe.innerText = '0';
+                carousel.innerHTML = '<small style="color: var(--text-dim);">Sem funcionários</small>';
+                return;
+            }
+            
+            totalEquipe.innerText = data.length;
+            
+            // Pega apenas os 4 primeiros
+            const primeiros4 = data.slice(0, 4);
+            carousel.innerHTML = primeiros4.map(emp => `
+                <div style="text-align: center; flex: 0 0 auto;">
+                    <img src="${emp.foto || 'https://via.placeholder.com/50'}" class="emp-thumb" alt="${emp.nome}">
+                    <div class="emp-name-small">${emp.nome}</div>
+                </div>
+            `).join('');
+        } catch (err) {
+            console.error("Erro ao carregar preview equipe:", err);
+        }
+    }
+
+    async function carregarPreviewPatrimonio() {
+        try {
+            const { data } = await _supabase.from('patrimonio').select('*');
+            const totalItem = document.getElementById('preview-total-patri');
+            
+            if(!data || data.length === 0) {
+                totalItem.innerText = '0';
+                return;
+            }
+            
+            // Soma total de itens
+            const total = data.reduce((sum, item) => sum + (parseInt(item.quantidade) || 0), 0);
+            totalItem.innerText = total;
+        } catch (err) {
+            console.error("Erro ao carregar preview patrimônio:", err);
+        }
+    }
+
+    async function carregarPreviewAtas() {
+        try {
+            const { data } = await _supabase.from('atas').select('*').order('created_at', {ascending: false}).limit(1);
+            const container = document.getElementById('preview-ultima-ata');
+            
+            if(!data || data.length === 0) {
+                container.innerHTML = '<small>Última reunião:</small><br><strong style="color: var(--text-main)">Nenhuma ata</strong>';
+                return;
+            }
+            
+            const ata = data[0];
+            container.innerHTML = `<small>Última reunião:</small><br><strong style="color: var(--text-main)">${ata.nome}</strong><br><small style="color: var(--text-dim);">${ata.data_ata}</small>`;
+        } catch (err) {
+            console.error("Erro ao carregar preview atas:", err);
+        }
+    }
+
+    async function carregarPreviewAcolhidos() {
+        try {
+            const { data } = await _supabase.from('acolhidos').select('*');
+            if(!data) return;
+            
+            const ocupados = data.filter(a => a.nome && a.nome.trim().toLowerCase() !== 'livre').length;
+            const livres = data.filter(a => !a.nome || a.nome.trim().toLowerCase() === 'livre').length;
+            
+            document.getElementById('preview-acolhidos-total').innerText = ocupados;
+            document.getElementById('preview-acolhidos-vagas').innerText = livres;
+        } catch (err) {
+            console.error("Erro ao carregar preview acolhidos:", err);
+        }
+    }
+
+    // Carrega as previews ao inicializar
+    window.addEventListener('load', () => {
+        carregarPreviewEquipe();
+        carregarPreviewPatrimonio();
+        carregarPreviewAtas();
+        carregarPreviewAcolhidos();
+        
+        // Recarrega a cada 30 segundos
+        setInterval(() => {
+            carregarPreviewEquipe();
+            carregarPreviewPatrimonio();
+            carregarPreviewAtas();
+            carregarPreviewAcolhidos();
+        }, 30000);
+    });
 
     function uploadFotoCoord(input) {
         if (input.files && input.files[0]) {
@@ -554,6 +620,7 @@
                 </div>`;
             container.appendChild(div);
         });
+        carregarPreviewEquipe();
     }
 
     async function salvarFuncionario() {
@@ -614,14 +681,13 @@
     const container = document.getElementById('lista-dp-funcionarios');
     container.innerHTML = "Buscando dados...";
     
-    // Busca todos os campos da tabela funcionários
     const { data } = await _supabase.from('funcionarios').select('*').order('nome');
     container.innerHTML = "";
 
     data?.forEach(emp => {
         const div = document.createElement('div'); 
         div.className = 'item-card';
-        div.id = `card-dp-${emp.id}`; // ID necessário para o PDF
+        div.id = `card-dp-${emp.id}`;
         div.style.borderLeft = "4px solid var(--primary-blue)";
         
         div.innerHTML = `
@@ -629,7 +695,7 @@
                 <strong style="color:var(--primary-blue); font-size:1.1rem;">${emp.nome}</strong>
                 <div style="display:flex; gap:8px;">
                     <button onclick="gerarPDF('${emp.id}')" style="background:#475569; border:none; color:white; padding:8px; border-radius:8px; cursor:pointer"><i class="fas fa-file-pdf"></i> PDF</button>
-                    <button onclick="enviarZapDPCompleto('${emp.id}')" style="background:#25d366; border:none; color:white; padding:8px; border-radius:8px; cursor:pointer"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                    <button onclick="enviarZapDPCompleto('${emp.id}')" style="background:#25d366; border:none; color:white; padding:8px; border-radius:8px; cursor:pointer"><i class="fab fa-whatsapp"></i> ZAP</button>
                 </div>
             </div>
 
@@ -673,7 +739,6 @@
 
     async function enviarZapDPCompleto(id) {
     try {
-        // Busca os dados do funcionário para garantir que a mensagem vá preenchida
         const { data: emp, error } = await _supabase.from('funcionarios').select('*').eq('id', id).single();
         
         if (error || !emp) {
@@ -683,7 +748,6 @@
 
         const simOuNao = (v) => v ? '✅ Sim' : '❌ Não';
 
-        // Montagem da mensagem estruturada
         const texto = `*GESTÃO D.P. - FICHA DE FUNCIONÁRIO*%0A%0A` +
             `👤 *Nome:* ${emp.nome}%0A` +
             `💳 *CPF:* ${emp.cpf || '---'}%0A` +
@@ -696,15 +760,14 @@
             `🏥 ASO: ${simOuNao(emp.doc_aso)}%0A%0A` +
             `📝 *ALINHAMENTOS:*%0A${emp.alinhamentos || 'Nenhum registro.'}`;
 
-        // Abre o WhatsApp (Substitua pelo seu número se quiser fixar um destinatário)
         window.open(`https://wa.me/?text=${texto}`, '_blank');
         
     } catch (err) {
         console.error("Erro no Zap:", err);
         alert("Ocorreu um erro ao gerar a mensagem.");
     }
-                                   }
-                                                          
+    }
+                                               
     let eventosCache = [];
     async function initCalendar() {
         const agora = new Date();
@@ -763,6 +826,7 @@
             <div style="display:flex; gap:10px;"><i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('atas','${ata.id}',listarAtas)"></i></div>`;
             container.appendChild(div);
         });
+        carregarPreviewAtas();
     }
 
     async function salvarAta() {
@@ -778,12 +842,12 @@
          const v = document.getElementById('ata-viewer'); v.src=l; v.style.display='block'; 
          document.getElementById('btn-fechar-viewer').style.display='block'; 
          document.getElementById('lista-atas').style.display='none'; 
-     }
+      }
     function fecharViewer() { 
          document.getElementById('ata-viewer').style.display='none'; 
          document.getElementById('btn-fechar-viewer').style.display='none'; 
          document.getElementById('lista-atas').style.display='block'; 
-     }
+      }
 
     function openPatrimonio() { openModal('modalPatrimonio'); listarPatri(); }
     async function listarPatri() {
@@ -796,15 +860,18 @@
             <i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('patrimonio','${p.id}',listarPatri)"></i>`;
             container.appendChild(div);
         });
+        carregarPreviewPatrimonio();
     }
     async function salvarPatrimonio() {
         await _supabase.from('patrimonio').insert([{ item: document.getElementById('patItem').value, quantidade: document.getElementById('patQtd').value, estado: document.getElementById('patEstado').value }]);
+        document.getElementById('patItem').value = '';
+        document.getElementById('patQtd').value = '1';
         listarPatri(); switchPatriTab('lista');
     }
     function switchPatriTab(t) { 
          document.getElementById('patriForm').style.display = t==='novo'?'block':'none'; 
          document.getElementById('patriLista').style.display = t==='lista'?'block':'none'; 
-     }
+      }
 
     async function verHistorico(id, nome) {
         document.getElementById('histNome').innerText = "Histórico: " + nome;
@@ -855,570 +922,130 @@
                 icon.style.display = 'none';
             }
         }
-    };
-// Garante a abertura correta do popup e limpa estados anteriores
-async function openAcolhidos() {
-    // Reset de visualização: mostra a lista e esconde o mapa ao abrir
-    document.getElementById('lista-acolhidos').style.display = 'block';
-    document.getElementById('mapa-quartos').style.display = 'none';
-    
-    openModal('modalAcolhidos'); // Chama a função que você já tem no código
-    renderizarAcolhidos(); // Carrega os dados do Supabase
-}
-
-// Se os botões ainda aparecerem "soltos" na tela, 
-    
-// verifique se você não esqueceu de fechar alguma </div> anterior no código.
-// Cole estas funções no final da sua tag <script>
-async function renderizarAcolhidos() {
-    const { data, error } = await _supabase.from('acolhidos').select('*').order('quarto');
-    if (error) return;
-
-    const container = document.getElementById('lista-acolhidos');
-    // Filtra quem não está com nome "Livre" ou vazio
-    const ocupados = data.filter(a => a.nome && a.nome.trim().toLowerCase() !== 'livre');
-    const livres = data.filter(a => !a.nome || a.nome.trim().toLowerCase() === 'livre');
-
-    document.getElementById('count-acolhidos').innerText = ocupados.length;
-    document.getElementById('count-livres').innerText = livres.length;
-    
-    container.innerHTML = data.map(a => `
-        <div class="item-card" style="padding:10px; margin-bottom:8px; border-left: 4px solid ${a.nome.toLowerCase() === 'livre' ? '#22c55e' : '#3b82f6'}">
-            <strong style="display:block">${a.nome}</strong>
-            <small style="color:var(--text-dim)">Quarto: ${a.quarto} | Cama: ${a.cama} (${a.tipo})</small>
-        </div>
-    `).join('');
-}
-
-async function importarExcel(input) {
-    const file = input.files[0];
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(sheet);
-
-        const formatado = json.map(row => ({
-            nome: row.Nome || row.nome || 'Livre',
-            quarto: row.Quarto || row.quarto || '?',
-            cama: row.Cama || row.cama || '?',
-            tipo: row.Tipo || row.tipo || 'S/T'
-        }));
-
-        const { error } = await _supabase.from('acolhidos').insert(formatado);
-        if (!error) {
-            alert("Dados importados com sucesso!");
-            renderizarAcolhidos();
-        }
-    };
-    reader.readAsArrayBuffer(file);
-}
-
-function toggleMapaQuartos() {
-    const lista = document.getElementById('lista-acolhidos');
-    const mapa = document.getElementById('mapa-quartos');
-    if (mapa.style.display === 'none') {
-        lista.style.display = 'none';
-        mapa.style.display = 'block';
-    } else {
-        lista.style.display = 'block';
-        mapa.style.display = 'none';
-    }
-}
-    
- let notasParaProcessar = [];
-
-function openFinanceiro() {
-    openModal('modalFinanceiro');
-}
-
-// Substitua handleFinanceiroUpload, focarNota, calcularTotalRemessa e enviarParaDP por estas:
-
-function handleFinanceiroUpload(input) {
-    const files = Array.from(input.files);
-    
-    // Inicializa o array global se não existir
-    if(!window.arquivosAtuais) window.arquivosAtuais = [];
-    
-    files.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            // Adicionamos cada arquivo com um ID único para facilitar a exclusão
-            const itemNota = { 
-                id: Date.now() + Math.random(), 
-                src: e.target.result, 
-                file: file 
-            };
-            window.arquivosAtuais.push(itemNota);
-            renderizarListaFinanceiro();
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-// Substitua handleFinanceiroUpload, focarNota, calcularTotalRemessa e enviarParaDP por estas:
-
-function handleFinanceiroUpload(input) {
-    const files = Array.from(input.files);
-    
-    // Inicializa o array global se não existir
-    if(!window.arquivosAtuais) window.arquivosAtuais = [];
-    
-    files.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            // Adicionamos cada arquivo com um ID único para facilitar a exclusão
-            const itemNota = { 
-                id: Date.now() + Math.random(), 
-                src: e.target.result, 
-                file: file 
-            };
-            window.arquivosAtuais.push(itemNota);
-            renderizarListaFinanceiro();
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-// 1. Garantir que a variável global exista
-if (!window.arquivosAtuais) window.arquivosAtuais = [];
-
-function handleFinanceiroUpload(input) {
-    const files = Array.from(input.files);
-    if (files.length === 0) return;
-
-    files.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const itemNota = { 
-                id: Date.now() + Math.random(), 
-                src: e.target.result, 
-                file: file 
-            };
-            window.arquivosAtuais.push(itemNota);
-            renderizarListaFinanceiro();
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-function renderizarListaFinanceiro() {
-    const visor = document.getElementById('visor-notas');
-    const formContainer = document.getElementById('form-notas-container');
-    
-    // Seleciona o container que envolve o visor e o formulário para aplicar o grid
-    const containerInterface = document.querySelector('.conferencia-grid-layout') || visor.parentElement;
-    
-    if (!window.arquivosAtuais || window.arquivosAtuais.length === 0) {
-        resetarInterfaceFinanceiro();
-        return;
-    }
-
-    // Aplica a classe do CSS que você já tem
-    containerInterface.classList.add('conferencia-grid-layout');
-
-    visor.innerHTML = ''; 
-    formContainer.innerHTML = '';
-
-    window.arquivosAtuais.forEach((item, index) => {
-        // --- LADO ESQUERDO: VISOR DE IMAGENS ---
-        const imgDiv = document.createElement('div');
-        imgDiv.className = "imagem-nota-container";
-        imgDiv.id = `scroll-nota-${index}`;
-        imgDiv.innerHTML = `
-            <div style="background: #3b82f6; color: white; padding: 10px; border-radius: 8px 8px 0 0; font-size: 0.8rem; font-weight: bold; text-align: center; margin-bottom: -5px;">
-                NOTA FISCAL #${index + 1}
-            </div>
-            <img src="${item.src}" alt="Nota Fiscal ${index + 1}">
-        `;
-        visor.appendChild(imgDiv);
-
-        // --- LADO DIREITO: FORMULÁRIO DE DIGITAÇÃO ---
-        const formDiv = document.createElement('div');
-        formDiv.className = 'item-card';
-        formDiv.style = "margin-bottom: 25px; border-left: 5px solid #f59e0b; padding: 15px; background: #1e293b; border-radius: 10px;";
-        formDiv.innerHTML = `
-            <strong style="color: #f59e0b; font-size: 0.9rem; display: block; margin-bottom: 12px;">CONFERÊNCIA DA NF #${index + 1}</strong>
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                
-                <input type="text" class="codigo-nf-financeiro" placeholder="Número da Nota" onfocus="focarNota(${index})" 
-                    style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
-                
-                <input type="date" class="data-financeiro" onfocus="focarNota(${index})" 
-                    style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
-                
-                <input type="number" step="0.01" class="input-financeiro" placeholder="Valor Total R$" oninput="calcularTotalRemessa()" onfocus="focarNota(${index})" 
-                    style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
-                
-                <select class="cat-financeiro" onfocus="focarNota(${index})" 
-                    style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
-                    <option value="">Selecione a Categoria...</option>
-                    <option>Gênero Alimentício</option><option>Material de Escritório</option><option>Material de Higiene e Limpeza</option>
-                    <option>Material de Copa e Cozinha</option><option>Material Didático</option><option>Conservação de Edifícios</option>
-                    <option>Conservação de Móveis, Máquinas e Equipamentos</option><option>Material de Sinalização Visual (placas)</option>
-                    <option>EPI</option><option>Medicamentos</option><option>Aluguel carro/combustível</option><option>Gás</option>
-                    <option>Controle de Pragas / Sanitização e Dedetização</option><option>Extintores de Incêndio</option>
-                    <option>Transporte para Usuários - Taxi- Ônibus- App</option><option>Serviços Gráficos</option>
-                    <option>Oficinas e Capacitações</option><option>Material de Cama-mesa e banho</option><option>Uniformes</option>
-                    <option>Materiais elétricos</option><option>Ferramentas</option><option>Material permanente - mesa e cadeira</option>
-                    <option>Material permanente - roupeiros</option><option>Material permanente - Ventilador de Parede</option>
-                    <option>Material permanente - Refrigerador industrial</option>
-                </select>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
-                <button type="button" onclick="removerNota(${index})" style="background:none; border:none; color:#ef4444; font-size:0.75rem; cursor:pointer;">
-                    <i class="fas fa-trash"></i> Remover Nota
-                </button>
-                <span style="font-size: 0.7rem; color: #64748b;">ID: ${index + 1}</span>
-            </div>
-        `;
-        formContainer.appendChild(formDiv);
-    });
-    
-    calcularTotalRemessa();
-}
-
-// Função para dar scroll na imagem quando clicar no input
-function focarNota(index) {
-    const elementoImg = document.getElementById(`scroll-nota-${index}`);
-    if (elementoImg) {
-        elementoImg.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-}
-function removerNota(index) {
-    window.arquivosAtuais.splice(index, 1);
-    renderizarListaFinanceiro();
-}
-
-function resetarInterfaceFinanceiro() {
-    // 1. Limpa o array de dados
-    window.arquivosAtuais = [];
-    
-    // 2. Limpa o input de arquivo (ESSENCIAL para destravar o botão)
-    const fileInput = document.getElementById('upload-lote');
-    if(fileInput) fileInput.value = "";
-    
-    // 3. Reseta os textos e totais
-    document.getElementById('total-remessa').innerText = "R$ 0,00";
-    document.getElementById('form-notas-container').innerHTML = '<p style="color: #94a3b8; font-size: 0.8rem;">Selecione as notas para iniciar.</p>';
-    
-    // 4. Restaura o botão central de carregar
-    document.getElementById('visor-notas').innerHTML = `
-        <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8;">
-            <i class="fas fa-images fa-3x"></i><br><br>
-            <button type="button" class="btn-save" onclick="document.getElementById('upload-lote').click()">Carregar Notas</button>
-        </div>
-    `;
-}
-
-function enviarParaDP() {
-    const codigosNF = document.querySelectorAll('.codigo-nf-financeiro');
-    const inputs = document.querySelectorAll('.input-financeiro');
-    const datas = document.querySelectorAll('.data-financeiro');
-    const categorias = document.querySelectorAll('.cat-financeiro');
-    const total = document.getElementById('total-remessa').innerText;
-    
-    if (window.arquivosAtuais.length === 0) {
-        alert("Adicione notas primeiro.");
-        return;
-    }
-
-    let detalhamento = "";
-    inputs.forEach((input, i) => {
-        const valor = parseFloat(input.value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        const dataNota = datas[i].value ? datas[i].value.split('-').reverse().join('/') : "S/ Data";
-        const nf = codigosNF[i].value || "S/ Nº";
-        detalhamento += `🔹 *NF ${nf}:* ${valor} (${categorias[i].value}) - Data: ${dataNota}%0A`;
-    });
-
-    const msg = `🧾 *RESUMO FINANCEIRO*%0A%0A${detalhamento}%0A💰 *TOTAL: ${total}*`;
-    window.open(`https://wa.me/?text=${msg}`);
-
-    setTimeout(() => {
-        if(confirm("Deseja limpar os dados deste envio?")) {
-            resetarInterfaceFinanceiro();
-        }
-    }, 1000);
-}
-    
-
-function focarNota(index) {
-    const img = document.getElementById(`nota-img-${index}`);
-    if(img) {
-        img.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        document.querySelectorAll('#visor-notas img').forEach(i => i.style.borderColor = 'transparent');
-        img.style.borderColor = '#3b82f6';
-    }
-}
-
-function calcularTotalRemessa() {
-    const inputs = document.querySelectorAll('.input-financeiro');
-    let total = 0;
-    inputs.forEach(i => total += Number(i.value || 0));
-    document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
-}
-
-    async function sincronizarLinkDireto() {
-    const linkInput = prompt("Cole o link da planilha PUBLICADA como CSV:");
-    if (!linkInput) return;
-
-    try {
-        let urlSinc = linkInput;
-        if (linkInput.includes('/edit')) {
-            const id = linkInput.split('/d/')[1].split('/')[0];
-            urlSinc = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`;
-        }
-
-        const res = await fetch(urlSinc);
-        const csvText = await res.text();
-        const linhas = csvText.split(/\r?\n/).map(l => l.trim()).filter(l => l !== "");
-        
-        if (linhas.length < 2) {
-            alert("A planilha parece estar vazia.");
-            return;
-        }
-
-        const separador = linhas[0].includes(';') ? ';' : ',';
-
-        const novosFuncionarios = linhas.slice(1).map((linha) => {
-            const regex = new RegExp(`${separador}(?=(?:(?:[^"]*"){2})*[^"]*$)`);
-            const col = linha.split(regex).map(c => (c || '').trim().replace(/^"|"$/g, ''));
-            
-            const formatarData = (v) => {
-                if (!v) return null;
-                if (v.includes('-') && v.split('-')[0].length === 4) return v;
-                if (v.includes('/')) {
-                    const p = v.split('/');
-                    if (p.length === 3) {
-                        return `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
-                    }
-                }
-                return null;
-            };
-
-            const paraBoolean = (v) => {
-                if (!v) return false;
-                const check = v.toString().toUpperCase().trim();
-                return check === 'TRUE' || check === 'SIM' || check === '1';
-            };
-
-            return {
-                nome: col[0] || null,
-                endereco: col[1] || '',
-                bairro: col[2] || '',
-                cidade: col[3] || '',
-                estado: col[4] || '',
-                cep: col[5] || '',
-                
-                // --- AJUSTE: NASCIMENTO E ADMISSÃO TROCADOS ---
-                nascimento: formatarData(col[6]),   // Era col[12], agora col[6]
-                data_admissa: formatarData(col[12]), // Era col[6], agora col[12]
-
-                cpf: col[7] || '',
-                rg: col[8] || '',
-                titulo_eleitor: col[9] || '',
-                ctps: col[10] || '',
-                habilitacao: col[11] || '',
-                
-                // --- AJUSTE: FUNÇÃO E HORÁRIO ---
-                funcao: col[14] || '',            
-                horario: col[13] || '',           
-                
-                celular: col[15] || '',
-                qtde_horas_mes: col[16] || '',
-                equipe: col[17] || '',
-                
-                alinhamentos: col[18] || '0',
-                advertencias: col[19] || '0',
-                foto: col[20] || '',
-                
-                check_docs: paraBoolean(col[21]),
-                check_aso: paraBoolean(col[22]),
-                check_contrato: paraBoolean(col[23]),
-                check_uniforme: paraBoolean(col[24]),
-                check_epi: paraBoolean(col[25]),
-                
-                tamanho_uniforme: col[26] || '',
-                codigo: col[27] || null
-            };
-        }).filter(f => f.nome && f.nome.toLowerCase() !== "nome");
-
-        const { data, error } = await _supabase.from('funcionarios').insert(novosFuncionarios).select();
-        if (error) throw error;
-
-        alert(`✅ Sincronização concluída com sucesso!`);
-        if (typeof listarEquipe === 'function') listarEquipe();
-        
-    } catch (e) {
-        alert("❌ Erro: " + e.message);
-    }
-}
-    async function gerarPDF(id) {
-    // Busca os dados atualizados do funcionário no banco
-    const { data: emp, error } = await _supabase.from('funcionarios').select('*').eq('id', id).single();
-    
-    if (error || !emp) {
-        return alert("Erro ao buscar dados para o PDF");
-    }
-
-    // Criamos um container temporário para o relatório
-    const relatorio = document.createElement('div');
-    relatorio.style.padding = '40px';
-    relatorio.style.color = '#000'; // Texto preto para impressão
-    relatorio.style.backgroundColor = '#fff';
-    relatorio.style.fontFamily = 'Arial, sans-serif';
-
-    // Montando o layout do relatório (sem checklists ou botões)
-    relatorio.innerHTML = `
-        <div style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
-            <h1 style="margin: 0; font-size: 24px;">RELATÓRIO INDIVIDUAL DE FUNCIONÁRIO</h1>
-            <p style="margin: 5px 0;">Coordenação Local - Gestão de D.P.</p>
-        </div>
-
-        <div style="display: flex; gap: 20px; margin-bottom: 30px;">
-            ${emp.foto ? `<img src="${emp.foto}" style="width: 120px; height: 150px; object-fit: cover; border: 1px solid #ccc;">` : ''}
-            <div>
-                <h2 style="margin: 0 0 10px 0; color: #1e293b;">${emp.nome.toUpperCase()}</h2>
-                <p><strong>Função:</strong> ${emp.funcao || '---'}</p>
-                <p><strong>Equipe:</strong> ${emp.equipe || '---'}</p>
-                <p><strong>Data de Admissão:</strong> ${emp.data_admissa ? emp.data_admissa.split('-').reverse().join('/') : '---'}</p>
-            </div>
-        </div>
-
-        <h3 style="background: #f1f5f9; padding: 8px; border-left: 4px solid #3b82f6;">Documentação e Identificação</h3>
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-            <tr>
-                <td style="padding: 8px; border: 1px solid #ddd;"><strong>CPF:</strong> ${emp.cpf || '---'}</td>
-                <td style="padding: 8px; border: 1px solid #ddd;"><strong>RG:</strong> ${emp.rg || '---'}</td>
-            </tr>
-            <tr>
-                <td style="padding: 8px; border: 1px solid #ddd;"><strong>CTPS:</strong> ${emp.ctps || '---'}</td>
-                <td style="padding: 8px; border: 1px solid #ddd;"><strong>Título Eleitor:</strong> ${emp.titulo_eleitor || '---'}</td>
-            </tr>
-        </table>
-
-        <h3 style="background: #f1f5f9; padding: 8px; border-left: 4px solid #3b82f6;">Endereço e Contato</h3>
-        <p><strong>Endereço:</strong> ${emp.endereco || '---'}, ${emp.bairro || '---'}</p>
-        <p><strong>Cidade:</strong> ${emp.cidade || '---'} - ${emp.estado || '---'}</p>
-        <p><strong>Contato:</strong> ${emp.celular || '---'}</p>
-
-        <h3 style="background: #f1f5f9; padding: 8px; border-left: 4px solid #3b82f6;">Histórico Interno</h3>
-        <p><strong>Alinhamentos Registrados:</strong></p>
-        <div style="white-space: pre-wrap; font-size: 12px; margin-bottom: 10px;">${emp.alinhamentos || 'Nenhum registro encontrado.'}</div>
-        
-        <p><strong>Advertências:</strong></p>
-        <div style="white-space: pre-wrap; font-size: 12px; color: red;">${emp.advertencias || 'Nenhum registro encontrado.'}</div>
-
-        <div style="margin-top: 50px; text-align: center;">
-            <div style="border-top: 1px solid #000; width: 250px; margin: 0 auto; padding-top: 5px;">
-                Assinatura da Coordenação
-            </div>
-            <p style="font-size: 10px; color: #666; margin-top: 20px;">Gerado em: ${new Date().toLocaleString('pt-BR')}</p>
-        </div>
-    `;
-
-    const options = {
-        margin: 10,
-        filename: `Relatorio_${emp.nome.replace(/\s+/g, '_')}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, logging: false },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        carregarPreviewEquipe();
+        carregarPreviewPatrimonio();
+        carregarPreviewAtas();
+        carregarPreviewAcolhidos();
     };
 
-    // Gera o PDF a partir do elemento "virtual" que criamos
-    html2pdf().set(options).from(relatorio).save();
-}
-
-    // Adicione isso ao final do seu script para rodar ao abrir o painel
-async function atualizarPreviewsDashboard() {
-    // Exemplo: Atualizar resumo de Acolhidos no Card
-    const { data: acolhidos } = await _supabase.from('acolhidos').select('*');
-    if(acolhidos) {
-        const ocupados = acolhidos.filter(a => a.nome && a.nome.toLowerCase() !== 'livre').length;
-        const livres = acolhidos.filter(a => !a.nome || a.nome.toLowerCase() === 'livre').length;
-        document.getElementById('preview-acolhidos-total').innerText = ocupados;
-        document.getElementById('preview-acolhidos-vagas').innerText = livres;
+    async function openAcolhidos() {
+        document.getElementById('lista-acolhidos').style.display = 'block';
+        document.getElementById('mapa-quartos').style.display = 'none';
+        openModal('modalAcolhidos');
+        renderizarAcolhidos();
     }
 
-    // Exemplo: Mostrar última Ata no Card
-    const { data: atas } = await _supabase.from('atas').select('nome').order('created_at', {ascending: false}).limit(1);
-    if(atas && atas[0]) {
-        document.querySelector('#preview-ultima-ata strong').innerText = atas[0].nome;
-    }
-}
+    async function renderizarAcolhidos() {
+        const { data, error } = await _supabase.from('acolhidos').select('*').order('quarto');
+        if (error) return;
 
-// Chame a função
-window.addEventListener('load', atualizarPreviewsDashboard);
+        const container = document.getElementById('lista-acolhidos');
+        const ocupados = data.filter(a => a.nome && a.nome.trim().toLowerCase() !== 'livre');
+        const livres = data.filter(a => !a.nome || a.nome.trim().toLowerCase() === 'livre');
 
-    async function carregarPreviaEquipe() {
-    try {
-        // Busca os 3 primeiros funcionários
-        const { data: emps, error } = await _supabase.from('funcionarios').select('nome, cargo').limit(3);
-        const container = document.getElementById('preview-equipe');
+        document.getElementById('count-acolhidos').innerText = ocupados.length;
+        document.getElementById('count-livres').innerText = livres.length;
         
-        if (error) {
-            console.error("Erro Supabase Equipe:", error);
-            container.innerHTML = '<small>Erro ao conectar</small>';
-            return;
-        }
+        container.innerHTML = data.map(a => `
+            <div class="item-card" style="padding:10px; margin-bottom:8px; border-left: 4px solid ${a.nome.toLowerCase() === 'livre' ? '#22c55e' : '#3b82f6'}">
+                <strong style="display:block">${a.nome}</strong>
+                <small style="color:var(--text-dim)">Quarto: ${a.quarto} | Cama: ${a.cama} (${a.tipo})</small>
+            </div>
+        `).join('');
+        carregarPreviewAcolhidos();
+    }
 
-        if (emps && emps.length > 0) {
-            let html = '<ul style="list-style:none; padding:0; margin:0; font-size:0.75rem; color: var(--text-dim);">';
-            emps.forEach(e => {
-                // Pega apenas o primeiro nome para caber no card
-                const primeiroNome = e.nome ? e.nome.split(' ')[0] : '---';
-                html += `<li style="margin-bottom:4px; display:flex; align-items:center; gap:5px;">
-                            <i class="fas fa-circle" style="color:var(--primary-blue); font-size:6px;"></i> 
-                            ${primeiroNome} <span style="opacity:0.7; font-size:0.7rem;">(${e.cargo || 'Geral'})</span>
-                         </li>`;
-            });
-            html += '</ul>';
-            container.innerHTML = html;
+    async function importarExcel(input) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const json = XLSX.utils.sheet_to_json(sheet);
+
+            const formatado = json.map(row => ({
+                nome: row.Nome || row.nome || 'Livre',
+                quarto: row.Quarto || row.quarto || '?',
+                cama: row.Cama || row.cama || '?',
+                tipo: row.Tipo || row.tipo || 'S/T'
+            }));
+
+            const { error } = await _supabase.from('acolhidos').insert(formatado);
+            if (!error) {
+                alert("Dados importados com sucesso!");
+                renderizarAcolhidos();
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function toggleMapaQuartos() {
+        const lista = document.getElementById('lista-acolhidos');
+        const mapa = document.getElementById('mapa-quartos');
+        if (mapa.style.display === 'none') {
+            lista.style.display = 'none';
+            mapa.style.display = 'block';
         } else {
-            container.innerHTML = '<small style="color:var(--text-dim)">Nenhum registro.</small>';
+            lista.style.display = 'block';
+            mapa.style.display = 'none';
         }
-    } catch (err) {
-        console.error("Erro Geral Equipe:", err);
     }
-}
 
-async function carregarPreviaPatrimonio() {
-    try {
-        const { data: itens, error } = await _supabase.from('patrimonio').select('item, quantidade').limit(3);
-        const container = document.getElementById('preview-patrimonio');
+    function openFinanceiro() {
+        openModal('modalFinanceiro');
+    }
 
-        if (error) {
-            console.error("Erro Supabase Patrimônio:", error);
-            container.innerHTML = '<small>Erro ao conectar</small>';
+    function handleFinanceiroUpload(input) {
+        const files = Array.from(input.files);
+        if(!window.arquivosAtuais) window.arquivosAtuais = [];
+        
+        files.forEach((file) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const itemNota = { 
+                    id: Date.now() + Math.random(), 
+                    src: e.target.result, 
+                    file: file 
+                };
+                window.arquivosAtuais.push(itemNota);
+                renderizarListaFinanceiro();
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function renderizarListaFinanceiro() {
+        const container = document.getElementById('container-fotos-lista');
+        const vazio = document.getElementById('conteudo-visor-vazio');
+        
+        if(!window.arquivosAtuais || window.arquivosAtuais.length === 0) {
+            container.innerHTML = '';
+            vazio.style.display = 'flex';
             return;
         }
-
-        if (itens && itens.length > 0) {
-            let html = '<div style="font-size:0.75rem; color: var(--text-dim);">';
-            itens.forEach(i => {
-                html += `<div style="display:flex; justify-content:space-between; margin-bottom:4px; border-bottom:1px solid rgba(255,255,255,0.05);">
-                            <span>${i.item ? i.item.substring(0, 15) : '---'}</span>
-                            <strong style="color:var(--accent-orange)">${i.quantidade || 0}</strong>
-                         </div>`;
-            });
-            html += '</div>';
-            container.innerHTML = html;
-        } else {
-            container.innerHTML = '<small style="color:var(--text-dim)">Estoque vazio.</small>';
-        }
-    } catch (err) {
-        console.error("Erro Geral Patrimônio:", err);
+        
+        vazio.style.display = 'none';
+        container.innerHTML = window.arquivosAtuais.map(item => `
+            <div class="imagem-nota-container">
+                <img src="${item.src}" style="width: 100%; border-radius: 8px;">
+            </div>
+        `).join('');
     }
-}
-    // Garante que as prévias carreguem assim que a página abrir
-document.addEventListener('DOMContentLoaded', () => {
-    // Um pequeno delay para garantir que o Supabase foi inicializado
-    setTimeout(() => {
-        carregarPreviaEquipe();
-        carregarPreviaPatrimonio();
-    }, 1000);
-});
-   </script>
+
+    function enviarParaDP() {
+        alert("Remessa enviada para o DP!");
+    }
+
+    // Placeholder para sincronizar
+    function sincronizarLinkDireto() {
+        alert("Sincronização iniciada!");
+    }
+
+    // Placeholder para gerar PDF
+    function gerarPDF(id) {
+        alert("Gerando PDF do funcionário...");
+    }
+</script>
 </body>
 </html>
