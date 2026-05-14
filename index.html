@@ -169,22 +169,43 @@
             <i class="fas fa-calendar-alt" style="font-size: 1.5rem; color: var(--primary-blue); cursor: pointer;" onclick="changeView('view-calendar')"></i>
         </header>
         
-        <main class="grid-modules">
-            <div class="module-card" onclick="changeView('view-employees')">
-                <i class="fas fa-users icon-blue"></i>
-                <span>Funcionários</span>
-            </div>
-            <div class="module-card" onclick="changeView('view-atas')">
-                <i class="far fa-file-alt icon-lightblue"></i>
-                <span>Atas</span>
-            </div>
-            <div class="module-card"><i class="fas fa-chart-line icon-green"></i><span>Relatórios</span></div>
-            <div class="module-card" onclick="abrirModuloDP()"><i class="far fa-id-badge icon-dp"></i><span>D.P.</span></div>
-            <div class="module-card" onclick="openPatrimonio()"><i class="fas fa-boxes icon-gold"></i><span>Patrimônio</span></div>
-            <div class="module-card"><i class="fas fa-cloud-upload-alt icon-purple"></i><span>Upload</span></div>
-            <div class="module-card" onclick="openAcolhidos()"><i class="fas fa-bed icon-purple"></i><span>Acolhidos</span></div>
-            <div class="module-card" onclick="openFinanceiro()"><i class="fas fa-file-invoice-dollar" style="color: var(--accent-orange);"></i><span>Financeiro</span></div>
-        </main>
+        <<main class="grid-modules">
+    <div class="module-card" onclick="changeView('view-employees')">
+        <div class="card-header">
+            <i class="fas fa-users icon-blue"></i>
+            <span class="card-title">Funcionários</span>
+        </div>
+        <div class="preview-content" id="preview-equipe">
+            <small>Previemário</small>
+            <div id="lista-previa-emp">
+                </div>
+        </div>
+    </div>
+
+    <div class="module-card" onclick="openFinanceiro()">
+        <div class="card-header">
+            <i class="fas fa-file-invoice-dollar" style="color: var(--accent-orange);"></i>
+            <span class="card-title">Financeiro</span>
+        </div>
+        <div class="preview-content">
+            <p>Status da Remessa:</p>
+            <strong style="color: var(--accent-orange)" id="status-financeiro-resumo">R$ 0,00 (Pendente)</strong>
+            <button class="btn-action" style="margin-top:10px; width:100%; background: rgba(245, 158, 11, 0.1); color: #f59e0b">Nova Conferência</button>
+        </div>
+    </div>
+
+    <div class="module-card" onclick="openAcolhidos()">
+        <div class="card-header">
+            <i class="fas fa-bed icon-purple"></i>
+            <span class="card-title">Acolhidos</span>
+        </div>
+        <div class="preview-content">
+            <p>Total Acolhidos: <span id="resumo-acolhidos">0</span></p>
+            <p>Vagas Livres: <span id="resumo-vagas" style="color: var(--accent-green)">0</span></p>
+            <a href="#" style="color: var(--primary-blue); text-decoration: none; font-size: 0.75rem;">Mapa de Quartos <i class="fas fa-external-link-alt"></i></a>
+        </div>
+    </div>
+</main>
     </div>
 
          <div id="view-employees" class="view">
@@ -1265,6 +1286,38 @@ function calcularTotalRemessa() {
     // Gera o PDF a partir do elemento "virtual" que criamos
     html2pdf().set(options).from(relatorio).save();
 }
+
+    async function carregarResumosDashboard() {
+    // 1. Resumo de Funcionários (Pega os 4 primeiros)
+    const { data: emps } = await _supabase.from('funcionarios').select('nome, foto, equipe').limit(4);
+    const containerEmp = document.getElementById('lista-previa-emp');
+    if(emps) {
+        containerEmp.innerHTML = emps.map(e => `
+            <div class="preview-item">
+                <img src="${e.foto || 'https://via.placeholder.com/30'}">
+                <span>${e.nome.split(' ')[0]} <small>(${e.equipe || 'S/E'})</small></span>
+            </div>
+        `).join('');
+    }
+
+    // 2. Resumo de Acolhidos
+    const { data: acolhidos } = await _supabase.from('acolhidos').select('nome');
+    if(acolhidos) {
+        const ocupados = acolhidos.filter(a => a.nome.toLowerCase() !== 'livre').length;
+        const livres = acolhidos.filter(a => a.nome.toLowerCase() === 'livre').length;
+        document.getElementById('resumo-acolhidos').innerText = ocupados;
+        document.getElementById('resumo-vagas').innerText = livres;
+    }
+    
+    // 3. Resumo Financeiro (Exemplo de valor estático ou vindo de uma tabela de remessas)
+    // document.getElementById('status-financeiro-resumo').innerText = "R$ 4.500,00 (Em processamento)";
+}
+
+// Atualize seu window.onload
+window.onload = () => {
+    carregarResumosDashboard();
+    // ... manter lógica da foto de perfil ...
+};
 
    </script>
 </body>
