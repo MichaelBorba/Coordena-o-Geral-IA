@@ -10,6 +10,78 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
+        /* Substitua ou adicione ao seu <style> */
+:root {
+    --bg-main: #0f172a;
+    --card-bg: #1e293b;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+}
+
+.dashboard-container {
+    padding: 20px;
+    max-width: 1600px; /* Expansão maior para monitores grandes */
+    margin: 0 auto;
+}
+
+.grid-modules {
+    display: grid;
+    gap: 20px;
+    /* No Celular: 1 coluna */
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+    /* No Tablet: 2 colunas */
+    grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 1200px) {
+    /* No PC: 3 ou 4 colunas dependendo da largura */
+    .grid-modules {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.module-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 160px;
+}
+
+.module-card:hover {
+    transform: translateY(-5px);
+    background: #243147;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.card-header i { font-size: 1.4rem; }
+
+.preview-box {
+    background: rgba(15, 23, 42, 0.5);
+    border-radius: 8px;
+    padding: 10px;
+    flex-grow: 1;
+}
+
+.preview-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
         :root {
             --bg-dark: #0f172a; --card-bg: #1e293b; --primary-blue: #3b82f6;
             --accent-orange: #f59e0b; --accent-red: #ef4444; --text-main: #f8fafc;
@@ -169,44 +241,100 @@
             <i class="fas fa-calendar-alt" style="font-size: 1.5rem; color: var(--primary-blue); cursor: pointer;" onclick="changeView('view-calendar')"></i>
         </header>
         
-        <<main class="grid-modules">
-    <div class="module-card" onclick="changeView('view-employees')">
-        <div class="card-header">
-            <i class="fas fa-users icon-blue"></i>
-            <span class="card-title">Funcionários</span>
-        </div>
-        <div class="preview-content" id="preview-equipe">
-            <small>Previemário</small>
-            <div id="lista-previa-emp">
+     <div class="dashboard-container">
+    <main class="grid-modules">
+        
+        <div class="module-card" onclick="changeView('view-employees')">
+            <div class="card-header">
+                <i class="fas fa-users" style="color: #3b82f6;"></i>
+                <span class="card-title">Funcionários</span>
+            </div>
+            <div class="preview-content">
+                <small style="color: var(--text-dim);">Equipe Ativa</small>
+                <div id="lista-previa-emp" class="preview-text">
+                    Carregando...
                 </div>
+            </div>
         </div>
-    </div>
 
-    <div class="module-card" onclick="openFinanceiro()">
-        <div class="card-header">
-            <i class="fas fa-file-invoice-dollar" style="color: var(--accent-orange);"></i>
-            <span class="card-title">Financeiro</span>
+        <div class="module-card" onclick="openFinanceiro()">
+            <div class="card-header">
+                <i class="fas fa-file-invoice-dollar" style="color: #f59e0b;"></i>
+                <span class="card-title">Financeiro</span>
+            </div>
+            <div class="preview-content">
+                <p class="preview-text">Status da Remessa:</p>
+                <strong style="color: #f59e0b" id="status-financeiro-resumo">R$ 0,00 (Pendente)</strong>
+                <button class="btn-action" style="margin-top:10px; width:100%; background: rgba(245, 158, 11, 0.1); color: #f59e0b; border:none; border-radius:5px; cursor:pointer;">Nova Conferência</button>
+            </div>
         </div>
-        <div class="preview-content">
-            <p>Status da Remessa:</p>
-            <strong style="color: var(--accent-orange)" id="status-financeiro-resumo">R$ 0,00 (Pendente)</strong>
-            <button class="btn-action" style="margin-top:10px; width:100%; background: rgba(245, 158, 11, 0.1); color: #f59e0b">Nova Conferência</button>
-        </div>
-    </div>
 
-    <div class="module-card" onclick="openAcolhidos()">
-        <div class="card-header">
-            <i class="fas fa-bed icon-purple"></i>
-            <span class="card-title">Acolhidos</span>
+        <div class="module-card" onclick="openAcolhidos()">
+            <div class="card-header">
+                <i class="fas fa-bed" style="color: #a855f7;"></i>
+                <span class="card-title">Acolhidos</span>
+            </div>
+            <div class="preview-content">
+                <p class="preview-text">Total Acolhidos: <span id="resumo-acolhidos">0</span></p>
+                <p class="preview-text">Vagas Livres: <span id="resumo-vagas" style="color: #22c55e">0</span></p>
+                <span style="color: #3b82f6; font-size: 0.75rem;">Mapa de Quartos <i class="fas fa-external-link-alt"></i></span>
+            </div>
         </div>
-        <div class="preview-content">
-            <p>Total Acolhidos: <span id="resumo-acolhidos">0</span></p>
-            <p>Vagas Livres: <span id="resumo-vagas" style="color: var(--accent-green)">0</span></p>
-            <a href="#" style="color: var(--primary-blue); text-decoration: none; font-size: 0.75rem;">Mapa de Quartos <i class="fas fa-external-link-alt"></i></a>
+
+        <div class="module-card" onclick="changeView('view-assets')">
+            <div class="card-header">
+                <i class="fas fa-boxes" style="color: #ec4899;"></i>
+                <span class="card-title">Patrimônio</span>
+            </div>
+            <div class="preview-content">
+                <div class="preview-text" id="prev-patrimonio">
+                    Itens em estoque: 0<br>
+                    <small style="color: #ef4444;">Verificar baixas</small>
+                </div>
+            </div>
         </div>
-    </div>
-</main>
-    </div>
+
+        <div class="module-card" onclick="openDocs()">
+            <div class="card-header">
+                <i class="fas fa-file-alt" style="color: #ef4444;"></i>
+                <span class="card-title">Documentos</span>
+            </div>
+            <div class="preview-content">
+                <div class="preview-text">
+                    <i class="fas fa-clock"></i> 3 vencendo esta semana<br>
+                    <small>Relatórios e Alvarás</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="module-card" onclick="openGestao()">
+            <div class="card-header">
+                <i class="fas fa-chart-line" style="color: #22c55e;"></i>
+                <span class="card-title">Gestão DP</span>
+            </div>
+            <div class="preview-content">
+                <div class="preview-text">
+                    Faltas: <span id="prev-faltas">0</span><br>
+                    Férias: <span id="prev-ferias">Nenhuma</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="module-card" onclick="openConfig()">
+            <div class="card-header">
+                <i class="fas fa-cog" style="color: #94a3b8;"></i>
+                <span class="card-title">Configurações</span>
+            </div>
+            <div class="preview-content">
+                <div class="preview-text">
+                    Perfil: Administrador<br>
+                    <small>Sistema atualizado v2.0</small>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
 
          <div id="view-employees" class="view">
         <header>
@@ -1318,6 +1446,7 @@ window.onload = () => {
     carregarResumosDashboard();
     // ... manter lógica da foto de perfil ...
 };
+
 
    </script>
 </body>
