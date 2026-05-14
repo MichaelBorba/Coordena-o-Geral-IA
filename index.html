@@ -1127,6 +1127,854 @@
             carregarPreviewAcolhidos();
         };
     </script>
+const _supabase = supabase.createClient('https://envuzusmubunlrrhhclu.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudnV6dXNtdWJ1bmxycmhoY2x1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NTMzMTcsImV4cCI6MjA5MzEyOTMxN30.pzepBGPOl9reoD4uLN0HUhpWaWfwv9pjLSkVdau7ntY');
 
+    function changeView(id) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(id === 'view-employees') listarEquipe();
+        if(id === 'view-calendar') initCalendar();
+        if(id === 'view-atas') listarAtas();
+    }
+    
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    function uploadFotoCoord(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                document.getElementById('foto-coord-display').src = e.target.result;
+                document.getElementById('foto-coord-display').style.display = 'block';
+                document.getElementById('icon-coord-padrao').style.display = 'none';
+                localStorage.setItem('coord_img', e.target.result);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    let tempFotoBase64 = "";
+
+    function previewFotoEmp(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                document.getElementById('preview-foto-emp').src = e.target.result;
+                document.getElementById('preview-foto-emp').style.display = 'block';
+                document.getElementById('icon-camera-emp').style.display = 'none';
+                tempFotoBase64 = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    async function listarEquipe() {
+        const container = document.getElementById('employee-list');
+        container.innerHTML = "Buscando...";
+        const { data } = await _supabase.from('funcionarios').select('*').order('nome');
+        container.innerHTML = "";
+        
+        data?.forEach(emp => {
+            const div = document.createElement('div'); div.className = 'item-card';
+            div.innerHTML = `
+                <div class="emp-info-row">
+                    <img src="${emp.foto || 'https://via.placeholder.com/50'}" class="thumb-emp">
+                    <div>
+                        <strong style="font-size: 1rem; display:block;">${emp.nome}</strong>
+                        <small style="color:var(--text-dim)">${emp.funcao} | ${emp.horario}</small>
+                    </div>
+                    <div class="card-actions-top">
+                        <i class="fas fa-file-medical" style="color:var(--accent-purple); cursor:pointer" onclick="verHistorico('${emp.id}', '${emp.nome}')"></i>
+                        <i class="fas fa-edit" style="cursor:pointer" onclick="prepararEdicaoEmp('${emp.id}','${emp.nome}','${emp.funcao}','${emp.horario}','${emp.equipe}', '${emp.foto}', '${emp.data_admissa}')"></i>
+                        <i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('funcionarios','${emp.id}',listarEquipe)"></i>
+                    </div>
+                </div>
+                <div class="emp-controls-footer">
+                    <button class="btn-action" style="background:#3b82f622; color:#60a5fa" onclick="abrirModalRegistro('${emp.id}', 'alinhamentos')">
+                        <i class="fas fa-comments"></i> ALINHAMENTO
+                    </button>
+                    <button class="btn-action" style="background:#ef444422; color:#f87171" onclick="abrirModalRegistro('${emp.id}', 'advertencias')">
+                        <i class="fas fa-exclamation-triangle"></i> ADVERTÊNCIA
+                    </button>
+                </div>`;
+            container.appendChild(div);
+        });
+    }
+
+    async function salvarFuncionario() {
+        const id = document.getElementById('editEmpId').value;
+        const payload = { 
+            nome: document.getElementById('newEmpName').value, 
+            funcao: document.getElementById('newEmpRole').value, 
+            horario: document.getElementById('newEmpTime').value, 
+            equipe: document.getElementById('newEmpEquipe').value,
+            data_admissa: document.getElementById('newEmpAdm').value, 
+            foto: tempFotoBase64
+        };
+        
+        if(id) {
+            await _supabase.from('funcionarios').update(payload).eq('id', id);
+        } else {
+            await _supabase.from('funcionarios').insert([payload]);
+        }
+        closeModal('modalAddEmployee'); 
+        listarEquipe();
+    }
+
+    function prepararNovoEmp() {
+        document.getElementById('editEmpId').value = "";
+        document.getElementById('newEmpName').value = "";
+        document.getElementById('newEmpRole').value = "";
+        document.getElementById('newEmpTime').value = "";
+        document.getElementById('newEmpEquipe').value = "";
+        document.getElementById('newEmpAdm').value = "";
+        document.getElementById('preview-foto-emp').style.display = 'none';
+        document.getElementById('icon-camera-emp').style.display = 'block';
+        tempFotoBase64 = "";
+        openModal('modalAddEmployee');
+    }
+
+    function prepararEdicaoEmp(id, n, f, h, e, foto, adm) {
+        document.getElementById('editEmpId').value = id;
+        document.getElementById('newEmpName').value = n;
+        document.getElementById('newEmpRole').value = f;
+        document.getElementById('newEmpTime').value = h;
+        document.getElementById('newEmpEquipe').value = e || "";
+        document.getElementById('newEmpAdm').value = adm || "";
+        if(foto) {
+            document.getElementById('preview-foto-emp').src = foto;
+            document.getElementById('preview-foto-emp').style.display = 'block';
+            document.getElementById('icon-camera-emp').style.display = 'none';
+            tempFotoBase64 = foto;
+        } else {
+            document.getElementById('preview-foto-emp').style.display = 'none';
+            document.getElementById('icon-camera-emp').style.display = 'block';
+            tempFotoBase64 = "";
+        }
+        openModal('modalAddEmployee');
+    }
+
+    async function abrirModuloDP() {
+    openModal('modalDP');
+    const container = document.getElementById('lista-dp-funcionarios');
+    container.innerHTML = "Buscando dados...";
+    
+    // Busca todos os campos da tabela funcionários
+    const { data } = await _supabase.from('funcionarios').select('*').order('nome');
+    container.innerHTML = "";
+
+    data?.forEach(emp => {
+        const div = document.createElement('div'); 
+        div.className = 'item-card';
+        div.id = `card-dp-${emp.id}`; // ID necessário para o PDF
+        div.style.borderLeft = "4px solid var(--primary-blue)";
+        
+        div.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <strong style="color:var(--primary-blue); font-size:1.1rem;">${emp.nome}</strong>
+                <div style="display:flex; gap:8px;">
+                    <button onclick="gerarPDF('${emp.id}')" style="background:#475569; border:none; color:white; padding:8px; border-radius:8px; cursor:pointer"><i class="fas fa-file-pdf"></i> PDF</button>
+                    <button onclick="enviarZapDPCompleto('${emp.id}')" style="background:#25d366; border:none; color:white; padding:8px; border-radius:8px; cursor:pointer"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:0.75rem;">
+                <div style="background:rgba(255,255,255,0.03); padding:8px; border-radius:8px;">
+                    <p style="margin:0 0 5px 0; color:var(--accent-orange)"><b>DOCUMENTOS</b></p>
+                    CPF: <input type="text" class="dp-input-small" value="${emp.cpf || ''}" onblur="atualizarValor('${emp.id}','cpf',this.value)">
+                    RG: <input type="text" class="dp-input-small" value="${emp.rg || ''}" onblur="atualizarValor('${emp.id}','rg',this.value)">
+                    CTPS: <input type="text" class="dp-input-small" value="${emp.ctps || ''}" onblur="atualizarValor('${emp.id}','ctps',this.value)">
+                </div>
+
+                <div style="background:rgba(255,255,255,0.03); padding:8px; border-radius:8px;">
+                    <p style="margin:0 0 5px 0; color:var(--accent-orange)"><b>LOCALIZAÇÃO</b></p>
+                    Rua: <input type="text" class="dp-input-small" value="${emp.endereco || ''}" onblur="atualizarValor('${emp.id}','endereco',this.value)">
+                    Bairro: <input type="text" class="dp-input-small" value="${emp.bairro || ''}" onblur="atualizarValor('${emp.id}','bairro',this.value)">
+                    Cidade: <input type="text" class="dp-input-small" value="${emp.cidade || ''}" onblur="atualizarValor('${emp.id}','cidade',this.value)">
+                </div>
+
+                <div style="background:rgba(255,255,255,0.03); padding:8px; border-radius:8px; grid-column: span 2;">
+                    <p style="margin:0 0 5px 0; color:var(--accent-green)"><b>STATUS DE CONTRATAÇÃO</b></p>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px;">
+                        <label><input type="checkbox" ${emp.check_docs?'checked':''} onchange="atualizarCheck('${emp.id}','check_docs',this.checked)"> Docs</label>
+                        <label><input type="checkbox" ${emp.check_contrato?'checked':''} onchange="atualizarCheck('${emp.id}','check_contrato',this.checked)"> Contrato</label>
+                        <label><input type="checkbox" ${emp.check_aso?'checked':''} onchange="atualizarCheck('${emp.id}','check_aso',this.checked)"> ASO</label>
+                        <label><input type="checkbox" ${emp.check_vt?'checked':''} onchange="atualizarCheck('${emp.id}','check_vt',this.checked)"> VT</label>
+                        <label><input type="checkbox" ${emp.check_cracha?'checked':''} onchange="atualizarCheck('${emp.id}','check_cracha',this.checked)"> Crachá</label>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+}
+    async function atualizarCheck(id, campo, valor) {
+        await _supabase.from('funcionarios').update({ [campo]: valor }).eq('id', id);
+    }
+
+    async function atualizarValor(id, campo, valor) {
+        await _supabase.from('funcionarios').update({ [campo]: valor }).eq('id', id);
+    }
+
+    async function enviarZapDPCompleto(id) {
+    try {
+        // Busca os dados do funcionário para garantir que a mensagem vá preenchida
+        const { data: emp, error } = await _supabase.from('funcionarios').select('*').eq('id', id).single();
+        
+        if (error || !emp) {
+            alert("Erro ao localizar dados do funcionário para o WhatsApp.");
+            return;
+        }
+
+        const simOuNao = (v) => v ? '✅ Sim' : '❌ Não';
+
+        // Montagem da mensagem estruturada
+        const texto = `*GESTÃO D.P. - FICHA DE FUNCIONÁRIO*%0A%0A` +
+            `👤 *Nome:* ${emp.nome}%0A` +
+            `💳 *CPF:* ${emp.cpf || '---'}%0A` +
+            `🏢 *Função:* ${emp.funcao || '---'}%0A` +
+            `📍 *Equipe:* ${emp.equipe || '---'}%0A%0A` +
+            `*STATUS DOCUMENTAÇÃO:*%0A` +
+            `📄 RG: ${simOuNao(emp.doc_rg)}%0A` +
+            `📜 CPF: ${simOuNao(emp.doc_cpf)}%0A` +
+            `📑 Contrato: ${simOuNao(emp.doc_contrato)}%0A` +
+            `🏥 ASO: ${simOuNao(emp.doc_aso)}%0A%0A` +
+            `📝 *ALINHAMENTOS:*%0A${emp.alinhamentos || 'Nenhum registro.'}`;
+
+        // Abre o WhatsApp (Substitua pelo seu número se quiser fixar um destinatário)
+        window.open(`https://wa.me/?text=${texto}`, '_blank');
+        
+    } catch (err) {
+        console.error("Erro no Zap:", err);
+        alert("Ocorreu um erro ao gerar a mensagem.");
+    }
+                                   }
+                                                          
+    let eventosCache = [];
+    async function initCalendar() {
+        const agora = new Date();
+        const nomesMeses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+        const mesDiv = document.getElementById('mes-atual');
+        if(mesDiv) mesDiv.innerText = `${nomesMeses[agora.getMonth()]} ${agora.getFullYear()}`;
+        const { data } = await _supabase.from('eventos').select('*');
+        eventosCache = data || [];
+        renderizarCalendario(agora.getMonth(), agora.getFullYear());
+    }
+
+    function renderizarCalendario(mes, ano) {
+        const grid = document.getElementById('calendario-dias'); if(!grid) return;
+        grid.innerHTML = "";
+        ["D", "S", "T", "Q", "Q", "S", "S"].forEach(d => grid.innerHTML += `<div style="font-size:0.7rem; color:var(--text-dim); padding-bottom:5px;">${d}</div>`);
+        const primeiroDia = new Date(ano, mes, 1).getDay();
+        const totalDias = new Date(ano, mes + 1, 0).getDate();
+        for(let i = 0; i < primeiroDia; i++) grid.innerHTML += `<div></div>`;
+        for(let dia = 1; dia <= totalDias; dia++) {
+            const dataISO = `${ano}-${String(mes+1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+            const temEvento = eventosCache.some(e => e.data_evento === dataISO);
+            grid.innerHTML += `<div class="calendar-day ${temEvento ? 'has-event' : ''}" onclick="verEventosDia('${dataISO}', ${dia})">${dia}</div>`;
+        }
+    }
+
+    function verEventosDia(dataISO, dia) {
+        const lista = document.getElementById('lista-eventos-dia');
+        const eventosDia = eventosCache.filter(e => e.data_evento === dataISO);
+        document.getElementById('panel-data').innerText = `Dia ${dia}`;
+        document.getElementById('event-panel').style.display = 'block';
+        lista.innerHTML = eventosDia.length ? "" : "<small>Sem compromissos.</small>";
+        eventosDia.forEach(e => {
+            lista.innerHTML += `<div style="padding:8px 0; border-bottom:1px solid #334155; display:flex; justify-content:space-between">
+                <span><b>${e.titulo}</b><br><small>${e.hora_evento}</small></span>
+                <i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('eventos','${e.id}',initCalendar)"></i>
+            </div>`;
+        });
+    }
+
+    async function salvarEvento() {
+        await _supabase.from('eventos').insert([{ 
+            titulo: document.getElementById('eventTitulo').value, 
+            data_evento: document.getElementById('eventData').value, 
+            hora_evento: document.getElementById('eventHora').value 
+        }]);
+        closeModal('modalEvento'); initCalendar();
+    }
+
+    async function listarAtas() {
+        const container = document.getElementById('lista-atas'); if(!container) return;
+        container.innerHTML = "";
+        const { data } = await _supabase.from('atas').select('*').order('created_at', {ascending: false});
+        data?.forEach(ata => {
+            const div = document.createElement('div'); div.className = 'item-card';
+            div.innerHTML = `<div onclick="abrirAta('${ata.link_drive}')" style="cursor:pointer; flex:1"><strong>${ata.nome}</strong><br><small>${ata.data_ata}</small></div>
+            <div style="display:flex; gap:10px;"><i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('atas','${ata.id}',listarAtas)"></i></div>`;
+            container.appendChild(div);
+        });
+    }
+
+    async function salvarAta() {
+        await _supabase.from('atas').insert([{ 
+            nome: document.getElementById('newAtaName').value, 
+            data_ata: document.getElementById('newAtaDate').value, 
+            link_drive: document.getElementById('newAtaLink').value.replace('/view', '/preview') 
+        }]);
+        closeModal('modalAddAta'); listarAtas();
+    }
+
+    function abrirAta(l) { 
+         const v = document.getElementById('ata-viewer'); v.src=l; v.style.display='block'; 
+         document.getElementById('btn-fechar-viewer').style.display='block'; 
+         document.getElementById('lista-atas').style.display='none'; 
+     }
+    function fecharViewer() { 
+         document.getElementById('ata-viewer').style.display='none'; 
+         document.getElementById('btn-fechar-viewer').style.display='none'; 
+         document.getElementById('lista-atas').style.display='block'; 
+     }
+
+    function openPatrimonio() { openModal('modalPatrimonio'); listarPatri(); }
+    async function listarPatri() {
+        const container = document.getElementById('itensCadastrados'); if(!container) return;
+        container.innerHTML = "";
+        const { data } = await _supabase.from('patrimonio').select('*').order('item');
+        data?.forEach(p => {
+            const div = document.createElement('div'); div.className = 'item-card';
+            div.innerHTML = `<div style="flex:1"><strong>${p.item} (${p.quantidade})</strong><br><small>${p.estado}</small></div>
+            <i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('patrimonio','${p.id}',listarPatri)"></i>`;
+            container.appendChild(div);
+        });
+    }
+    async function salvarPatrimonio() {
+        await _supabase.from('patrimonio').insert([{ item: document.getElementById('patItem').value, quantidade: document.getElementById('patQtd').value, estado: document.getElementById('patEstado').value }]);
+        listarPatri(); switchPatriTab('lista');
+    }
+    function switchPatriTab(t) { 
+         document.getElementById('patriForm').style.display = t==='novo'?'block':'none'; 
+         document.getElementById('patriLista').style.display = t==='lista'?'block':'none'; 
+     }
+
+    async function verHistorico(id, nome) {
+        document.getElementById('histNome').innerText = "Histórico: " + nome;
+        const { data } = await _supabase.from('funcionarios').select('alinhamentos, advertencias').eq('id', id).single();
+        document.getElementById('histConteudo').innerHTML = `
+            <small style="color:var(--primary-blue)"><b>ALINHAMENTOS:</b></small>
+            <div class="historico-box">${data.alinhamentos || 'Sem registros.'}</div>
+            <br><small style="color:var(--accent-red)"><b>ADVERTÊNCIAS:</b></small>
+            <div class="historico-box" style="border-left-color:var(--accent-red)">${data.advertencias || 'Sem registros.'}</div>`;
+        openModal('modalHistorico');
+    }
+
+    function abrirModalRegistro(id, tipo) {
+        document.getElementById('regEmpId').value = id;
+        document.getElementById('regTipo').value = tipo;
+        document.getElementById('regTexto').value = "";
+        document.getElementById('tituloRegistro').innerText = tipo === 'alinhamentos' ? "Novo Alinhamento" : "Nova Advertência";
+        openModal('modalRegistro');
+    }
+
+    async function confirmarRegistro() {
+        const id = document.getElementById('regEmpId').value;
+        const tipo = document.getElementById('regTipo').value;
+        const textoNovo = document.getElementById('regTexto').value;
+        if(!textoNovo) return alert("Digite o motivo.");
+        const { data } = await _supabase.from('funcionarios').select(tipo).eq('id', id).single();
+        const novoHist = (data[tipo] || "") + `\n[${new Date().toLocaleDateString('pt-BR')}]: ${textoNovo}`;
+        await _supabase.from('funcionarios').update({ [tipo]: novoHist }).eq('id', id);
+        closeModal('modalRegistro'); listarEquipe();
+    }
+
+    async function excluirItem(tab, id, cb) { 
+         if(confirm("Excluir definitivamente?")) { 
+             await _supabase.from(tab).delete().eq('id', id); 
+             if(cb) cb(); 
+             if(tab === 'eventos') document.getElementById('event-panel').style.display = 'none';
+        } 
+     }
+
+    window.onload = () => {
+        const salva = localStorage.getItem('coord_img');
+        if(salva) {
+            const display = document.getElementById('foto-coord-display');
+            const icon = document.getElementById('icon-coord-padrao');
+            if(display && icon) {
+                display.src = salva;
+                display.style.display = 'block';
+                icon.style.display = 'none';
+            }
+        }
+    };
+// Garante a abertura correta do popup e limpa estados anteriores
+async function openAcolhidos() {
+    // Reset de visualização: mostra a lista e esconde o mapa ao abrir
+    document.getElementById('lista-acolhidos').style.display = 'block';
+    document.getElementById('mapa-quartos').style.display = 'none';
+    
+    openModal('modalAcolhidos'); // Chama a função que você já tem no código
+    renderizarAcolhidos(); // Carrega os dados do Supabase
+}
+
+// Se os botões ainda aparecerem "soltos" na tela, 
+    
+// verifique se você não esqueceu de fechar alguma </div> anterior no código.
+// Cole estas funções no final da sua tag <script>
+async function renderizarAcolhidos() {
+    const { data, error } = await _supabase.from('acolhidos').select('*').order('quarto');
+    if (error) return;
+
+    const container = document.getElementById('lista-acolhidos');
+    // Filtra quem não está com nome "Livre" ou vazio
+    const ocupados = data.filter(a => a.nome && a.nome.trim().toLowerCase() !== 'livre');
+    const livres = data.filter(a => !a.nome || a.nome.trim().toLowerCase() === 'livre');
+
+    document.getElementById('count-acolhidos').innerText = ocupados.length;
+    document.getElementById('count-livres').innerText = livres.length;
+    
+    container.innerHTML = data.map(a => `
+        <div class="item-card" style="padding:10px; margin-bottom:8px; border-left: 4px solid ${a.nome.toLowerCase() === 'livre' ? '#22c55e' : '#3b82f6'}">
+            <strong style="display:block">${a.nome}</strong>
+            <small style="color:var(--text-dim)">Quarto: ${a.quarto} | Cama: ${a.cama} (${a.tipo})</small>
+        </div>
+    `).join('');
+}
+
+async function importarExcel(input) {
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(sheet);
+
+        const formatado = json.map(row => ({
+            nome: row.Nome || row.nome || 'Livre',
+            quarto: row.Quarto || row.quarto || '?',
+            cama: row.Cama || row.cama || '?',
+            tipo: row.Tipo || row.tipo || 'S/T'
+        }));
+
+        const { error } = await _supabase.from('acolhidos').insert(formatado);
+        if (!error) {
+            alert("Dados importados com sucesso!");
+            renderizarAcolhidos();
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function toggleMapaQuartos() {
+    const lista = document.getElementById('lista-acolhidos');
+    const mapa = document.getElementById('mapa-quartos');
+    if (mapa.style.display === 'none') {
+        lista.style.display = 'none';
+        mapa.style.display = 'block';
+    } else {
+        lista.style.display = 'block';
+        mapa.style.display = 'none';
+    }
+}
+    
+ let notasParaProcessar = [];
+
+function openFinanceiro() {
+    openModal('modalFinanceiro');
+}
+
+// Substitua handleFinanceiroUpload, focarNota, calcularTotalRemessa e enviarParaDP por estas:
+
+function handleFinanceiroUpload(input) {
+    const files = Array.from(input.files);
+    
+    // Inicializa o array global se não existir
+    if(!window.arquivosAtuais) window.arquivosAtuais = [];
+    
+    files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            // Adicionamos cada arquivo com um ID único para facilitar a exclusão
+            const itemNota = { 
+                id: Date.now() + Math.random(), 
+                src: e.target.result, 
+                file: file 
+            };
+            window.arquivosAtuais.push(itemNota);
+            renderizarListaFinanceiro();
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// Substitua handleFinanceiroUpload, focarNota, calcularTotalRemessa e enviarParaDP por estas:
+
+function handleFinanceiroUpload(input) {
+    const files = Array.from(input.files);
+    
+    // Inicializa o array global se não existir
+    if(!window.arquivosAtuais) window.arquivosAtuais = [];
+    
+    files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            // Adicionamos cada arquivo com um ID único para facilitar a exclusão
+            const itemNota = { 
+                id: Date.now() + Math.random(), 
+                src: e.target.result, 
+                file: file 
+            };
+            window.arquivosAtuais.push(itemNota);
+            renderizarListaFinanceiro();
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// 1. Garantir que a variável global exista
+if (!window.arquivosAtuais) window.arquivosAtuais = [];
+
+function handleFinanceiroUpload(input) {
+    const files = Array.from(input.files);
+    if (files.length === 0) return;
+
+    files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const itemNota = { 
+                id: Date.now() + Math.random(), 
+                src: e.target.result, 
+                file: file 
+            };
+            window.arquivosAtuais.push(itemNota);
+            renderizarListaFinanceiro();
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function renderizarListaFinanceiro() {
+    const visor = document.getElementById('visor-notas');
+    const formContainer = document.getElementById('form-notas-container');
+    
+    // Seleciona o container que envolve o visor e o formulário para aplicar o grid
+    const containerInterface = document.querySelector('.conferencia-grid-layout') || visor.parentElement;
+    
+    if (!window.arquivosAtuais || window.arquivosAtuais.length === 0) {
+        resetarInterfaceFinanceiro();
+        return;
+    }
+
+    // Aplica a classe do CSS que você já tem
+    containerInterface.classList.add('conferencia-grid-layout');
+
+    visor.innerHTML = ''; 
+    formContainer.innerHTML = '';
+
+    window.arquivosAtuais.forEach((item, index) => {
+        // --- LADO ESQUERDO: VISOR DE IMAGENS ---
+        const imgDiv = document.createElement('div');
+        imgDiv.className = "imagem-nota-container";
+        imgDiv.id = `scroll-nota-${index}`;
+        imgDiv.innerHTML = `
+            <div style="background: #3b82f6; color: white; padding: 10px; border-radius: 8px 8px 0 0; font-size: 0.8rem; font-weight: bold; text-align: center; margin-bottom: -5px;">
+                NOTA FISCAL #${index + 1}
+            </div>
+            <img src="${item.src}" alt="Nota Fiscal ${index + 1}">
+        `;
+        visor.appendChild(imgDiv);
+
+        // --- LADO DIREITO: FORMULÁRIO DE DIGITAÇÃO ---
+        const formDiv = document.createElement('div');
+        formDiv.className = 'item-card';
+        formDiv.style = "margin-bottom: 25px; border-left: 5px solid #f59e0b; padding: 15px; background: #1e293b; border-radius: 10px;";
+        formDiv.innerHTML = `
+            <strong style="color: #f59e0b; font-size: 0.9rem; display: block; margin-bottom: 12px;">CONFERÊNCIA DA NF #${index + 1}</strong>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                
+                <input type="text" class="codigo-nf-financeiro" placeholder="Número da Nota" onfocus="focarNota(${index})" 
+                    style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
+                
+                <input type="date" class="data-financeiro" onfocus="focarNota(${index})" 
+                    style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
+                
+                <input type="number" step="0.01" class="input-financeiro" placeholder="Valor Total R$" oninput="calcularTotalRemessa()" onfocus="focarNota(${index})" 
+                    style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
+                
+                <select class="cat-financeiro" onfocus="focarNota(${index})" 
+                    style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
+                    <option value="">Selecione a Categoria...</option>
+                    <option>Gênero Alimentício</option><option>Material de Escritório</option><option>Material de Higiene e Limpeza</option>
+                    <option>Material de Copa e Cozinha</option><option>Material Didático</option><option>Conservação de Edifícios</option>
+                    <option>Conservação de Móveis, Máquinas e Equipamentos</option><option>Material de Sinalização Visual (placas)</option>
+                    <option>EPI</option><option>Medicamentos</option><option>Aluguel carro/combustível</option><option>Gás</option>
+                    <option>Controle de Pragas / Sanitização e Dedetização</option><option>Extintores de Incêndio</option>
+                    <option>Transporte para Usuários - Taxi- Ônibus- App</option><option>Serviços Gráficos</option>
+                    <option>Oficinas e Capacitações</option><option>Material de Cama-mesa e banho</option><option>Uniformes</option>
+                    <option>Materiais elétricos</option><option>Ferramentas</option><option>Material permanente - mesa e cadeira</option>
+                    <option>Material permanente - roupeiros</option><option>Material permanente - Ventilador de Parede</option>
+                    <option>Material permanente - Refrigerador industrial</option>
+                </select>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                <button type="button" onclick="removerNota(${index})" style="background:none; border:none; color:#ef4444; font-size:0.75rem; cursor:pointer;">
+                    <i class="fas fa-trash"></i> Remover Nota
+                </button>
+                <span style="font-size: 0.7rem; color: #64748b;">ID: ${index + 1}</span>
+            </div>
+        `;
+        formContainer.appendChild(formDiv);
+    });
+    
+    calcularTotalRemessa();
+}
+
+// Função para dar scroll na imagem quando clicar no input
+function focarNota(index) {
+    const elementoImg = document.getElementById(`scroll-nota-${index}`);
+    if (elementoImg) {
+        elementoImg.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+function removerNota(index) {
+    window.arquivosAtuais.splice(index, 1);
+    renderizarListaFinanceiro();
+}
+
+function resetarInterfaceFinanceiro() {
+    // 1. Limpa o array de dados
+    window.arquivosAtuais = [];
+    
+    // 2. Limpa o input de arquivo (ESSENCIAL para destravar o botão)
+    const fileInput = document.getElementById('upload-lote');
+    if(fileInput) fileInput.value = "";
+    
+    // 3. Reseta os textos e totais
+    document.getElementById('total-remessa').innerText = "R$ 0,00";
+    document.getElementById('form-notas-container').innerHTML = '<p style="color: #94a3b8; font-size: 0.8rem;">Selecione as notas para iniciar.</p>';
+    
+    // 4. Restaura o botão central de carregar
+    document.getElementById('visor-notas').innerHTML = `
+        <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8;">
+            <i class="fas fa-images fa-3x"></i><br><br>
+            <button type="button" class="btn-save" onclick="document.getElementById('upload-lote').click()">Carregar Notas</button>
+        </div>
+    `;
+}
+
+function enviarParaDP() {
+    const codigosNF = document.querySelectorAll('.codigo-nf-financeiro');
+    const inputs = document.querySelectorAll('.input-financeiro');
+    const datas = document.querySelectorAll('.data-financeiro');
+    const categorias = document.querySelectorAll('.cat-financeiro');
+    const total = document.getElementById('total-remessa').innerText;
+    
+    if (window.arquivosAtuais.length === 0) {
+        alert("Adicione notas primeiro.");
+        return;
+    }
+
+    let detalhamento = "";
+    inputs.forEach((input, i) => {
+        const valor = parseFloat(input.value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const dataNota = datas[i].value ? datas[i].value.split('-').reverse().join('/') : "S/ Data";
+        const nf = codigosNF[i].value || "S/ Nº";
+        detalhamento += `🔹 *NF ${nf}:* ${valor} (${categorias[i].value}) - Data: ${dataNota}%0A`;
+    });
+
+    const msg = `🧾 *RESUMO FINANCEIRO*%0A%0A${detalhamento}%0A💰 *TOTAL: ${total}*`;
+    window.open(`https://wa.me/?text=${msg}`);
+
+    setTimeout(() => {
+        if(confirm("Deseja limpar os dados deste envio?")) {
+            resetarInterfaceFinanceiro();
+        }
+    }, 1000);
+}
+    
+
+function focarNota(index) {
+    const img = document.getElementById(`nota-img-${index}`);
+    if(img) {
+        img.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.querySelectorAll('#visor-notas img').forEach(i => i.style.borderColor = 'transparent');
+        img.style.borderColor = '#3b82f6';
+    }
+}
+
+function calcularTotalRemessa() {
+    const inputs = document.querySelectorAll('.input-financeiro');
+    let total = 0;
+    inputs.forEach(i => total += Number(i.value || 0));
+    document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
+}
+
+    async function sincronizarLinkDireto() {
+    const linkInput = prompt("Cole o link da planilha PUBLICADA como CSV:");
+    if (!linkInput) return;
+
+    try {
+        let urlSinc = linkInput;
+        if (linkInput.includes('/edit')) {
+            const id = linkInput.split('/d/')[1].split('/')[0];
+            urlSinc = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`;
+        }
+
+        const res = await fetch(urlSinc);
+        const csvText = await res.text();
+        const linhas = csvText.split(/\r?\n/).map(l => l.trim()).filter(l => l !== "");
+        
+        if (linhas.length < 2) {
+            alert("A planilha parece estar vazia.");
+            return;
+        }
+
+        const separador = linhas[0].includes(';') ? ';' : ',';
+
+        const novosFuncionarios = linhas.slice(1).map((linha) => {
+            const regex = new RegExp(`${separador}(?=(?:(?:[^"]*"){2})*[^"]*$)`);
+            const col = linha.split(regex).map(c => (c || '').trim().replace(/^"|"$/g, ''));
+            
+            const formatarData = (v) => {
+                if (!v) return null;
+                if (v.includes('-') && v.split('-')[0].length === 4) return v;
+                if (v.includes('/')) {
+                    const p = v.split('/');
+                    if (p.length === 3) {
+                        return `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
+                    }
+                }
+                return null;
+            };
+
+            const paraBoolean = (v) => {
+                if (!v) return false;
+                const check = v.toString().toUpperCase().trim();
+                return check === 'TRUE' || check === 'SIM' || check === '1';
+            };
+
+            return {
+                nome: col[0] || null,
+                endereco: col[1] || '',
+                bairro: col[2] || '',
+                cidade: col[3] || '',
+                estado: col[4] || '',
+                cep: col[5] || '',
+                
+                // --- AJUSTE: NASCIMENTO E ADMISSÃO TROCADOS ---
+                nascimento: formatarData(col[6]),   // Era col[12], agora col[6]
+                data_admissa: formatarData(col[12]), // Era col[6], agora col[12]
+
+                cpf: col[7] || '',
+                rg: col[8] || '',
+                titulo_eleitor: col[9] || '',
+                ctps: col[10] || '',
+                habilitacao: col[11] || '',
+                
+                // --- AJUSTE: FUNÇÃO E HORÁRIO ---
+                funcao: col[14] || '',            
+                horario: col[13] || '',           
+                
+                celular: col[15] || '',
+                qtde_horas_mes: col[16] || '',
+                equipe: col[17] || '',
+                
+                alinhamentos: col[18] || '0',
+                advertencias: col[19] || '0',
+                foto: col[20] || '',
+                
+                check_docs: paraBoolean(col[21]),
+                check_aso: paraBoolean(col[22]),
+                check_contrato: paraBoolean(col[23]),
+                check_uniforme: paraBoolean(col[24]),
+                check_epi: paraBoolean(col[25]),
+                
+                tamanho_uniforme: col[26] || '',
+                codigo: col[27] || null
+            };
+        }).filter(f => f.nome && f.nome.toLowerCase() !== "nome");
+
+        const { data, error } = await _supabase.from('funcionarios').insert(novosFuncionarios).select();
+        if (error) throw error;
+
+        alert(`✅ Sincronização concluída com sucesso!`);
+        if (typeof listarEquipe === 'function') listarEquipe();
+        
+    } catch (e) {
+        alert("❌ Erro: " + e.message);
+    }
+}
+    async function gerarPDF(id) {
+    // Busca os dados atualizados do funcionário no banco
+    const { data: emp, error } = await _supabase.from('funcionarios').select('*').eq('id', id).single();
+    
+    if (error || !emp) {
+        return alert("Erro ao buscar dados para o PDF");
+    }
+
+    // Criamos um container temporário para o relatório
+    const relatorio = document.createElement('div');
+    relatorio.style.padding = '40px';
+    relatorio.style.color = '#000'; // Texto preto para impressão
+    relatorio.style.backgroundColor = '#fff';
+    relatorio.style.fontFamily = 'Arial, sans-serif';
+
+    // Montando o layout do relatório (sem checklists ou botões)
+    relatorio.innerHTML = `
+        <div style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
+            <h1 style="margin: 0; font-size: 24px;">RELATÓRIO INDIVIDUAL DE FUNCIONÁRIO</h1>
+            <p style="margin: 5px 0;">Coordenação Local - Gestão de D.P.</p>
+        </div>
+
+        <div style="display: flex; gap: 20px; margin-bottom: 30px;">
+            ${emp.foto ? `<img src="${emp.foto}" style="width: 120px; height: 150px; object-fit: cover; border: 1px solid #ccc;">` : ''}
+            <div>
+                <h2 style="margin: 0 0 10px 0; color: #1e293b;">${emp.nome.toUpperCase()}</h2>
+                <p><strong>Função:</strong> ${emp.funcao || '---'}</p>
+                <p><strong>Equipe:</strong> ${emp.equipe || '---'}</p>
+                <p><strong>Data de Admissão:</strong> ${emp.data_admissa ? emp.data_admissa.split('-').reverse().join('/') : '---'}</p>
+            </div>
+        </div>
+
+        <h3 style="background: #f1f5f9; padding: 8px; border-left: 4px solid #3b82f6;">Documentação e Identificação</h3>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <tr>
+                <td style="padding: 8px; border: 1px solid #ddd;"><strong>CPF:</strong> ${emp.cpf || '---'}</td>
+                <td style="padding: 8px; border: 1px solid #ddd;"><strong>RG:</strong> ${emp.rg || '---'}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border: 1px solid #ddd;"><strong>CTPS:</strong> ${emp.ctps || '---'}</td>
+                <td style="padding: 8px; border: 1px solid #ddd;"><strong>Título Eleitor:</strong> ${emp.titulo_eleitor || '---'}</td>
+            </tr>
+        </table>
+
+        <h3 style="background: #f1f5f9; padding: 8px; border-left: 4px solid #3b82f6;">Endereço e Contato</h3>
+        <p><strong>Endereço:</strong> ${emp.endereco || '---'}, ${emp.bairro || '---'}</p>
+        <p><strong>Cidade:</strong> ${emp.cidade || '---'} - ${emp.estado || '---'}</p>
+        <p><strong>Contato:</strong> ${emp.celular || '---'}</p>
+
+        <h3 style="background: #f1f5f9; padding: 8px; border-left: 4px solid #3b82f6;">Histórico Interno</h3>
+        <p><strong>Alinhamentos Registrados:</strong></p>
+        <div style="white-space: pre-wrap; font-size: 12px; margin-bottom: 10px;">${emp.alinhamentos || 'Nenhum registro encontrado.'}</div>
+        
+        <p><strong>Advertências:</strong></p>
+        <div style="white-space: pre-wrap; font-size: 12px; color: red;">${emp.advertencias || 'Nenhum registro encontrado.'}</div>
+
+        <div style="margin-top: 50px; text-align: center;">
+            <div style="border-top: 1px solid #000; width: 250px; margin: 0 auto; padding-top: 5px;">
+                Assinatura da Coordenação
+            </div>
+            <p style="font-size: 10px; color: #666; margin-top: 20px;">Gerado em: ${new Date().toLocaleString('pt-BR')}</p>
+        </div>
+    `;
+
+    const options = {
+        margin: 10,
+        filename: `Relatorio_${emp.nome.replace(/\s+/g, '_')}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, logging: false },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    // Gera o PDF a partir do elemento "virtual" que criamos
+    html2pdf().set(options).from(relatorio).save();
+}
+
+   </script>
 </body>
 </html>
