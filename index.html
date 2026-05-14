@@ -455,44 +455,7 @@
     
 <script>
 
-    // Configuração do Cliente Supabase (Mantendo suas credenciais do projeto anterior)
-const _supabase = supabase.createClient(
-    'https://envuzusmubunlrrhhclu.supabase.co', 
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudnV6dXNtdWJ1bmxycmhoY2x1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjI2MjYzNDcsImV4cCI6MjAzODIwMjM0N30.3kHaQdlvJk8rXQmM0DtZ3KcVJXtq3jzU4lknUXmj_E4'
-);
-
-// Função que roda assim que a página carrega (Equivalente ao seu window.onload antigo)
-window.addEventListener('load', async () => {
-    // 1. Recupera a foto do coordenador
-    const salva = localStorage.getItem('coord_img');
-    if(salva) {
-        const display = document.getElementById('foto-coord-display');
-        const icon = document.getElementById('icon-coord-padrao');
-        if(display && icon) {
-            display.src = salva;
-            display.style.display = 'block';
-            icon.style.display = 'none';
-        }
-    }
-
-    // 2. Carrega as Previews do Dashboard vindas do Supabase
-    await atualizarTudo();
-    
-    // 3. Configura atualização automática a cada 60 segundos
-    setInterval(atualizarTudo, 60000);
-});
-
-// Função centralizadora de refresh
-async function atualizarTudo() {
-    console.log("Sincronizando com Supabase...");
-    await Promise.all([
-        carregarPreviewEquipe(),
-        carregarPreviewPatrimonio(),
-        carregarPreviewAtas(),
-        carregarPreviewAcolhidos()
-    ]);
-}
-    const _supabase = supabase.createClient('https://envuzusmubunlrrhhclu.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudnV6dXNtdWJ1bmxycmhoY2x1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjI2MjYzNDcsImV4cCI6MjAzODIwMjM0N30.3kHaQdlvJk8rXQmM0DtZ3KcVJXtq3jzU4lknUXmj_E4');
+       const _supabase = supabase.createClient('https://envuzusmubunlrrhhclu.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudnV6dXNtdWJ1bmxycmhoY2x1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjI2MjYzNDcsImV4cCI6MjAzODIwMjM0N30.3kHaQdlvJk8rXQmM0DtZ3KcVJXtq3jzU4lknUXmj_E4');
 
     function changeView(id) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
