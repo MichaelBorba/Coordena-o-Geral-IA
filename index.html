@@ -1330,6 +1330,26 @@ function calcularTotalRemessa() {
     html2pdf().set(options).from(relatorio).save();
 }
 
+    // Adicione isso ao final do seu script para rodar ao abrir o painel
+async function atualizarPreviewsDashboard() {
+    // Exemplo: Atualizar resumo de Acolhidos no Card
+    const { data: acolhidos } = await _supabase.from('acolhidos').select('*');
+    if(acolhidos) {
+        const ocupados = acolhidos.filter(a => a.nome && a.nome.toLowerCase() !== 'livre').length;
+        const livres = acolhidos.filter(a => !a.nome || a.nome.toLowerCase() === 'livre').length;
+        document.getElementById('preview-acolhidos-total').innerText = ocupados;
+        document.getElementById('preview-acolhidos-vagas').innerText = livres;
+    }
+
+    // Exemplo: Mostrar última Ata no Card
+    const { data: atas } = await _supabase.from('atas').select('nome').order('created_at', {ascending: false}).limit(1);
+    if(atas && atas[0]) {
+        document.querySelector('#preview-ultima-ata strong').innerText = atas[0].nome;
+    }
+}
+
+// Chame a função
+window.addEventListener('load', atualizarPreviewsDashboard);
    </script>
 </body>
 </html>
