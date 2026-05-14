@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -8,90 +9,149 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
- <style>
-    /* 1. SEU ESTILO ORIGINAL INTEGRAL */
-    :root {
-        --bg-dark: #0f172a; --card-bg: #1e293b; --primary-blue: #3b82f6;
-        --accent-orange: #f59e0b; --accent-red: #ef4444; --text-main: #f8fafc;
-        --text-dim: #94a3b8; --accent-purple: #a855f7; --card-shadow: #020617;
-        --accent-green: #22c55e;
-    }
-    body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 15px; display: flex; justify-content: center; }
-    
-    .app-container { width: 100%; max-width: 450px; min-height: 95vh; position: relative; transition: max-width 0.3s ease; }
-    
-    header { display: flex; align-items: center; justify-content: space-between; padding: 15px 5px; }
-    .avatar { width: 42px; height: 42px; border-radius: 50%; background: #334155; border: 2px solid var(--primary-blue); overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-    .avatar img { width: 100%; height: 100%; object-fit: cover; }
-    
-    .module-card { 
-        background: linear-gradient(145deg, #243147, #1a2333); 
-        padding: 25px 15px; border-radius: 24px; text-align: center; cursor: pointer; 
-        transition: all 0.1s ease; border: 1px solid rgba(255, 255, 255, 0.05); 
-        box-shadow: 0 8px 0 var(--card-shadow), 0 15px 20px rgba(0, 0, 0, 0.4); 
-    }
-    .module-card:active { transform: translateY(4px); box-shadow: 0 4px 0 var(--card-shadow); }
-    .module-card i { font-size: 2.2rem; margin-bottom: 15px; display: block; }
-    .module-card span { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; }
-    
-    .icon-blue { color: #60a5fa; } .icon-lightblue { color: #93c5fd; } .icon-green { color: #4ade80; } 
-    .icon-dp { color: #cbd5e1; } .icon-gold { color: var(--accent-orange); } .icon-purple { color: var(--accent-purple); }
-
-    .view { display: none; animation: fadeIn 0.3s ease; width: 100%; }
-    .view.active { display: flex; flex-direction: column; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    .grid-modules { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin: 25px 0; }
-    
-    /* Estilos de Lista e Cards de Itens */
-    .item-card { background: var(--card-bg); padding: 15px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #334155; display: flex; flex-direction: column; gap: 12px; }
-    .emp-info-row { display: flex; align-items: center; gap: 12px; width: 100%; }
-    .item-card img.thumb-emp { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; background: #0f172a; border: 2px solid #3b82f6; }
-
-    /* 2. REGRAS DE EXPANSÃO PARA PC (ESTILO DASHBOARD DA IMAGEM) */
-    @media (min-width: 1024px) {
-        /* O Container agora pode crescer */
-        .app-container { max-width: 1200px; }
-
-        /* Os botões ficam em 4 colunas como na imagem */
-        .grid-modules { 
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 30px; 
+    <style>
+        :root {
+            --bg-dark: #0f172a; --card-bg: #1e293b; --primary-blue: #3b82f6;
+            --accent-orange: #f59e0b; --accent-red: #ef4444; --text-main: #f8fafc;
+            --text-dim: #94a3b8; --accent-purple: #a855f7; --card-shadow: #020617;
+            --accent-green: #22c55e;
         }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 15px; display: flex; justify-content: center; }
+        .app-container { width: 100%; max-width: 450px; min-height: 95vh; position: relative; }
+        header { display: flex; align-items: center; justify-content: space-between; padding: 15px 5px; }
+        .avatar { width: 42px; height: 42px; border-radius: 50%; background: #334155; border: 2px solid var(--primary-blue); overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .emp-photo-container { width: 90px; height: 90px; border-radius: 50%; background: #334155; margin: 0 auto 15px; border: 3px solid var(--accent-orange); display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; }
+        .emp-photo-container img { width: 100%; height: 100%; object-fit: cover; }
+        .emp-photo-container i { font-size: 1.5rem; color: var(--text-dim); }
+        .module-card { background: linear-gradient(145deg, #243147, #1a2333); padding: 25px 15px; border-radius: 24px; text-align: center; cursor: pointer; transition: all 0.1s ease; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 8px 0 var(--card-shadow), 0 15px 20px rgba(0, 0, 0, 0.4); }
+        .module-card:active { transform: translateY(4px); box-shadow: 0 4px 0 var(--card-shadow); }
+        .module-card i { font-size: 2.2rem; margin-bottom: 15px; display: block; }
+        .module-card span { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; }
+        .icon-blue { color: #60a5fa; } .icon-lightblue { color: #93c5fd; } .icon-green { color: #4ade80; } .icon-dp { color: #cbd5e1; } .icon-gold { color: var(--accent-orange); } .icon-purple { color: var(--accent-purple); }
+        .view { display: none; animation: fadeIn 0.3s ease; }
+        .view.active { display: flex; flex-direction: column; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .grid-modules { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin: 25px 0; }
+        .item-card { background: var(--card-bg); padding: 15px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #334155; display: flex; flex-direction: column; gap: 12px; }
+        .emp-info-row { display: flex; align-items: center; gap: 12px; width: 100%; }
+        .item-card img.thumb-emp { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; background: #0f172a; border: 2px solid #3b82f6; }
+        .card-actions-top { margin-left: auto; display: flex; gap: 12px; color: var(--text-dim); }
+        .emp-controls-footer { display: flex; gap: 8px; border-top: 1px solid #334155; padding-top: 12px; justify-content: space-between; }
+        input, textarea, select { width: 100%; background: var(--bg-dark); border: 1px solid #334155; border-radius: 10px; padding: 12px; color: white; margin-bottom: 10px; box-sizing: border-box; }
+        .btn-save { width: 100%; background: var(--primary-blue); color: white; border: none; padding: 15px; border-radius: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 5px 0 #1d4ed8; }
+        .btn-action { flex: 1; border: none; border-radius: 8px; padding: 10px; font-weight: 700; cursor: pointer; font-size: 0.7rem; transition: transform 0.1s; }
+        .calendar-container { background: var(--card-bg); padding: 15px; border-radius: 20px; border: 1px solid #334155; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
+        .calendar-day { padding: 10px 0; border-radius: 10px; cursor: pointer; font-size: 0.9rem; position: relative; }
+        .calendar-day.has-event { background: var(--accent-orange); color: white; font-weight: bold; }
+        .fab-add { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer; z-index: 99; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
+        .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; padding: 25px; border-radius: 25px 25px 0 0; max-height: 85vh; overflow-y: auto; }
+        .historico-box { background: #0f172a; padding: 10px; border-radius: 10px; font-size: 0.85rem; margin-top: 10px; white-space: pre-wrap; border-left: 3px solid var(--primary-blue); }
+        .dp-input-small { padding: 8px !important; font-size: 0.7rem !important; margin-bottom: 5px !important; }
+        /* Ajuste de espaçamento nos inputs do Financeiro */
+.input-grid-financeiro {
+    display: grid;
+    grid-template-columns: 1fr 1fr; 
+    gap: 15px; /* Aumentado o espaço entre colunas */
+    margin-top: 10px;
+}
 
-        /* AJUSTE CRÍTICO: Impede que as telas fiquem em baixo dos botões */
-        .view.active:not(#view-dashboard) {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            min-height: 100%;
-            background: var(--bg-dark); /* Cobre o dashboard quando aberto */
-            z-index: 50;
-            padding-top: 10px;
-        }
+.input-grid-financeiro div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* Espaço entre o nome do campo e o campo de digitação */
+}
 
-        /* Melhora as listas no PC para não ficarem esticadas */
-        #employee-list, #lista-dp-funcionarios, #lista-acolhidos {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
+.input-grid-financeiro input, 
+.input-grid-financeiro select {
+    height: 45px; /* Define uma altura padrão confortável */
+    padding: 0 12px !important; /* Espaço interno para o texto não encostar na borda */
+    font-size: 14px;
+    box-sizing: border-box; /* Garante que o padding não quebre a largura */
+}
 
-        /* Deixa os modais centralizados e maiores no PC */
-        .modal-content {
-            margin: auto;
-            border-radius: 25px;
-            max-width: 600px;
-        }
-    }
+/* Ajuste específico para o campo de data que costuma vir com ícone */
+.input-grid-financeiro input[type="date"] {
+    padding-right: 5px !important;
+}
 
-    /* Manutenção de estilos de formulários do seu original */
-    input, textarea, select { width: 100%; background: var(--bg-dark); border: 1px solid #334155; border-radius: 10px; padding: 12px; color: white; margin-bottom: 10px; box-sizing: border-box; }
-    .btn-save { width: 100%; background: var(--primary-blue); color: white; border: none; padding: 15px; border-radius: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 5px 0 #1d4ed8; }
-                         </style>
-    
+        /* Layout de Conferência Split Screen */
+.conferencia-grid-layout {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr; /* Lado esquerdo maior para a imagem */
+    gap: 20px;
+    height: 70vh; /* Altura fixa para permitir scroll independente */
+    overflow: hidden;
+}
+
+#visor-notas {
+    background: #020617;
+    border-radius: 12px;
+    overflow-y: auto; /* Scroll apenas nas imagens */
+    padding: 15px;
+    border: 2px solid #334155;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.imagem-nota-container {
+    width: 100%;
+    position: relative;
+    border-bottom: 2px dashed #334155;
+    padding-bottom: 20px;
+}
+
+.imagem-nota-container img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+
+#form-notas-container {
+    overflow-y: auto; /* Scroll apenas nos formulários */
+    padding-right: 10px;
+}
+
+/* Garante que o somatório no rodapé fique sempre visível */
+.footer-financeiro {
+    background: var(--card-bg);
+    padding: 15px;
+    border-top: 2px solid #334155;
+    margin-top: 10px;
+    border-radius: 0 0 15px 15px;
+}
+        /* Container que segura as imagens */
+#visor-notas {
+    background: #020617;
+    border-radius: 12px;
+    overflow-y: auto; /* Permite rolagem vertical */
+    padding: 15px;
+    border: 2px solid #334155;
+    height: 70vh; /* Mantém uma altura fixa para o painel */
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* Container individual de cada nota */
+.imagem-nota-container {
+    width: 100%;
+    flex-shrink: 0; /* Impede que a nota seja "esmagada" para caber no painel */
+}
+
+/* A Imagem em si */
+.imagem-nota-container img {
+    width: 100%; /* Ocupa toda a largura disponível */
+    height: auto !important; /* Força a altura a ser proporcional, ficando grande */
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+}
+    </style>
 </head>
 <body>
 
