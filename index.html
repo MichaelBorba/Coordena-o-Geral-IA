@@ -18,14 +18,11 @@
             --accent-green: #22c55e;
         }
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 15px; display: flex; justify-content: center; }
-        .app-container { width: 100%; max-width: 450px; min-height: 95vh; position: relative; }
-        header { display: flex; align-items: center; justify-content: space-between; padding: 15px 5px; }
         .avatar { width: 42px; height: 42px; border-radius: 50%; background: #334155; border: 2px solid var(--primary-blue); overflow: hidden; display: flex; align-items: center; justify-content: center; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
         .emp-photo-container { width: 90px; height: 90px; border-radius: 50%; background: #334155; margin: 0 auto 15px; border: 3px solid var(--accent-orange); display: flex; align-items: center; justify-content: center; }
         .emp-photo-container img { width: 100%; height: 100%; object-fit: cover; }
         .emp-photo-container i { font-size: 1.5rem; color: var(--text-dim); }
-        .module-card { background: linear-gradient(145deg, #243147, #1a2333); padding: 25px 15px; border-radius: 24px; text-align: center; cursor: pointer; transition: all 0.1s ease; border: 1px solid #334155; }
         .module-card:active { transform: translateY(4px); box-shadow: 0 4px 0 var(--card-shadow); }
         .module-card i { font-size: 2.2rem; margin-bottom: 15px; display: block; }
         .module-card span { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; }
@@ -33,7 +30,6 @@
         .view { display: none; animation: fadeIn 0.3s ease; }
         .view.active { display: flex; flex-direction: column; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .grid-modules { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin: 25px 0; }
         .item-card { background: var(--card-bg); padding: 15px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #334155; display: flex; flex-direction: column; gap: 12px; }
         .emp-info-row { display: flex; align-items: center; gap: 12px; width: 100%; }
         .item-card img.thumb-emp { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; background: #0f172a; border: 2px solid #3b82f6; }
@@ -51,6 +47,71 @@
         .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; padding: 25px; border-radius: 25px 25px 0 0; max-height: 85vh; overflow-y: auto; }
         .historico-box { background: #0f172a; padding: 10px; border-radius: 10px; font-size: 0.85rem; margin-top: 10px; white-space: pre-wrap; border-left: 3px solid var(--primary-blue); }
         .dp-input-small { padding: 8px !important; font-size: 0.7rem !important; margin-bottom: 5px !important; }
+
+        /* --- COPIE A PARTIR DAQUI --- */
+:root {
+    --bg-dark: #0f172a; --card-bg: #1e293b; --primary-blue: #3b82f6;
+    --accent-orange: #f59e0b; --accent-red: #ef4444; --text-main: #f8fafc;
+    --text-dim: #94a3b8; --accent-purple: #a855f7; --card-shadow: #020617;
+    --accent-green: #22c55e;
+}
+
+body { 
+    font-family: 'Segoe UI', sans-serif; 
+    background-color: var(--bg-dark); 
+    color: var(--text-main); 
+    margin: 0; 
+    padding: 0; /* Removido padding fixo para melhor ajuste */
+    display: flex; 
+    justify-content: center; 
+}
+
+/* AJUSTE 1: Container Responsivo (Desktop e Mobile) */
+.app-container { 
+    width: 100%; 
+    max-width: 1200px; /* No PC ele abre até 1200px, no celular ocupa 100% */
+    min-height: 95vh; 
+    position: relative; 
+    padding: 20px;
+}
+
+/* AJUSTE 2: Grid Inteligente */
+.grid-modules { 
+    display: grid; 
+    /* No PC cria 3 colunas, no celular vira 1 coluna automaticamente */
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+    gap: 20px; 
+    margin: 25px 0; 
+}
+
+/* AJUSTE 3: Cards Maiores e Alinhados (Estilo a imagem que você mandou) */
+.module-card { 
+    background: linear-gradient(145deg, #243147, #1a2333); 
+    padding: 25px; 
+    border-radius: 20px; 
+    text-align: left; /* Alinhado à esquerda para seguir o layout profissional */
+    cursor: pointer; 
+    transition: all 0.2s ease; 
+    border: 1px solid #334155;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 160px; /* Altura mínima para não achatar no PC */
+}
+
+.module-card:hover {
+    border-color: var(--primary-blue);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+}
+
+/* Ajuste específico para o Mobile (Telas menores que 600px) */
+@media (max-width: 600px) {
+    .app-container { max-width: 100%; padding: 15px; }
+    .grid-modules { grid-template-columns: 1fr; } /* Força uma coluna no celular */
+    .module-card { min-height: 120px; padding: 15px; }
+}
+/* --- FIM DO BLOCO CSS --- */
         
         /* PREVIEW EQUIPE CAROUSEL */
         .preview-equipe-carousel {
@@ -457,27 +518,41 @@
 <script>
     // Variável global para o cliente
     let _supabase;
+let _supabase;
 
-    function iniciarSistema() {
-        // Verifica se a biblioteca carregou de fato
-        if (typeof supabase === 'undefined') {
-            console.error("Erro: A biblioteca Supabase não carregou. Tentando novamente em 1s...");
-            setTimeout(iniciarSistema, 1000);
-            return;
-        }
+async function iniciarSistema() {
+    // Garante que o objeto 'supabase' existe na janela
+    if (typeof window.supabase === 'undefined') {
+        console.error("Erro: Biblioteca Supabase não encontrada.");
+        return;
+    }
 
-        // Se carregou, cria o cliente com a sua chave (mj_E4)
-        _supabase = supabase.createClient(
+    try {
+        _supabase = window.supabase.createClient(
             'https://envuzusmubunlrrhhclu.supabase.co', 
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudnV6dXNtdWJ1bmxycmhoY2x1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjI2MjYzNDcsImV4cCI6MjAzODIwMjM0N30.3kHaQdlvJk8rXQmM0DtZ3KcVJXtq3jzU4lknUXmj_E4'
         );
-
-        console.log("Supabase conectado com sucesso!");
         
-        // Agora sim, chama as funções de carregar dados
-        listarEquipe();
-        listarAtas();
+        // Teste de conexão imediato
+        const { data, error } = await _supabase.from('funcionarios').select('id').limit(1);
+        if (error) throw error;
+
+        console.log("Conectado ao Supabase com sucesso!");
+        carregarTudo();
+    } catch (err) {
+        console.error("Erro na conexão:", err.message);
+        alert("Erro ao conectar ao banco de dados. Verifique sua internet ou permissões RLS.");
     }
+}
+
+function carregarTudo() {
+    carregarPreviewEquipe();
+    carregarPreviewPatrimonio();
+    carregarPreviewAtas();
+    carregarPreviewAcolhidos();
+}
+
+document.addEventListener('DOMContentLoad
 
     // Dispara o início assim que o HTML estiver pronto
     document.addEventListener('DOMContentLoaded', iniciarSistema);
