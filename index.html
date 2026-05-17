@@ -1505,25 +1505,24 @@ window.onload = () => {
         }
     }
     
-    // Chamadas independentes: se uma falhar, a outra funciona mesmo assim
-    setTimeout(actualizarMiniListaFuncionarios, 100);
-    setTimeout(actualizarMiniListaAtas, 100);
+    // Liga o motor para carregar a lista de funcionários no botão
+    actualizarMiniListaFuncionarios();
 };
 
 // ==========================================
-// 2. MOTOR DOS FUNCIONÁRIOS (Corrigido para _supabase)
+// 2. O MOTOR (Busca os dados no Supabase)
 // ==========================================
 async function actualizarMiniListaFuncionarios() {
     const container = document.getElementById('mini-lista-funcionarios');
     if(!container) return;
     
     try {
-        // Corrigido para utilizar _supabase como no seu arquivo original
+        // Busca apenas as colunas necessárias limitando aos 4 primeiros cadastrados
         const { data, error } = await _supabase
             .from('funcionarios')
             .select('nome, horario')
             .order('nome')
-            .range(0, 3);
+            .range(0, 3); // Retorna os índices 0, 1, 2 e 3 (Total de 4)
 
         if (error) throw error;
 
@@ -1532,6 +1531,7 @@ async function actualizarMiniListaFuncionarios() {
             return;
         }
 
+        // Constrói os elementos dinamicamente com links seguros e estáveis
         container.innerHTML = data.map(emp => `
             <div class="mini-item-emp" onclick="event.stopPropagation(); changeView('view-employees');">
                 <span style="font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%;">${emp.nome}</span>
@@ -1540,45 +1540,8 @@ async function actualizarMiniListaFuncionarios() {
         `).join('');
 
     } catch (err) {
-        console.error("Erro na mini-lista de funcionários:", err);
+        console.error("Erro na mini-lista:", err);
         container.innerHTML = `<div style="font-size:0.7rem; color:var(--accent-red); text-align:center; width:100%; margin-top:10px;">Erro ao carregar</div>`;
-    }
-}
-
-// ==========================================
-// 3. MOTOR DAS ATAS (Corrigido para _supabase e colunas reais)
-// ==========================================
-async function actualizarMiniListaAtas() {
-    const container = document.getElementById('mini-lista-atas');
-    if(!container) return;
-    
-    try {
-        // Corrigido para utilizar _supabase e ordenação por data_atas
-        const { data, error } = await _supabase
-            .from('atas')
-            .select('nome')
-            .order('data_atas', { ascending: false }) 
-            .range(0, 3);
-
-        if (error) throw error;
-
-        if(!data || data.length === 0) {
-            container.innerHTML = `<div style="font-size:0.7rem; color:var(--text-dim); text-align:center; width:100%; margin-top:5px;">Sem atas salvas</div>`;
-            return;
-        }
-
-        container.innerHTML = data.map(ata => `
-            <div class="mini-item-emp" style="border-left-color: var(--accent-orange);" onclick="event.stopPropagation(); changeView('view-atas');">
-                <span style="font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; font-size: 0.75rem;">
-                    <i class="fas fa-file-text" style="font-size: 0.65rem; margin-right: 6px; color: var(--text-dim);"></i>
-                    ${ata.nome || 'Ata sem nome'}
-                </span>
-            </div>
-        `).join('');
-
-    } catch (err) {
-        console.error("Erro na mini-lista de atas:", err);
-        container.innerHTML = `<div style="font-size:0.7rem; color:var(--accent-red); text-align:center; width:100%; margin-top:5px;">Erro ao carregar atas</div>`;
     }
 }
 </script>
