@@ -1505,22 +1505,21 @@ window.onload = () => {
         }
     }
     
-    // Executa a busca dos funcionários
-    actualizarMiniListaFuncionarios();
-    
-    // Executa a busca das atas para preencher o botão dinâmico
-    actualizarMiniListaAtas();
+    // Chamadas independentes: se uma falhar, a outra funciona mesmo assim
+    setTimeout(actualizarMiniListaFuncionarios, 100);
+    setTimeout(actualizarMiniListaAtas, 100);
 };
 
 // ==========================================
-// 2. MOTOR DOS FUNCIONÁRIOS
+// 2. MOTOR DOS FUNCIONÁRIOS (Corrigido para _supabase)
 // ==========================================
 async function actualizarMiniListaFuncionarios() {
     const container = document.getElementById('mini-lista-funcionarios');
     if(!container) return;
     
     try {
-        const { data, error } = await supabase
+        // Corrigido para utilizar _supabase como no seu arquivo original
+        const { data, error } = await _supabase
             .from('funcionarios')
             .select('nome, horario')
             .order('nome')
@@ -1547,19 +1546,19 @@ async function actualizarMiniListaFuncionarios() {
 }
 
 // ==========================================
-// 3. MOTOR DAS ATAS (Corrigido para colunas: nome e data_atas)
+// 3. MOTOR DAS ATAS (Corrigido para _supabase e colunas reais)
 // ==========================================
 async function actualizarMiniListaAtas() {
     const container = document.getElementById('mini-lista-atas');
     if(!container) return;
     
     try {
-        // Buscando a coluna 'nome' da tabela 'atas' ordenando por 'data_atas'
-        const { data, error } = await supabase
+        // Corrigido para utilizar _supabase e ordenação por data_atas
+        const { data, error } = await _supabase
             .from('atas')
             .select('nome')
-            .order('data_atas', { ascending: false }) // Mais recentes primeiro
-            .range(0, 3); // Retorna até 4 atas
+            .order('data_atas', { ascending: false }) 
+            .range(0, 3);
 
         if (error) throw error;
 
