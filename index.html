@@ -17,22 +17,91 @@
             --accent-green: #22c55e;
         }
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 15px; display: flex; justify-content: center; }
-        .app-container { width: 100%; max-width: 450px; min-height: 95vh; position: relative; }
+        /* No celular, o app ocupa quase tudo com uma margem confortável */
+.app-container { 
+    width: 100%; 
+    max-width: 450px; 
+    min-height: 95vh; 
+    position: relative; 
+}
+
+/* No computador, liberamos a largura para até 1200px para caber as 3 colunas lado a lado */
+@media (min-width: 600px) {
+    .app-container {
+        max-width: 1200px;
+    }
+}
         header { display: flex; align-items: center; justify-content: space-between; padding: 15px 5px; }
         .avatar { width: 42px; height: 42px; border-radius: 50%; background: #334155; border: 2px solid var(--primary-blue); overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
         .emp-photo-container { width: 90px; height: 90px; border-radius: 50%; background: #334155; margin: 0 auto 15px; border: 3px solid var(--accent-orange); display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; position: relative; }
         .emp-photo-container img { width: 100%; height: 100%; object-fit: cover; }
         .emp-photo-container i { font-size: 1.5rem; color: var(--text-dim); }
-        .module-card { background: linear-gradient(145deg, #243147, #1a2333); padding: 25px 15px; border-radius: 24px; text-align: center; cursor: pointer; transition: all 0.1s ease; border: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 8px 0 var(--card-shadow), 0 15px 20px rgba(0, 0, 0, 0.4); }
-        .module-card:active { transform: translateY(4px); box-shadow: 0 4px 0 var(--card-shadow); }
-        .module-card i { font-size: 2.2rem; margin-bottom: 15px; display: block; }
-        .module-card span { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; }
+        .module-card { 
+    background: linear-gradient(145deg, #243147, #1a2333); /* Mantém o tom azulado do original ou mude para #1e293b se preferir mais escuro */
+    padding: 30px 20px; /* Aumentado (do código novo) */
+    border-radius: 24px; /* Bordas arredondadas (do original) */
+    text-align: center; 
+    cursor: pointer; 
+    transition: all 0.15s ease; 
+    border: 1px solid rgba(255, 255, 255, 0.08); 
+    
+    /* Mantém o visual do botão 3D robusto do original */
+    box-shadow: 0 8px 0 var(--card-shadow), 0 15px 20px rgba(0, 0, 0, 0.4); 
+    
+    /* Alinhamento moderno em Flexbox (do código novo) */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px; /* Espaçamento controlado entre ícone e texto */
+}
+
+/* Mantém o efeito incrível de "afundar" ao clicar na tela ou celular */
+.module-card:active { 
+    transform: translateY(6px); 
+    box-shadow: 0 2px 0 var(--card-shadow), 0 5px 10px rgba(0, 0, 0, 0.4); 
+}
+
+/* Efeito de destaque ao passar o mouse no computador */
+@media (min-width: 600px) {
+    .module-card:hover {
+        border-color: var(--primary-blue);
+        filter: brightness(1.1);
+    }
+}
+
+.module-card i { 
+    font-size: 2.6rem; /* Ícones maiores e imponentes */
+    margin: 0; /* Remove margens antigas para o Flexbox gap funcionar */
+    display: block;
+}
+
+.module-card span { 
+    font-weight: 700; 
+    font-size: 1.05rem; /* Letras maiores e muito mais legíveis */
+    text-transform: uppercase; /* Mantém o padrão profissional em caixa alta */
+    letter-spacing: 0.5px;
+}
         .icon-blue { color: #60a5fa; } .icon-lightblue { color: #93c5fd; } .icon-green { color: #4ade80; } .icon-dp { color: #cbd5e1; } .icon-gold { color: var(--accent-orange); } .icon-purple { color: var(--accent-purple); }
         .view { display: none; animation: fadeIn 0.3s ease; }
         .view.active { display: flex; flex-direction: column; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .grid-modules { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin: 25px 0; }
+        /* Layout padrão para Celulares (Mobile First): 1 coluna */
+.grid-modules { 
+    display: grid; 
+    grid-template-columns: 1fr; 
+    gap: 20px; 
+    margin: 25px 0; 
+}
+
+/* Layout para Computadores e Tablets (Telas maiores que 600px): 3 colunas */
+@media (min-width: 600px) {
+    .grid-modules {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+    }
+}
         .item-card { background: var(--card-bg); padding: 15px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #334155; display: flex; flex-direction: column; gap: 12px; }
         .emp-info-row { display: flex; align-items: center; gap: 12px; width: 100%; }
         .item-card img.thumb-emp { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; background: #0f172a; border: 2px solid #3b82f6; }
