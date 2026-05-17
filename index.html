@@ -298,25 +298,25 @@
         </header>
         
         <main class="grid-modules">
-           <div class="module-card" onclick="changeView('view-employees')">
-    <div style="display: flex; align-items: center; gap: 10px; width: 100%; justify-content: center;">
-        <i class="fas fa-users icon-blue" style="font-size: 1.5rem; margin: 0;"></i>
-        <span style="font-size: 0.85rem;">Funcionários</span>
+    <div class="module-card" onclick="changeView('view-employees')" style="min-height: 150px; display: flex; flex-direction: column; justify-content: flex-start;">
+        <div style="display: flex; align-items: center; gap: 10px; width: 100%; justify-content: center;">
+            <i class="fas fa-users icon-blue" style="font-size: 1.5rem; margin: 0;"></i>
+            <span style="font-size: 0.85rem;">Funcionários</span>
+        </div>
+        <div id="mini-lista-funcionarios" class="mini-lista-emp">
+            <div style="font-size: 0.7rem; color: var(--text-dim); text-align: center; width: 100%; margin-top: 15px;">Carregando...</div>
+        </div>
     </div>
-    <div id="mini-lista-funcionarios" class="mini-lista-emp">
-        <div style="font-size: 0.7rem; color: var(--text-dim); text-align: center; width: 100%; margin-top: 15px;">Carregando...</div>
-    </div>
-</div>
-           <div class="module-card" onclick="changeView('view-atas')">
-    <div style="display: flex; align-items: center; gap: 10px; width: 100%; justify-content: center;">
-        <i class="far fa-file-alt icon-lightblue" style="font-size: 1.5rem; margin: 0;"></i>
-        <span style="font-size: 0.85rem;">Atas</span>
-    </div>
-    <div id="mini-lista-atas" class="mini-lista-emp">
-        <div style="font-size: 0.7rem; color: var(--text-dim); text-align: center; width: 100%; margin-top: 15px;">Carregando...</div>
-    </div>
-</div>
-            </div>
+
+    <div class="module-card" onclick="changeView('view-atas')" style="min-height: 150px; display: flex; flex-direction: column; justify-content: flex-start;">
+        <div style="display: flex; align-items: center; gap: 10px; width: 100%; justify-content: center;">
+            <i class="far fa-file-alt icon-lightblue" style="font-size: 1.5rem; margin: 0;"></i>
+            <span style="font-size: 0.85rem;">Atas</span>
+        </div>
+        <div id="mini-lista-atas" class="mini-lista-emp">
+            <div style="font-size: 0.7rem; color: var(--text-dim); text-align: center; width: 100%; margin-top: 15px;">Carregando...</div>
+        </div>
+    </div>            </div>
             <div class="module-card"><i class="fas fa-chart-line icon-green"></i><span>Relatórios</span></div>
             <div class="module-card" onclick="abrirModuloDP()"><i class="far fa-id-badge icon-dp"></i><span>D.P.</span></div>
             <div class="module-card" onclick="openPatrimonio()"><i class="fas fa-boxes icon-gold"></i><span>Patrimônio</span></div>
