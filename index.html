@@ -17,16 +17,20 @@
         }
         body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 10px; display: flex; justify-content: center; }
         
+        /* Container Principal flexível */
         .app-container { 
             width: 100%; 
-            max-width: 450px; 
+            max-width: 100%; 
             min-height: 95vh; 
             position: relative; 
+            box-sizing: border-box;
         }
 
-        @media (min-width: 600px) {
+        /* Limita a largura máxima apenas em telas grandes (PC) para não esticar infinitamente */
+        @media (min-width: 992px) {
             .app-container {
                 max-width: 1200px;
+                padding: 20px;
             }
         }
         
@@ -37,113 +41,119 @@
         .emp-photo-container img { width: 100%; height: 100%; object-fit: cover; }
         .emp-photo-container i { font-size: 1.5rem; color: var(--text-dim); }
         
-        /* Estrutura base dos botões/módulos */
+        /* ==========================================================================
+           CONFIGURAÇÃO PADRÃO: CELULAR (Mobile First)
+           ========================================================================== */
+        
+        /* No celular, usamos 2 colunas para os botões respirarem e caberem na tela */
+        .grid-modules { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 12px; 
+            margin: 15px 0; 
+        }
+
+        /* Estilo compacto do Card para Celulares */
         .module-card { 
             background: linear-gradient(145deg, #243147, #1a2333); 
-            padding: 15px 10px; 
-            border-radius: 18px; 
+            padding: 12px 8px; 
+            border-radius: 14px; 
             text-align: center; 
             cursor: pointer; 
             transition: all 0.15s ease; 
             border: 1px solid rgba(255, 255, 255, 0.08); 
-            box-shadow: 0 6px 0 var(--card-shadow), 0 10px 15px rgba(0, 0, 0, 0.4); 
+            box-shadow: 0 4px 0 var(--card-shadow), 0 6px 10px rgba(0, 0, 0, 0.3); 
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            min-height: 110px;
-            overflow: hidden;
+            gap: 6px;
+            min-height: 100px;
+            box-sizing: border-box;
         }
 
         .module-card:active { 
-            transform: translateY(4px); 
-            box-shadow: 0 2px 0 var(--card-shadow), 0 4px 6px rgba(0, 0, 0, 0.4); 
+            transform: translateY(3px); 
+            box-shadow: 0 1px 0 var(--card-shadow), 0 2px 4px rgba(0, 0, 0, 0.4); 
         }
 
-        @media (min-width: 600px) {
+        /* Ícones e Textos menores no celular para evitar quebras de linha feias */
+        .module-card i { font-size: 1.4rem; display: block; margin: 0; }
+        .module-card span { font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.3px; }
+
+        /* Listas internas bem pequenas para caber no card do celular */
+        .mini-lista-emp {
+            width: 100%;
+            max-height: 60px;
+            overflow-y: auto;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            margin-top: 5px;
+        }
+        .mini-item-emp {
+            background: rgba(15, 23, 42, 0.5);
+            padding: 3px 5px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 2px solid #60a5fa;
+        }
+        .mini-item-emp span { text-transform: none !important; font-size: 0.58rem !important; font-weight: 500 !important; }
+
+        /* ==========================================================================
+           MODIFICAÇÕES AUTOMÁTICAS: COMPUTADORES E TABLETS (Telas acima de 768px)
+           ========================================================================== */
+        @media (min-width: 768px) {
+            /* No PC o Grid muda para 3 colunas automaticamente */
+            .grid-modules { 
+                grid-template-columns: repeat(3, 1fr); 
+                gap: 20px; 
+                margin: 25px 0; 
+            }
+
+            /* Cards ganham mais espaçamento e robustez no PC */
             .module-card {
-                padding: 25px 15px;
-                min-height: 150px;
-                gap: 12px;
-                border-radius: 24px;
-                box-shadow: 0 8px 0 var(--card-shadow), 0 15px 20px rgba(0, 0, 0, 0.4);
+                padding: 22px 15px;
+                min-height: 140px;
+                gap: 10px;
+                border-radius: 20px;
+                box-shadow: 0 6px 0 var(--card-shadow), 0 12px 18px rgba(0, 0, 0, 0.4);
             }
             .module-card:hover {
                 border-color: var(--primary-blue);
                 filter: brightness(1.1);
             }
             .module-card:active { 
-                transform: translateY(6px); 
-                box-shadow: 0 2px 0 var(--card-shadow), 0 5px 10px rgba(0, 0, 0, 0.4); 
+                transform: translateY(5px); 
+                box-shadow: 0 1px 0 var(--card-shadow), 0 4px 6px rgba(0, 0, 0, 0.4); 
             }
+
+            /* Ícones e fontes aumentam para preencher a tela do computador */
+            .module-card i { font-size: 2.2rem; }
+            .module-card span { font-size: 0.9rem; letter-spacing: 0.5px; }
+
+            /* Lista interna expande visualmente no monitor */
+            .mini-lista-emp { max-height: 85px; gap: 5px; }
+            .mini-item-emp { padding: 5px 8px; border-radius: 6px; }
+            .mini-item-emp span { font-size: 0.72rem !important; }
         }
 
-        /* Ícones e Textos Responsivos */
-        .module-card i { font-size: 1.8rem; display: block; margin: 0; }
-        .module-card span { font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
-
-        @media (min-width: 600px) {
-            .module-card i { font-size: 2.5rem; }
-            .module-card span { font-size: 0.95rem; }
-        }
-
+        /* Classes de cores dos ícones */
         .icon-blue { color: #60a5fa; } .icon-lightblue { color: #93c5fd; } .icon-green { color: #4ade80; } .icon-dp { color: #cbd5e1; } .icon-gold { color: var(--accent-orange); } .icon-purple { color: var(--accent-purple); }
         
+        /* Sistema de Views */
         .view { display: none; animation: fadeIn 0.3s ease; }
         .view.active { display: flex; flex-direction: column; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Força 3 COLUNAS em qualquer tamanho de tela (celular e PC) */
-        .grid-modules { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 10px; 
-            margin: 20px 0; 
-        }
-
-        @media (min-width: 600px) {
-            .grid-modules {
-                gap: 20px;
-                margin: 25px 0;
-            }
-        }
-
-        /* Listas internas compactas para caber na coluna do celular */
-        .mini-lista-emp {
-            width: 100%;
-            max-height: 55px;
-            overflow-y: auto;
-            text-align: left;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        @media (min-width: 600px) {
-            .mini-lista-emp { max-height: 95px; gap: 6px; }
-        }
-
-        .mini-item-emp {
-            background: rgba(15, 23, 42, 0.4);
-            padding: 4px 6px;
-            border-radius: 6px;
-            font-size: 0.6rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 2px solid #60a5fa;
-        }
-        .mini-item-emp span { text-transform: none !important; font-size: 0.6rem !important; font-weight: 500 !important; }
-
-        @media (min-width: 600px) {
-            .mini-item-emp { padding: 6px 10px; border-radius: 8px; border-left-width: 3px; }
-            .mini-item-emp span { font-size: 0.75rem !important; }
-        }
-
+        /* Customização de Scrollbar */
         .mini-lista-emp::-webkit-scrollbar { width: 3px; }
         .mini-lista-emp::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
 
-        /* Estilos Restantes */
+        /* Estilos de Elementos Gerais, Modais e Formulários */
         .item-card { background: var(--card-bg); padding: 15px; border-radius: 18px; margin-bottom: 12px; border: 1px solid #334155; display: flex; flex-direction: column; gap: 12px; }
         .emp-info-row { display: flex; align-items: center; gap: 12px; width: 100%; }
         .item-card img.thumb-emp { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; background: #0f172a; border: 2px solid #3b82f6; }
@@ -152,27 +162,27 @@
         input, textarea, select { width: 100%; background: var(--bg-dark); border: 1px solid #334155; border-radius: 10px; padding: 12px; color: white; margin-bottom: 10px; box-sizing: border-box; }
         .btn-save { width: 100%; background: var(--primary-blue); color: white; border: none; padding: 15px; border-radius: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 5px 0 #1d4ed8; }
         .btn-action { flex: 1; border: none; border-radius: 8px; padding: 10px; font-weight: 700; cursor: pointer; font-size: 0.7rem; transition: transform 0.1s; }
+        
+        /* Calendário Responsivo */
         .calendar-container { background: var(--card-bg); padding: 15px; border-radius: 20px; border: 1px solid #334155; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
         .calendar-day { padding: 10px 0; border-radius: 10px; cursor: pointer; font-size: 0.9rem; position: relative; }
         .calendar-day.has-event { background: var(--accent-orange); color: white; font-weight: bold; }
+        
+        /* Elementos flutuantes e Modais */
         .fab-add { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: var(--primary-blue); border-radius: 50%; border: none; color: white; font-size: 24px; box-shadow: 0 6px 0 #1d4ed8; cursor: pointer; z-index: 99; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
-        .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; padding: 25px; border-radius: 25px 25px 0 0; max-height: 85vh; overflow-y: auto; }
+        .modal-content { background: var(--card-bg); width: 100%; max-width: 450px; padding: 25px; border-radius: 25px 25px 0 0; max-height: 85vh; overflow-y: auto; box-sizing: border-box; }
         .historico-box { background: #0f172a; padding: 10px; border-radius: 10px; font-size: 0.85rem; margin-top: 10px; white-space: pre-wrap; border-left: 3px solid var(--primary-blue); }
-        .dp-input-small { padding: 8px !important; font-size: 0.7rem !important; margin-bottom: 5px !important; }
         
-        .input-grid-financeiro { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
-        .input-grid-financeiro div { display: flex; flex-direction: column; gap: 5px; }
-        .input-grid-financeiro input, .input-grid-financeiro select { height: 45px; padding: 0 12px !important; font-size: 14px; box-sizing: border-box; }
-        .input-grid-financeiro input[type="date"] { padding-right: 5px !important; }
+        /* Layout Mobile/Desktop para a Conferência do Financeiro */
+        .conferencia-grid-layout { display: flex; flex-direction: column; gap: 15px; }
+        #visor-notas { background: #020617; border-radius: 12px; padding: 15px; border: 2px solid #334155; min-height: 250px; }
         
-        .conferencia-grid-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; height: 70vh; overflow: hidden; }
-        #visor-notas { background: #020617; border-radius: 12px; overflow-y: auto; padding: 15px; border: 2px solid #334155; display: flex; flex-direction: column; gap: 25px; height: 70vh; }
-        .imagem-nota-container { width: 100%; position: relative; border-bottom: 2px dashed #334155; padding-bottom: 20px; flex-shrink: 0; }
-        .imagem-nota-container img { width: 100%; height: auto !important; display: block; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
-        #form-notas-container { overflow-y: auto; padding-right: 10px; }
-        .footer-financeiro { background: var(--card-bg); padding: 15px; border-top: 2px solid #334155; margin-top: 10px; border-radius: 0 0 15px 15px; }
+        @media (min-width: 768px) {
+            .conferencia-grid-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; height: 70vh; }
+            #visor-notas { height: 70vh; overflow-y: auto; }
+        }
     </style>
 </head>
 <body>
