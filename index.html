@@ -244,10 +244,22 @@
                 <span>Upload</span>
             </div>
             
-            <div class="module-card" onclick="openAcolhidos()">
-                <i class="fas fa-bed icon-purple"></i>
-                <span>Acolhidos</span>
-            </div>
+            <div class="module-card" onclick="openAcolhidos()" style="min-height: 150px; display: flex; flex-direction: column; justify-content: flex-start;">
+    <div style="display: flex; align-items: center; gap: 10px; width: 100%; justify-content: center;">
+        <i class="fas fa-bed icon-purple" style="font-size: 1.5rem; margin: 0;"></i>
+        <span style="font-size: 0.85rem;">Acolhidos</span>
+    </div>
+    <div id="mini-contadores-acolhidos" class="mini-lista-emp" style="margin-top: 15px; gap: 5px;">
+        <div class="mini-item-emp" style="border-left-color: var(--accent-purple);">
+            <span style="font-weight: 600; color: #fff;">Acolhidos:</span>
+            <span id="dash-total-acolhidos" style="color: var(--text-main); font-weight: bold;">...</span>
+        </div>
+        <div class="mini-item-emp" style="border-left-color: var(--accent-green);">
+            <span style="font-weight: 600; color: #fff;">Camas Livres:</span>
+            <span id="dash-camas-livres" style="color: var(--accent-green); font-weight: bold;">...</span>
+        </div>
+    </div>
+</div>
             
             <div class="module-card" onclick="openFinanceiro()">
                 <i class="fas fa-file-invoice-dollar" style="color: var(--accent-orange);"></i>
@@ -835,7 +847,9 @@
         } 
      }
 
-    // CÓDIGO NOVO COM EXECUTOR DA MINI LISTA
+   // ========================================================
+// DISPARO AO CARREGAR A PÁGINA (CONSOLIDADO)
+// ========================================================
 window.onload = () => {
     const salva = localStorage.getItem('coord_img');
     if(salva) {
@@ -848,579 +862,47 @@ window.onload = () => {
         }
     }
     
-    // Dispara a atualização dos funcionários no botão principal
+    // Dispara TODAS as atualizações iniciais do Dashboard de forma limpa
     atualizarMiniListaFuncionarios();
-};
-
-// Nova função que busca no Supabase e renderiza os 4 primeiros itens
-async function actualizarMiniListaFuncionarios() {
-    const container = document.getElementById('mini-lista-funcionarios');
-    if(!container) return;
-    
-    try {
-        // Busca apenas as colunas necessárias limitando aos 4 primeiros cadastrados
-        const { data, error } = await _supabase
-            .from('funcionarios')
-            .select('nome, horario')
-            .order('nome')
-            .range(0, 3); // Retorna os índices 0, 1, 2 e 3 (Total de 4)
-
-        if (error) throw error;
-
-        if(!data || data.length === 0) {
-            container.innerHTML = `<div style="font-size:0.7rem; color:var(--text-dim); text-align:center; width:100%; margin-top:10px;">Sem equipe salva</div>`;
-            return;
-        }
-
-        // Constrói os elementos dinamicamente
-        container.innerHTML = data.map(emp => `
-            <div class="mini-item-emp" onclick="event.stopPropagation(); changeView('view-employees');">
-                <span style="font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%;">${emp.nome}</span>
-                <span style="color: var(--text-dim); font-size: 0.65rem !important;">${emp.horario || 'S/H'}</span>
-            </div>
-        `).join('');
-
-    } catch (err) {
-        console.error("Erro na mini-lista:", err);
-        container.innerHTML = `<div style="font-size:0.7rem; color:var(--accent-red); text-align:center; width:100%; margin-top:10px;">Erro ao carregar</div>`;
-    }
-}
-// Garante a abertura correta do popup e limpa estados anteriores
-async function openAcolhidos() {
-    // Reset de visualização: mostra a lista e esconde o mapa ao abrir
-    document.getElementById('lista-acolhidos').style.display = 'block';
-    document.getElementById('mapa-quartos').style.display = 'none';
-    
-    openModal('modalAcolhidos'); // Chama a função que você já tem no código
-    renderizarAcolhidos(); // Carrega os dados do Supabase
-}
-
-// Se os botões ainda aparecerem "soltos" na tela, 
-    
-// verifique se você não esqueceu de fechar alguma </div> anterior no código.
-// Cole estas funções no final da sua tag <script>
-async function renderizarAcolhidos() {
-    const { data, error } = await _supabase.from('acolhidos').select('*').order('quarto');
-    if (error) return;
-
-    const container = document.getElementById('lista-acolhidos');
-    // Filtra quem não está com nome "Livre" ou vazio
-    const ocupados = data.filter(a => a.nome && a.nome.trim().toLowerCase() !== 'livre');
-    const livres = data.filter(a => !a.nome || a.nome.trim().toLowerCase() === 'livre');
-
-    document.getElementById('count-acolhidos').innerText = ocupados.length;
-    document.getElementById('count-livres').innerText = livres.length;
-    
-    container.innerHTML = data.map(a => `
-        <div class="item-card" style="padding:10px; margin-bottom:8px; border-left: 4px solid ${a.nome.toLowerCase() === 'livre' ? '#22c55e' : '#3b82f6'}">
-            <strong style="display:block">${a.nome}</strong>
-            <small style="color:var(--text-dim)">Quarto: ${a.quarto} | Cama: ${a.cama} (${a.tipo})</small>
-        </div>
-    `).join('');
-}
-
-async function importarExcel(input) {
-    const file = input.files[0];
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(sheet);
-
-        const formatado = json.map(row => ({
-            nome: row.Nome || row.nome || 'Livre',
-            quarto: row.Quarto || row.quarto || '?',
-            cama: row.Cama || row.cama || '?',
-            tipo: row.Tipo || row.tipo || 'S/T'
-        }));
-
-        const { error } = await _supabase.from('acolhidos').insert(formatado);
-        if (!error) {
-            alert("Dados importados com sucesso!");
-            renderizarAcolhidos();
-        }
-    };
-    reader.readAsArrayBuffer(file);
-}
-
-function toggleMapaQuartos() {
-    const lista = document.getElementById('lista-acolhidos');
-    const mapa = document.getElementById('mapa-quartos');
-    if (mapa.style.display === 'none') {
-        lista.style.display = 'none';
-        mapa.style.display = 'block';
-    } else {
-        lista.style.display = 'block';
-        mapa.style.display = 'none';
-    }
-}
-    
- let notasParaProcessar = [];
-
-function openFinanceiro() {
-    openModal('modalFinanceiro');
-}
-
-// Substitua handleFinanceiroUpload, focarNota, calcularTotalRemessa e enviarParaDP por estas:
-
-function handleFinanceiroUpload(input) {
-    const files = Array.from(input.files);
-    
-    // Inicializa o array global se não existir
-    if(!window.arquivosAtuais) window.arquivosAtuais = [];
-    
-    files.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            // Adicionamos cada arquivo com um ID único para facilitar a exclusão
-            const itemNota = { 
-                id: Date.now() + Math.random(), 
-                src: e.target.result, 
-                file: file 
-            };
-            window.arquivosAtuais.push(itemNota);
-            renderizarListaFinanceiro();
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-// Substitua handleFinanceiroUpload, focarNota, calcularTotalRemessa e enviarParaDP por estas:
-
-function handleFinanceiroUpload(input) {
-    const files = Array.from(input.files);
-    
-    // Inicializa o array global se não existir
-    if(!window.arquivosAtuais) window.arquivosAtuais = [];
-    
-    files.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            // Adicionamos cada arquivo com um ID único para facilitar a exclusão
-            const itemNota = { 
-                id: Date.now() + Math.random(), 
-                src: e.target.result, 
-                file: file 
-            };
-            window.arquivosAtuais.push(itemNota);
-            renderizarListaFinanceiro();
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-// 1. Garantir que a variável global exista
-if (!window.arquivosAtuais) window.arquivosAtuais = [];
-
-function handleFinanceiroUpload(input) {
-    const files = Array.from(input.files);
-    if (files.length === 0) return;
-
-    files.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const itemNota = { 
-                id: Date.now() + Math.random(), 
-                src: e.target.result, 
-                file: file 
-            };
-            window.arquivosAtuais.push(itemNota);
-            renderizarListaFinanceiro();
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-function renderizarListaFinanceiro() {
-    const visor = document.getElementById('visor-notas');
-    const formContainer = document.getElementById('form-notas-container');
-    
-    // Seleciona o container que envolve o visor e o formulário para aplicar o grid
-    const containerInterface = document.querySelector('.conferencia-grid-layout') || visor.parentElement;
-    
-    if (!window.arquivosAtuais || window.arquivosAtuais.length === 0) {
-        resetarInterfaceFinanceiro();
-        return;
-    }
-
-    // Aplica a classe do CSS que você já tem
-    containerInterface.classList.add('conferencia-grid-layout');
-
-    visor.innerHTML = ''; 
-    formContainer.innerHTML = '';
-
-    window.arquivosAtuais.forEach((item, index) => {
-        // --- LADO ESQUERDO: VISOR DE IMAGENS ---
-        const imgDiv = document.createElement('div');
-        imgDiv.className = "imagem-nota-container";
-        imgDiv.id = `scroll-nota-${index}`;
-        imgDiv.innerHTML = `
-            <div style="background: #3b82f6; color: white; padding: 10px; border-radius: 8px 8px 0 0; font-size: 0.8rem; font-weight: bold; text-align: center; margin-bottom: -5px;">
-                NOTA FISCAL #${index + 1}
-            </div>
-            <img src="${item.src}" alt="Nota Fiscal ${index + 1}">
-        `;
-        visor.appendChild(imgDiv);
-
-        // --- LADO DIREITO: FORMULÁRIO DE DIGITAÇÃO ---
-        const formDiv = document.createElement('div');
-        formDiv.className = 'item-card';
-        formDiv.style = "margin-bottom: 25px; border-left: 5px solid #f59e0b; padding: 15px; background: #1e293b; border-radius: 10px;";
-        formDiv.innerHTML = `
-            <strong style="color: #f59e0b; font-size: 0.9rem; display: block; margin-bottom: 12px;">CONFERÊNCIA DA NF #${index + 1}</strong>
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                
-                <input type="text" class="codigo-nf-financeiro" placeholder="Número da Nota" onfocus="focarNota(${index})" 
-                    style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
-                
-                <input type="date" class="data-financeiro" onfocus="focarNota(${index})" 
-                    style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
-                
-                <input type="number" step="0.01" class="input-financeiro" placeholder="Valor Total R$" oninput="calcularTotalRemessa()" onfocus="focarNota(${index})" 
-                    style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
-                
-                <select class="cat-financeiro" onfocus="focarNota(${index})" 
-                    style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
-                    <option value="">Selecione a Categoria...</option>
-                    <option>Gênero Alimentício</option><option>Material de Escritório</option><option>Material de Higiene e Limpeza</option>
-                    <option>Material de Copa e Cozinha</option><option>Material Didático</option><option>Conservação de Edifícios</option>
-                    <option>Conservação de Móveis, Máquinas e Equipamentos</option><option>Material de Sinalização Visual (placas)</option>
-                    <option>EPI</option><option>Medicamentos</option><option>Aluguel carro/combustível</option><option>Gás</option>
-                    <option>Controle de Pragas / Sanitização e Dedetização</option><option>Extintores de Incêndio</option>
-                    <option>Transporte para Usuários - Taxi- Ônibus- App</option><option>Serviços Gráficos</option>
-                    <option>Oficinas e Capacitações</option><option>Material de Cama-mesa e banho</option><option>Uniformes</option>
-                    <option>Materiais elétricos</option><option>Ferramentas</option><option>Material permanente - mesa e cadeira</option>
-                    <option>Material permanente - roupeiros</option><option>Material permanente - Ventilador de Parede</option>
-                    <option>Material permanente - Refrigerador industrial</option>
-                </select>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
-                <button type="button" onclick="removerNota(${index})" style="background:none; border:none; color:#ef4444; font-size:0.75rem; cursor:pointer;">
-                    <i class="fas fa-trash"></i> Remover Nota
-                </button>
-                <span style="font-size: 0.7rem; color: #64748b;">ID: ${index + 1}</span>
-            </div>
-        `;
-        formContainer.appendChild(formDiv);
-    });
-    
-    calcularTotalRemessa();
-}
-
-// Função para dar scroll na imagem quando clicar no input
-function focarNota(index) {
-    const elementoImg = document.getElementById(`scroll-nota-${index}`);
-    if (elementoImg) {
-        elementoImg.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-}
-function removerNota(index) {
-    window.arquivosAtuais.splice(index, 1);
-    renderizarListaFinanceiro();
-}
-
-function resetarInterfaceFinanceiro() {
-    // 1. Limpa o array de dados
-    window.arquivosAtuais = [];
-    
-    // 2. Limpa o input de arquivo (ESSENCIAL para destravar o botão)
-    const fileInput = document.getElementById('upload-lote');
-    if(fileInput) fileInput.value = "";
-    
-    // 3. Reseta os textos e totais
-    document.getElementById('total-remessa').innerText = "R$ 0,00";
-    document.getElementById('form-notas-container').innerHTML = '<p style="color: #94a3b8; font-size: 0.8rem;">Selecione as notas para iniciar.</p>';
-    
-    // 4. Restaura o botão central de carregar
-    document.getElementById('visor-notas').innerHTML = `
-        <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8;">
-            <i class="fas fa-images fa-3x"></i><br><br>
-            <button type="button" class="btn-save" onclick="document.getElementById('upload-lote').click()">Carregar Notas</button>
-        </div>
-    `;
-}
-
-function enviarParaDP() {
-    const codigosNF = document.querySelectorAll('.codigo-nf-financeiro');
-    const inputs = document.querySelectorAll('.input-financeiro');
-    const datas = document.querySelectorAll('.data-financeiro');
-    const categorias = document.querySelectorAll('.cat-financeiro');
-    const total = document.getElementById('total-remessa').innerText;
-    
-    if (window.arquivosAtuais.length === 0) {
-        alert("Adicione notas primeiro.");
-        return;
-    }
-
-    let detalhamento = "";
-    inputs.forEach((input, i) => {
-        const valor = parseFloat(input.value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        const dataNota = datas[i].value ? datas[i].value.split('-').reverse().join('/') : "S/ Data";
-        const nf = codigosNF[i].value || "S/ Nº";
-        detalhamento += `🔹 *NF ${nf}:* ${valor} (${categorias[i].value}) - Data: ${dataNota}%0A`;
-    });
-
-    const msg = `🧾 *RESUMO FINANCEIRO*%0A%0A${detalhamento}%0A💰 *TOTAL: ${total}*`;
-    window.open(`https://wa.me/?text=${msg}`);
-
-    setTimeout(() => {
-        if(confirm("Deseja limpar os dados deste envio?")) {
-            resetarInterfaceFinanceiro();
-        }
-    }, 1000);
-}
-    
-
-function focarNota(index) {
-    const img = document.getElementById(`nota-img-${index}`);
-    if(img) {
-        img.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        document.querySelectorAll('#visor-notas img').forEach(i => i.style.borderColor = 'transparent');
-        img.style.borderColor = '#3b82f6';
-    }
-}
-
-function calcularTotalRemessa() {
-    const inputs = document.querySelectorAll('.input-financeiro');
-    let total = 0;
-    inputs.forEach(i => total += Number(i.value || 0));
-    document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
-}
-
-    async function sincronizarLinkDireto() {
-    const linkInput = prompt("Cole o link da planilha PUBLICADA como CSV:");
-    if (!linkInput) return;
-
-    try {
-        let urlSinc = linkInput;
-        if (linkInput.includes('/edit')) {
-            const id = linkInput.split('/d/')[1].split('/')[0];
-            urlSinc = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`;
-        }
-
-        const res = await fetch(urlSinc);
-        const csvText = await res.text();
-        const linhas = csvText.split(/\r?\n/).map(l => l.trim()).filter(l => l !== "");
-        
-        if (linhas.length < 2) {
-            alert("A planilha parece estar vazia.");
-            return;
-        }
-
-        const separador = linhas[0].includes(';') ? ';' : ',';
-
-        const novosFuncionarios = linhas.slice(1).map((linha) => {
-            const regex = new RegExp(`${separador}(?=(?:(?:[^"]*"){2})*[^"]*$)`);
-            const col = linha.split(regex).map(c => (c || '').trim().replace(/^"|"$/g, ''));
-            
-            const formatarData = (v) => {
-                if (!v) return null;
-                if (v.includes('-') && v.split('-')[0].length === 4) return v;
-                if (v.includes('/')) {
-                    const p = v.split('/');
-                    if (p.length === 3) {
-                        return `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
-                    }
-                }
-                return null;
-            };
-
-            const paraBoolean = (v) => {
-                if (!v) return false;
-                const check = v.toString().toUpperCase().trim();
-                return check === 'TRUE' || check === 'SIM' || check === '1';
-            };
-
-            return {
-                nome: col[0] || null,
-                endereco: col[1] || '',
-                bairro: col[2] || '',
-                cidade: col[3] || '',
-                estado: col[4] || '',
-                cep: col[5] || '',
-                
-                // --- AJUSTE: NASCIMENTO E ADMISSÃO TROCADOS ---
-                nascimento: formatarData(col[6]),   // Era col[12], agora col[6]
-                data_admissa: formatarData(col[12]), // Era col[6], agora col[12]
-
-                cpf: col[7] || '',
-                rg: col[8] || '',
-                titulo_eleitor: col[9] || '',
-                ctps: col[10] || '',
-                habilitacao: col[11] || '',
-                
-                // --- AJUSTE: FUNÇÃO E HORÁRIO ---
-                funcao: col[14] || '',            
-                horario: col[13] || '',           
-                
-                celular: col[15] || '',
-                qtde_horas_mes: col[16] || '',
-                equipe: col[17] || '',
-                
-                alinhamentos: col[18] || '0',
-                advertencias: col[19] || '0',
-                foto: col[20] || '',
-                
-                check_docs: paraBoolean(col[21]),
-                check_aso: paraBoolean(col[22]),
-                check_contrato: paraBoolean(col[23]),
-                check_uniforme: paraBoolean(col[24]),
-                check_epi: paraBoolean(col[25]),
-                
-                tamanho_uniforme: col[26] || '',
-                codigo: col[27] || null
-            };
-        }).filter(f => f.nome && f.nome.toLowerCase() !== "nome");
-
-        const { data, error } = await _supabase.from('funcionarios').insert(novosFuncionarios).select();
-        if (error) throw error;
-
-        alert(`✅ Sincronização concluída com sucesso!`);
-        if (typeof listarEquipe === 'function') listarEquipe();
-        
-    } catch (e) {
-        alert("❌ Erro: " + e.message);
-    }
-}
-    async function gerarPDF(id) {
-    // Busca os dados atualizados do funcionário no banco
-    const { data: emp, error } = await _supabase.from('funcionarios').select('*').eq('id', id).single();
-    
-    if (error || !emp) {
-        return alert("Erro ao buscar dados para o PDF");
-    }
-
-    // Criamos um container temporário para o relatório
-    const relatorio = document.createElement('div');
-    relatorio.style.padding = '40px';
-    relatorio.style.color = '#000'; // Texto preto para impressão
-    relatorio.style.backgroundColor = '#fff';
-    relatorio.style.fontFamily = 'Arial, sans-serif';
-
-    // Montando o layout do relatório (sem checklists ou botões)
-    relatorio.innerHTML = `
-        <div style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
-            <h1 style="margin: 0; font-size: 24px;">RELATÓRIO INDIVIDUAL DE FUNCIONÁRIO</h1>
-            <p style="margin: 5px 0;">Coordenação Local - Gestão de D.P.</p>
-        </div>
-
-        <div style="display: flex; gap: 20px; margin-bottom: 30px;">
-            ${emp.foto ? `<img src="${emp.foto}" style="width: 120px; height: 150px; object-fit: cover; border: 1px solid #ccc;">` : ''}
-            <div>
-                <h2 style="margin: 0 0 10px 0; color: #1e293b;">${emp.nome.toUpperCase()}</h2>
-                <p><strong>Função:</strong> ${emp.funcao || '---'}</p>
-                <p><strong>Equipe:</strong> ${emp.equipe || '---'}</p>
-                <p><strong>Data de Admissão:</strong> ${emp.data_admissa ? emp.data_admissa.split('-').reverse().join('/') : '---'}</p>
-            </div>
-        </div>
-
-        <h3 style="background: #f1f5f9; padding: 8px; border-left: 4px solid #3b82f6;">Documentação e Identificação</h3>
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-            <tr>
-                <td style="padding: 8px; border: 1px solid #ddd;"><strong>CPF:</strong> ${emp.cpf || '---'}</td>
-                <td style="padding: 8px; border: 1px solid #ddd;"><strong>RG:</strong> ${emp.rg || '---'}</td>
-            </tr>
-            <tr>
-                <td style="padding: 8px; border: 1px solid #ddd;"><strong>CTPS:</strong> ${emp.ctps || '---'}</td>
-                <td style="padding: 8px; border: 1px solid #ddd;"><strong>Título Eleitor:</strong> ${emp.titulo_eleitor || '---'}</td>
-            </tr>
-        </table>
-
-        <h3 style="background: #f1f5f9; padding: 8px; border-left: 4px solid #3b82f6;">Endereço e Contato</h3>
-        <p><strong>Endereço:</strong> ${emp.endereco || '---'}, ${emp.bairro || '---'}</p>
-        <p><strong>Cidade:</strong> ${emp.cidade || '---'} - ${emp.estado || '---'}</p>
-        <p><strong>Contato:</strong> ${emp.celular || '---'}</p>
-
-        <h3 style="background: #f1f5f9; padding: 8px; border-left: 4px solid #3b82f6;">Histórico Interno</h3>
-        <p><strong>Alinhamentos Registrados:</strong></p>
-        <div style="white-space: pre-wrap; font-size: 12px; margin-bottom: 10px;">${emp.alinhamentos || 'Nenhum registro encontrado.'}</div>
-        
-        <p><strong>Advertências:</strong></p>
-        <div style="white-space: pre-wrap; font-size: 12px; color: red;">${emp.advertencias || 'Nenhum registro encontrado.'}</div>
-
-        <div style="margin-top: 50px; text-align: center;">
-            <div style="border-top: 1px solid #000; width: 250px; margin: 0 auto; padding-top: 5px;">
-                Assinatura da Coordenação
-            </div>
-            <p style="font-size: 10px; color: #666; margin-top: 20px;">Gerado em: ${new Date().toLocaleString('pt-BR')}</p>
-        </div>
-    `;
-
-    const options = {
-        margin: 10,
-        filename: `Relatorio_${emp.nome.replace(/\s+/g, '_')}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, logging: false },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    // Gera o PDF a partir do elemento "virtual" que criamos
-    html2pdf().set(options).from(relatorio).save();
-}
-
- // ==========================================
-// 1. O GATILHO (Roda assim que a página abre)
-// ==========================================
-window.onload = () => {
-    // Carrega a foto da coordenação do LocalStorage se existir
-    const salva = localStorage.getItem('coord_img');
-    if(salva) {
-        const display = document.getElementById('foto-coord-display');
-        const icon = document.getElementById('icon-coord-padrao');
-        if(display && icon) {
-            display.src = salva;
-            display.style.display = 'block';
-            icon.style.display = 'none';
-        }
-    }
-    
-    // Liga o motor para carregar a lista de funcionários no botão
-    actualizarMiniListaFuncionarios();
-    
-    // Liga o motor para carregar a lista de atas no botão
     atualizarMiniListaAtas();
+    atualizarContadoresAcolhidos(); 
 };
 
-// ==========================================
-// 2. OS MOTORES (Busca os dados no Supabase)
-// ==========================================
-
-// Motor dos Funcionários
-async function actualizarMiniListaFuncionarios() {
+// ========================================================
+// RECURSOS DO MÓDULO DE FUNCIONÁRIOS
+// ========================================================
+async function atualizarMiniListaFuncionarios() {
     const container = document.getElementById('mini-lista-funcionarios');
     if(!container) return;
     
     try {
-        // Busca apenas as colunas necessárias limitando aos 4 primeiros cadastrados
         const { data, error } = await _supabase
             .from('funcionarios')
             .select('nome, horario')
             .order('nome')
-            .range(0, 3); // Retorna os índices 0, 1, 2 e 3 (Total de 4)
+            .range(0, 3);
 
         if (error) throw error;
-
         if(!data || data.length === 0) {
             container.innerHTML = `<div style="font-size:0.7rem; color:var(--text-dim); text-align:center; width:100%; margin-top:10px;">Sem equipe salva</div>`;
             return;
         }
 
-        // Constrói os elementos dinamicamente
         container.innerHTML = data.map(emp => `
             <div class="mini-item-emp" onclick="event.stopPropagation(); changeView('view-employees');">
                 <span style="font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%;">${emp.nome}</span>
                 <span style="color: var(--text-dim); font-size: 0.65rem !important;">${emp.horario || 'S/H'}</span>
             </div>
         `).join('');
-
     } catch (err) {
         console.error("Erro na mini-lista:", err);
         container.innerHTML = `<div style="font-size:0.7rem; color:var(--accent-red); text-align:center; width:100%; margin-top:10px;">Erro ao carregar</div>`;
     }
 }
 
-// Motor das Atas
+// ========================================================
+// RECURSOS DO MÓDULO DE ATAS
+// ========================================================
 async function atualizarMiniListaAtas() {
     const container = document.getElementById('mini-lista-atas');
     if (!container) return;
@@ -1452,6 +934,275 @@ async function atualizarMiniListaAtas() {
         console.error("Erro na mini-lista de atas:", err);
         container.innerHTML = `<div style="font-size:0.7rem; color:var(--accent-red); text-align:center; width:100%; margin-top:10px;">Erro ao carregar</div>`;
     }
+}
+
+// ========================================================
+// RECURSOS DO MÓDULO DE ACOLHIDOS (DASHBOARD + GESTÃO)
+// ========================================================
+async function atualizarContadoresAcolhidos() {
+    try {
+        const { data, error } = await _supabase
+            .from('acolhidos')
+            .select('*');
+
+        if (error) throw error;
+
+        let totalAcolhidos = 0;
+        let camasLivres = 0;
+
+        if (data) {
+            // Filtra e conta quem de fato está acolhido (Ignora palavras 'Livre' ou 'Vago')
+            totalAcolhidos = data.filter(item => 
+                item.nome && 
+                item.nome.toString().trim() !== "" && 
+                item.nome.toString().trim().toLowerCase() !== 'livre' &&
+                item.nome.toString().trim().toLowerCase() !== 'vago'
+            ).length;
+
+            // Filtra e conta as camas vazias
+            camasLivres = data.filter(item => 
+                !item.nome || 
+                item.nome.toString().trim() === "" || 
+                item.nome.toString().trim().toLowerCase() === 'livre' ||
+                item.nome.toString().trim().toLowerCase() === 'vago'
+            ).length;
+        }
+
+        // Atualiza os elementos visuais do Dashboard Principal (Card) se existirem
+        const dashAcolhidos = document.getElementById('dash-total-acolhidos');
+        const dashLivres = document.getElementById('dash-camas-livres');
+        if (dashAcolhidos) dashAcolhidos.innerText = totalAcolhidos;
+        if (dashLivres) dashLivres.innerText = camasLivres;
+
+        // Atualiza os contadores internos do Modal de Gestão
+        const modalAcolhidos = document.getElementById('count-acolhidos');
+        const modalLivres = document.getElementById('count-livres');
+        if (modalAcolhidos) modalAcolhidos.innerText = totalAcolhidos;
+        if (modalLivres) modalLivres.innerText = camasLivres;
+
+    } catch (err) {
+        console.error("Erro ao atualizar contadores de acolhidos:", err);
+    }
+}
+
+function openAcolhidos() {
+    // Reset visual padrão do seu sistema
+    const lista = document.getElementById('lista-acolhidos');
+    const mapa = document.getElementById('mapa-quartos');
+    if (lista) lista.style.display = 'block';
+    if (mapa) mapa.style.display = 'none';
+    
+    openModal('modalAcolhidos');
+    renderizarAcolhidos(); // Renderiza la lista interna da gestão
+    atualizarContadoresAcolhidos(); // Atualiza os números globais
+}
+
+async function renderizarAcolhidos() {
+    try {
+        const { data, error } = await _supabase.from('acolhidos').select('*').order('quarto');
+        if (error) throw error;
+
+        const container = document.getElementById('lista-acolhidos');
+        if (!container) return;
+
+        // Executa a contagem local da listagem
+        const ocupados = data.filter(a => a.nome && a.nome.trim().toLowerCase() !== 'livre' && a.nome.trim().toLowerCase() !== 'vago');
+        const livres = data.filter(a => !a.nome || a.nome.trim().toLowerCase() === 'livre' || a.nome.trim().toLowerCase() === 'vago');
+
+        const mAc = document.getElementById('count-acolhidos');
+        const mLi = document.getElementById('count-livres');
+        if (mAc) mAc.innerText = ocupados.length;
+        if (mLi) mLi.innerText = livres.length;
+
+        container.innerHTML = data.map(a => {
+            const isLivre = !a.nome || a.nome.trim().toLowerCase() === 'livre' || a.nome.trim().toLowerCase() === 'vago';
+            return `
+                <div class="item-card" style="padding:10px; margin-bottom:8px; border-left: 4px solid ${isLivre ? '#22c55e' : '#3b82f6'}">
+                    <strong style="display:block">${a.nome || 'Cama Vaga'}</strong>
+                    <small style="color:var(--text-dim)">Quarto: ${a.quarto} | Cama: ${a.cama} (${a.tipo || 'S/T'})</small>
+                </div>
+            `;
+        }).join('');
+    } catch (err) {
+        console.error("Erro ao renderizar acolhidos:", err);
+    }
+}
+
+async function importarExcel(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        const dataBytes = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(dataBytes, { type: 'array' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const json = XLSX.utils.sheet_to_json(sheet);
+        const formatado = json.map(row => ({
+            nome: row.Nome || row.nome || 'Livre',
+            quarto: row.Quarto || row.quarto || '?',
+            cama: row.Cama || row.cama || '?',
+            tipo: row.Tipo || row.tipo || 'S/T'
+        }));
+        const { error } = await _supabase.from('acolhidos').insert(formatado);
+        if (!error) {
+            alert("Dados importados com sucesso!");
+            renderizarAcolhidos();
+            atualizarContadoresAcolhidos();
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function toggleMapaQuartos() {
+    const lista = document.getElementById('lista-acolhidos');
+    const mapa = document.getElementById('mapa-quartos');
+    if (mapa.style.display === 'none') {
+        lista.style.display = 'none';
+        mapa.style.display = 'block';
+    } else {
+        lista.style.display = 'block';
+        mapa.style.display = 'none';
+    }
+}
+
+// ========================================================
+// RECURSOS DO MÓDULO FINANCEIRO
+// ========================================================
+let notasParaProcessar = [];
+
+function openFinanceiro() {
+    openModal('modalFinanceiro');
+}
+
+if (!window.arquivosAtuais) window.arquivosAtuais = [];
+
+function handleFinanceiroUpload(input) {
+    const files = Array.from(input.files);
+    if (files.length === 0) return;
+    files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const itemNota = {
+                id: Date.now() + Math.random(),
+                src: e.target.result,
+                file: file
+            };
+            window.arquivosAtuais.push(itemNota);
+            renderizarListaFinanceiro();
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function renderizarListaFinanceiro() {
+    const visor = document.getElementById('visor-notas');
+    const formContainer = document.getElementById('form-notas-container');
+    const containerInterface = document.querySelector('.conferencia-grid-layout') || visor.parentElement;
+    
+    if (!window.arquivosAtuais || window.arquivosAtuais.length === 0) {
+        resetarInterfaceFinanceiro();
+        return;
+    }
+
+    containerInterface.classList.add('conferencia-grid-layout');
+    visor.innerHTML = ''; 
+    formContainer.innerHTML = '';
+
+    window.arquivosAtuais.forEach((item, index) => {
+        const imgDiv = document.createElement('div');
+        imgDiv.className = "imagem-nota-container";
+        imgDiv.id = `scroll-nota-${index}`;
+        imgDiv.innerHTML = ` <div style="background: #3b82f6; color: white; padding: 10px; border-radius: 8px 8px 0 0; font-size: 0.8rem; font-weight: bold; text-align: center; margin-bottom: -5px;"> NOTA FISCAL #${index + 1} </div> <img src="${item.src}" alt="Nota Fiscal ${index + 1}"> `;
+        visor.appendChild(imgDiv);
+
+        const formDiv = document.createElement('div');
+        formDiv.className = 'item-card';
+        formDiv.style = "margin-bottom: 25px; border-left: 5px solid #f59e0b; padding: 15px; background: #1e293b; border-radius: 10px;";
+        formDiv.innerHTML = `
+            <strong style="color: #f59e0b; font-size: 0.9rem; display: block; margin-bottom: 12px;">CONFERÊNCIA DA NF #${index + 1}</strong>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <input type="text" class="codigo-nf-financeiro" placeholder="Número da Nota" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
+                <input type="date" class="data-financeiro" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
+                <input type="number" step="0.01" class="input-financeiro" placeholder="Valor Total R$" oninput="calcularTotalRemessa()" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
+                <select class="cat-financeiro" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
+                    <option value="">Selecione a Categoria...</option>
+                    <option>Gênero Alimentício</option><option>Material de Escritório</option><option>Material de Higiene e Limpeza</option>
+                    <option>Material de Copa e Cozinha</option><option>Material Didático</option><option>Conservação de Edifícios</option>
+                    <option>Conservação de Móveis, Máquinas e Equipamentos</option><option>Material de Sinalização Visual (placas)</option>
+                    <option>EPI</option><option>Medicamentos</option><option>Aluguel carro/combustível</option><option>Gás</option>
+                    <option>Controle de Pragas / Sanitização e Dedetização</option><option>Extintores de Incêndio</option>
+                    <option>Transporte para Usuários - Taxi- Ônibus- App</option><option>Serviços Gráficos</option>
+                    <option>Oficinas e Capacitações</option><option>Material de Cama-mesa e banho</option><option>Uniformes</option>
+                    <option>Materiais elétricos</option><option>Ferramentas</option><option>Material permanente - mesa e cadeira</option>
+                    <option>Material permanente - roupeiros</option><option>Material permanente - Ventilador de Parede</option>
+                    <option>Material permanente - Refrigerador industrial</option>
+                </select>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                <button type="button" onclick="removerNota(${index})" style="background:none; border:none; color:#ef4444; font-size:0.75rem; cursor:pointer;"> <i class="fas fa-trash"></i> Remover Nota </button>
+                <span style="font-size: 0.7rem; color: #64748b;">ID: ${index + 1}</span>
+            </div>
+        `;
+        formContainer.appendChild(formDiv);
+    });
+    calcularTotalRemessa();
+}
+
+function focarNota(index) {
+    const elementoImg = document.getElementById(`scroll-nota-${index}`);
+    if (elementoImg) {
+        elementoImg.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+function removerNota(index) {
+    window.arquivosAtuais.splice(index, 1);
+    renderizarListaFinanceiro();
+}
+
+function resetarInterfaceFinanceiro() {
+    window.arquivosAtuais = [];
+    const fileInput = document.getElementById('upload-lote');
+    if(fileInput) fileInput.value = "";
+    document.getElementById('total-remessa').innerText = "R$ 0,00";
+    document.getElementById('form-notas-container').innerHTML = '<p style="color: #94a3b8; font-size: 0.8rem;">Selecione as notas para iniciar.</p>';
+    document.getElementById('visor-notas').innerHTML = ` <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8;"> <i class="fas fa-images fa-3x"></i><br><br> <button type="button" class="btn-save" onclick="document.getElementById('upload-lote').click()">Carregar Notas</button> </div> `;
+}
+
+function enviarParaDP() {
+    const codigosNF = document.querySelectorAll('.codigo-nf-financeiro');
+    const inputs = document.querySelectorAll('.input-financeiro');
+    const datas = document.querySelectorAll('.data-financeiro');
+    const categorias = document.querySelectorAll('.cat-financeiro');
+    const total = document.getElementById('total-remessa').innerText;
+    
+    if (window.arquivosAtuais.length === 0) {
+        alert("Adicione notas primeiro.");
+        return;
+    }
+    
+    let detalhamento = "";
+    inputs.forEach((input, i) => {
+        const valor = parseFloat(input.value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const dataNota = datas[i].value ? datas[i].value.split('-').reverse().join('/') : "S/ Data";
+        const nf = codigosNF[i].value || "S/ Nº";
+        detalhamento += `🔹 *NF ${nf}:* ${valor} (${categorias[i].value}) - Data: ${dataNota}%0A`;
+    });
+    
+    const msg = `🧾 *RESUMO FINANCEIRO*%0A%0A${detalhamento}%0A💰 *TOTAL: ${total}*`;
+    window.open(`https://wa.me/?text=${msg}`);
+    setTimeout(() => {
+        if(confirm("Deseja limpar os dados deste envio?")) {
+            resetarInterfaceFinanceiro();
+        }
+    }, 1000);
+}
+
+function calcularTotalRemessa() {
+    const inputs = document.querySelectorAll('.input-financeiro');
+    let total = 0;
+    inputs.forEach(i => total += Number(i.value || 0));
+    document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
 }
 </script>
 </body>
