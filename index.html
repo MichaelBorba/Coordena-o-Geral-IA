@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -297,42 +296,102 @@
         </div>
     </div>
 
-    <div id="modalAddEmployee" class="modal-overlay"><div class="modal-content">
-        <h3>Dados do Funcionário</h3>
-        <div class="emp-photo-container" onclick="document.getElementById('input-foto-emp').click()">
-            <img id="preview-foto-emp" style="display:none">
-            <i class="fas fa-camera" id="icon-camera-emp"></i>
-            <input type="file" id="input-foto-emp" accept="image/*" style="display:none" onchange="previewFotoEmp(this)">
-        </div>
-        <input type="hidden" id="editEmpId">
-        <input type="text" id="newEmpName" placeholder="Nome">
-        <input type="text" id="newEmpRole" placeholder="Função">
-        <input type="text" id="newEmpTime" placeholder="Horário">
+    
+<div id="modalAddEmployee" class="modal" style="display: none; position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important; background: rgba(0, 0, 0, 0.75) !important; z-index: 99999 !important; justify-content: center !important; align-items: center !important;">
+    
+    <div class="modal-content" style="max-width: 650px !important; width: 90% !important; background: #1e293b !important; border-radius: 12px !important; padding: 25px !important; box-shadow: 0 10px 32px #020617 !important; position: relative !important; display: block !important; margin: auto !important; box-sizing: border-box !important;">
         
-        <select id="newEmpEquipe">
-            <option value="">Selecione a Equipe</option>
-            <option value="Equipe 1 Diurna">Equipe 1 Diurna</option>
-            <option value="Equipe 2 Diurna">Equipe 2 Diurna</option>
-            <option value="Equipe 1 Noturna">Equipe 1 Noturna</option>
-            <option value="Equipe 2 Noturna">Equipe 2 Noturna</option>
-        </select>
-
-        <label style="font-size: 0.8rem; color: var(--text-dim); display:block; margin-bottom:5px; text-align:left;">Data de Admissão:</label>
-        <input type="date" id="newEmpAdm">
-
-        <button class="btn-save" onclick="salvarFuncionario()">Salvar</button>
-        <button onclick="closeModal('modalAddEmployee')" style="background:none; border:none; color:var(--text-dim); width:100%; margin-top:15px; cursor:pointer">Cancelar</button>
-    </div></div>
-
-    <div id="modalDP" class="modal-overlay">
-        <div class="modal-content">
-            <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="margin:0">Gestão D.P. / Contratos</h3>
-                <i class="fas fa-times" onclick="closeModal('modalDP')" style="cursor:pointer"></i>
-            </div>
-            <div id="lista-dp-funcionarios" style="display: flex; flex-direction: column; gap: 15px;"></div>
+        <span class="close" onclick="closeModal('modalAddEmployee')" style="position: absolute !important; right: 20px !important; top: 15px !important; font-size: 28px !important; cursor: pointer !important; color: #94a3b8 !important; font-weight: bold !important;">&times;</span>
+        
+        <div style="display: flex !important; gap: 10px !important; margin-bottom: 20px !important; border-bottom: 2px solid #334155 !important; padding-bottom: 10px !important; width: 100% !important;">
+            <button type="button" id="tab-btn-prof" onclick="switchEmployeeTab('prof')" style="background: #3b82f6; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold;">Dados Funcionário</button>
+            <button type="button" id="tab-btn-pess" onclick="switchEmployeeTab('pess')" style="background: #334155; color: #94a3b8; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold;">Dados Pessoais</button>
         </div>
+
+        <input type="hidden" id="editEmpId">
+
+        <div id="aba-emp-prof" style="display: block; width: 100% !important;">
+            <div style="display: flex !important; flex-direction: column !important; align-items: center !important; margin-bottom: 15px !important; width: 100% !important;">
+                <div style="width: 80px; height: 80px; background: #334155; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; cursor: pointer;" onclick="document.getElementById('file-foto-emp').click()">
+                    <i class="fas fa-camera fa-2x" id="icon-camera-emp" style="color: #64748b;"></i>
+                    <img id="preview-foto-emp" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                </div>
+                <input type="file" id="file-foto-emp" accept="image/*" style="display: none;" onchange="previewFotoEmp(this)">
+                <small style="color: #94a3b8; margin-top: 5px;">Foto do Funcionário</small>
+            </div>
+
+            <div style="display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 12px !important; width: 100% !important; box-sizing: border-box !important;">
+                <div style="grid-column: span 2 !important;">
+                    <label style="font-size:0.8rem; color:#94a3b8; display: block; margin-bottom: 4px;">Nome Completo</label>
+                    <input type="text" id="newEmpName" placeholder="Ex: João da Silva" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:6px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.8rem; color:#94a3b8; display: block; margin-bottom: 4px;">Função / Cargo</label>
+                    <input type="text" id="newEmpRole" placeholder="Ex: Vigilante" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:6px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.8rem; color:#94a3b8; display: block; margin-bottom: 4px;">Horário de Trabalho</label>
+                    <input type="text" id="newEmpTime" placeholder="Ex: 07:00 às 19:00" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:6px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.8rem; color:#94a3b8; display: block; margin-bottom: 4px;">Equipe / Posto</label>
+                    <input type="text" id="newEmpEquipe" placeholder="Ex: Alfa" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:6px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.8rem; color:#94a3b8; display: block; margin-bottom: 4px;">Data de Admissão</label>
+                    <input type="date" id="newEmpAdm" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:6px; box-sizing: border-box;">
+                </div>
+            </div>
+        </div>
+
+        <div id="aba-emp-pess" style="display: none; width: 100% !important;">
+            <div style="display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 12px !important; max-height: 320px !important; overflow-y: auto !important; padding-right: 5px !important; width: 100% !important; box-sizing: border-box !important;">
+                <div>
+                    <label style="font-size:0.8rem; color:#94a3b8; display: block; margin-bottom: 4px;">Celular / WhatsApp</label>
+                    <input type="text" id="newEmpCel" placeholder="(00) 00000-0000" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:6px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.8rem; color:#94a3b8; display: block; margin-bottom: 4px;">Data de Nascimento</label>
+                    <input type="date" id="newEmpNasc" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:6px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.8rem; color:#94a3b8; display: block; margin-bottom: 4px;">CPF</label>
+                    <input type="text" id="newEmpCPF" placeholder="000.000.000-00" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:6px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.8rem; color:#94a3b8; display: block; margin-bottom: 4px;">RG</label>
+                    <input type="text" id="newEmpRG" placeholder="000000000" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:6px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.8rem; color:#94a3b8; display: block; margin-bottom: 4px;">CTPS (Carteira Trab.)</label>
+                    <input type="text" id="newEmpCTPS" placeholder="Nº da Carteira" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:6px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.8rem; color:#94a3b8; display: block; margin-bottom: 4px;">Habilitação (CNH)</label>
+                    <input type="text" id="newEmpCNH" placeholder="Ex: AB" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:6px; box-sizing: border-box;">
+                </div>
+                <div style="grid-column: span 2 !important;">
+                    <label style="font-size:0.8rem; color:#94a3b8; display: block; margin-bottom: 4px;">Endereço Completo</label>
+                    <input type="text" id="newEmpEnd" placeholder="Rua, número..." style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:6px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.8rem; color:#94a3b8; display: block; margin-bottom: 4px;">Bairro</label>
+                    <input type="text" id="newEmpBairro" placeholder="Bairro" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:6px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-size:0.8rem; color:#94a3b8; display: block; margin-bottom: 4px;">Cidade</label>
+                    <input type="text" id="newEmpCidade" placeholder="Cidade" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:10px; border-radius:6px; box-sizing: border-box;">
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 25px !important; display: flex !important; justify-content: flex-end !important; gap: 10px !important; border-top: 1px solid #334155 !important; padding-top: 15px !important; width: 100% !important; box-sizing: border-box !important;">
+            <button type="button" onclick="closeModal('modalAddEmployee')" style="background:#475569; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:bold;">Cancelar</button>
+            <button type="button" onclick="salvarFuncionario()" style="background:#22c55e; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:bold;">Salvar Dados</button>
+        </div>
+
     </div>
+</div>
 
     <div id="view-calendar" class="view">
         <header>
@@ -487,368 +546,431 @@
    
   const _supabase = supabase.createClient('https://envuzusmubunlrrhhclu.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVudnV6dXNtdWJ1bmxycmhoY2x1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NTMzMTcsImV4cCI6MjA5MzEyOTMxN30.pzepBGPOl9reoD4uLN0HUhpWaWfwv9pjLSkVdau7ntY');
 
-    function changeView(id) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        if(id === 'view-employees') listarEquipe();
-        if(id === 'view-calendar') initCalendar();
-        if(id === 'view-atas') listarAtas();
-    }
-    
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+function changeView(id) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if(id === 'view-employees') listarEquipe();
+    if(id === 'view-calendar') initCalendar();
+    if(id === 'view-atas') listarAtas();
+}
 
-    function uploadFotoCoord(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                document.getElementById('foto-coord-display').src = e.target.result;
-                document.getElementById('foto-coord-display').style.display = 'block';
-                document.getElementById('icon-coord-padrao').style.display = 'none';
-                localStorage.setItem('coord_img', e.target.result);
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
+function openModal(id) { 
+    document.getElementById(id).style.display = 'flex';
+}
+function closeModal(id) { 
+    document.getElementById(id).style.display = 'none';
+}
 
-    let tempFotoBase64 = "";
-
-    function previewFotoEmp(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                document.getElementById('preview-foto-emp').src = e.target.result;
-                document.getElementById('preview-foto-emp').style.display = 'block';
-                document.getElementById('icon-camera-emp').style.display = 'none';
-                tempFotoBase64 = e.target.result;
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    async function listarEquipe() {
-        const container = document.getElementById('employee-list');
-        container.innerHTML = "Buscando...";
-        const { data } = await _supabase.from('funcionarios').select('*').order('nome');
-        container.innerHTML = "";
-        
-        data?.forEach(emp => {
-            const div = document.createElement('div'); div.className = 'item-card';
-            div.innerHTML = `
-                <div class="emp-info-row">
-                    <img src="${emp.foto || 'https://via.placeholder.com/50'}" class="thumb-emp">
-                    <div>
-                        <strong style="font-size: 1rem; display:block;">${emp.nome}</strong>
-                        <small style="color:var(--text-dim)">${emp.funcao} | ${emp.horario}</small>
-                    </div>
-                    <div class="card-actions-top">
-                        <i class="fas fa-file-medical" style="color:var(--accent-purple); cursor:pointer" onclick="verHistorico('${emp.id}', '${emp.nome}')"></i>
-                        <i class="fas fa-edit" style="cursor:pointer" onclick="prepararEdicaoEmp('${emp.id}','${emp.nome}','${emp.funcao}','${emp.horario}','${emp.equipe}', '${emp.foto}', '${emp.data_admissa}')"></i>
-                        <i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('funcionarios','${emp.id}',listarEquipe)"></i>
-                    </div>
-                </div>
-                <div class="emp-controls-footer">
-                    <button class="btn-action" style="background:#3b82f622; color:#60a5fa" onclick="abrirModalRegistro('${emp.id}', 'alinhamentos')">
-                        <i class="fas fa-comments"></i> ALINHAMENTO
-                    </button>
-                    <button class="btn-action" style="background:#ef444422; color:#f87171" onclick="abrirModalRegistro('${emp.id}', 'advertencias')">
-                        <i class="fas fa-exclamation-triangle"></i> ADVERTÊNCIA
-                    </button>
-                </div>`;
-            container.appendChild(div);
-        });
-    }
-
-    async function salvarFuncionario() {
-        const id = document.getElementById('editEmpId').value;
-        const payload = { 
-            nome: document.getElementById('newEmpName').value, 
-            funcao: document.getElementById('newEmpRole').value, 
-            horario: document.getElementById('newEmpTime').value, 
-            equipe: document.getElementById('newEmpEquipe').value,
-            data_admissa: document.getElementById('newEmpAdm').value, 
-            foto: tempFotoBase64
+function uploadFotoCoord(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('foto-coord-display').src = e.target.result;
+            document.getElementById('foto-coord-display').style.display = 'block';
+            document.getElementById('icon-coord-padrao').style.display = 'none';
+            localStorage.setItem('coord_img', e.target.result);
         };
-        
-        if(id) {
-            await _supabase.from('funcionarios').update(payload).eq('id', id);
-        } else {
-            await _supabase.from('funcionarios').insert([payload]);
-        }
-        closeModal('modalAddEmployee'); 
-        listarEquipe();
+        reader.readAsDataURL(input.files[0]);
     }
+}
 
-    function prepararNovoEmp() {
-        document.getElementById('editEmpId').value = "";
-        document.getElementById('newEmpName').value = "";
-        document.getElementById('newEmpRole').value = "";
-        document.getElementById('newEmpTime').value = "";
-        document.getElementById('newEmpEquipe').value = "";
-        document.getElementById('newEmpAdm').value = "";
+let tempFotoBase64 = "";
+function previewFotoEmp(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('preview-foto-emp').src = e.target.result;
+            document.getElementById('preview-foto-emp').style.display = 'block';
+            document.getElementById('icon-camera-emp').style.display = 'none';
+            tempFotoBase64 = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+async function listarEquipe() {
+    const container = document.getElementById('employee-list');
+    container.innerHTML = "Buscando...";
+    const { data } = await _supabase.from('funcionarios').select('*').order('nome');
+    container.innerHTML = "";
+    data?.forEach(emp => {
+        const div = document.createElement('div'); div.className = 'item-card';
+        div.innerHTML = `
+            <div class="emp-info-row">
+                <img src="${emp.foto || 'https://via.placeholder.com/50'}" class="thumb-emp">
+                <div>
+                    <strong style="font-size: 1rem; display:block;">${emp.nome}</strong>
+                    <small style="color:var(--text-dim)">${emp.funcao} | ${emp.horario}</small>
+                </div>
+                <div class="card-actions-top">
+                    <i class="fas fa-file-medical" style="color:var(--accent-purple); cursor:pointer" onclick="verHistorico('${emp.id}', '${emp.nome}')"></i>
+                    <i class="fas fa-edit" style="cursor:pointer" onclick="prepararEdicaoEmp('${emp.id}','${emp.nome}','${emp.funcao}','${emp.horario}','${emp.equipe}', '${emp.foto}', '${emp.data_admissa}')"></i>
+                    <i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('funcionarios','${emp.id}',listarEquipe)"></i>
+                </div>
+            </div>
+            <div class="emp-controls-footer">
+                <button class="btn-action" style="background:#3b82f622; color:#60a5fa" onclick="abrirModalRegistro('${emp.id}', 'alinhamentos')">
+                    <i class="fas fa-comments"></i> ALINHAMENTO
+                </button>
+                <button class="btn-action" style="background:#ef444422; color:#f87171" onclick="abrirModalRegistro('${emp.id}', 'advertencias')">
+                    <i class="fas fa-exclamation-triangle"></i> ADVERTÊNCIA
+                </button>
+            </div>`;
+        container.appendChild(div);
+    });
+}
+
+async function salvarFuncionario() {
+    const id = document.getElementById('editEmpId').value;
+    const payload = { 
+        nome: document.getElementById('newEmpName').value, 
+        funcao: document.getElementById('newEmpRole').value, 
+        horario: document.getElementById('newEmpTime').value, 
+        equipe: document.getElementById('newEmpEquipe').value,
+        data_admissa: document.getElementById('newEmpAdm').value, 
+        foto: tempFotoBase64
+    };
+    
+    if(id) {
+        await _supabase.from('funcionarios').update(payload).eq('id', id);
+    } else {
+        await _supabase.from('funcionarios').insert([payload]);
+    }
+    closeModal('modalAddEmployee');
+    listarEquipe();
+}
+
+function prepararNovoEmp() {
+    document.getElementById('editEmpId').value = "";
+    document.getElementById('newEmpName').value = "";
+    document.getElementById('newEmpRole').value = "";
+    document.getElementById('newEmpTime').value = "";
+    document.getElementById('newEmpEquipe').value = "";
+    document.getElementById('newEmpAdm').value = "";
+    document.getElementById('preview-foto-emp').style.display = 'none';
+    document.getElementById('icon-camera-emp').style.display = 'block';
+    tempFotoBase64 = "";
+    openModal('modalAddEmployee');
+}
+
+function prepararEdicaoEmp(id, n, f, h, e, foto, adm) {
+    document.getElementById('editEmpId').value = id;
+    document.getElementById('newEmpName').value = n;
+    document.getElementById('newEmpRole').value = f;
+    document.getElementById('newEmpTime').value = h;
+    document.getElementById('newEmpEquipe').value = e || "";
+    document.getElementById('newEmpAdm').value = adm || "";
+    if(foto) {
+        document.getElementById('preview-foto-emp').src = foto;
+        document.getElementById('preview-foto-emp').style.display = 'block';
+        document.getElementById('icon-camera-emp').style.display = 'none';
+        tempFotoBase64 = foto;
+    } else {
         document.getElementById('preview-foto-emp').style.display = 'none';
         document.getElementById('icon-camera-emp').style.display = 'block';
         tempFotoBase64 = "";
-        openModal('modalAddEmployee');
     }
+    openModal('modalAddEmployee');
+}
 
-    function prepararEdicaoEmp(id, n, f, h, e, foto, adm) {
-        document.getElementById('editEmpId').value = id;
-        document.getElementById('newEmpName').value = n;
-        document.getElementById('newEmpRole').value = f;
-        document.getElementById('newEmpTime').value = h;
-        document.getElementById('newEmpEquipe').value = e || "";
-        document.getElementById('newEmpAdm').value = adm || "";
-        if(foto) {
-            document.getElementById('preview-foto-emp').src = foto;
+// ========================================================
+// SISTEMA DE ABAS E INTEGRAÇÃO DE DADOS PESSOAIS
+// ========================================================
+
+// Função para alternar visualmente entre as abas Dados Profissionais e Dados Pessoais
+function switchEmployeeTab(tab) {
+    const abaProf = document.getElementById('aba-emp-prof');
+    const abaPess = document.getElementById('aba-emp-pess');
+    const btnProf = document.getElementById('tab-btn-prof');
+    const btnPess = document.getElementById('tab-btn-pess');
+
+    if (tab === 'prof') {
+        if(abaProf) abaProf.style.display = 'block';
+        if(abaPess) abaPess.style.display = 'none';
+        if(btnProf) { btnProf.style.background = 'var(--primary-blue)'; btnProf.style.color = 'white'; }
+        if(btnPess) { btnPess.style.background = '#334155'; btnPess.style.color = 'var(--text-dim)'; }
+    } else {
+        if(abaProf) abaProf.style.display = 'none';
+        if(abaPess) abaPess.style.display = 'block';
+        if(btnProf) { btnProf.style.background = '#334155'; btnProf.style.color = 'var(--text-dim)'; }
+        if(btnPess) { btnPess.style.background = 'var(--primary-blue)'; btnPess.style.color = 'white'; }
+    }
+}
+
+// Abre o modal de Cadastrar Novo Funcionário limpando as duas abas completamente
+function prepararNovoEmp() {
+    document.getElementById('editEmpId').value = "";
+    
+    // Limpeza da Aba 1 (Dados Profissionais)
+    document.getElementById('newEmpName').value = "";
+    document.getElementById('newEmpRole').value = "";
+    document.getElementById('newEmpTime').value = "";
+    document.getElementById('newEmpEquipe').value = "";
+    document.getElementById('newEmpAdm').value = "";
+    
+    // Limpeza da Aba 2 (Dados Pessoais)
+    if(document.getElementById('newEmpCel')) document.getElementById('newEmpCel').value = "";
+    if(document.getElementById('newEmpNasc')) document.getElementById('newEmpNasc').value = "";
+    if(document.getElementById('newEmpCPF')) document.getElementById('newEmpCPF').value = "";
+    if(document.getElementById('newEmpRG')) document.getElementById('newEmpRG').value = "";
+    if(document.getElementById('newEmpTitulo')) document.getElementById('newEmpTitulo').value = "";
+    if(document.getElementById('newEmpCTPS')) document.getElementById('newEmpCTPS').value = "";
+    if(document.getElementById('newEmpCNH')) document.getElementById('newEmpCNH').value = "";
+    if(document.getElementById('newEmpHorasMes')) document.getElementById('newEmpHorasMes').value = "";
+    if(document.getElementById('newEmpEnd')) document.getElementById('newEmpEnd').value = "";
+    if(document.getElementById('newEmpBairro')) document.getElementById('newEmpBairro').value = "";
+    if(document.getElementById('newEmpCEP')) document.getElementById('newEmpCEP').value = "";
+    if(document.getElementById('newEmpCidade')) document.getElementById('newEmpCidade').value = "";
+    if(document.getElementById('newEmpEstado')) document.getElementById('newEmpEstado').value = "";
+    if(document.getElementById('newEmpDeslig')) document.getElementById('newEmpDeslig').value = "";
+
+    // Foto
+    document.getElementById('preview-foto-emp').style.display = 'none';
+    document.getElementById('icon-camera-emp').style.display = 'block';
+    tempFotoBase64 = "";
+    
+    switchEmployeeTab('prof'); // Sempre começa focado nos dados profissionais
+    openModal('modalAddEmployee');
+}
+
+// MODIFICADO: Agora busca TODOS os dados no Supabase e injeta nos inputs das Abas
+async function prepararEdicaoEmp(id) {
+    if(!id) return;
+    
+    try {
+        // Busca direta de todas as colunas para alimentar as duas abas simultaneamente
+        const { data: emp, error } = await _supabase.from('funcionarios').select('*').eq('id', id).single();
+        if(error || !emp) throw new Error("Não foi possível carregar os dados do funcionário.");
+
+        document.getElementById('editEmpId').value = emp.id;
+        
+        // Alimenta Aba 1 (Dados Profissionais)
+        document.getElementById('newEmpName').value = emp.nome || "";
+        document.getElementById('newEmpRole').value = emp.funcao || "";
+        document.getElementById('newEmpTime').value = emp.horario || "";
+        document.getElementById('newEmpEquipe').value = emp.equipe || "";
+        document.getElementById('newEmpAdm').value = emp.data_admissa || "";
+        
+        // Alimenta Aba 2 (Dados Pessoais)
+        if(document.getElementById('newEmpCel')) document.getElementById('newEmpCel').value = emp.celular || "";
+        if(document.getElementById('newEmpNasc')) document.getElementById('newEmpNasc').value = emp.nascimento || "";
+        if(document.getElementById('newEmpCPF')) document.getElementById('newEmpCPF').value = emp.cpf || "";
+        if(document.getElementById('newEmpRG')) document.getElementById('newEmpRG').value = emp.rg || "";
+        if(document.getElementById('newEmpTitulo')) document.getElementById('newEmpTitulo').value = emp.titulo_eleitor || "";
+        if(document.getElementById('newEmpCTPS')) document.getElementById('newEmpCTPS').value = emp.ctps || "";
+        if(document.getElementById('newEmpCNH')) document.getElementById('newEmpCNH').value = emp.habilitacao || "";
+        if(document.getElementById('newEmpHorasMes')) document.getElementById('newEmpHorasMes').value = emp.qtde_horas_mes || "";
+        if(document.getElementById('newEmpEnd')) document.getElementById('newEmpEnd').value = emp.endereco || "";
+        if(document.getElementById('newEmpBairro')) document.getElementById('newEmpBairro').value = emp.bairro || "";
+        if(document.getElementById('newEmpCEP')) document.getElementById('newEmpCEP').value = emp.cep || "";
+        if(document.getElementById('newEmpCidade')) document.getElementById('newEmpCidade').value = emp.cidade || "";
+        if(document.getElementById('newEmpEstado')) document.getElementById('newEmpEstado').value = emp.estado || "";
+        if(document.getElementById('newEmpDeslig')) document.getElementById('newEmpDeslig').value = emp.data_desligamento || "";
+
+        // Foto
+        if(emp.foto) {
+            document.getElementById('preview-foto-emp').src = emp.foto;
             document.getElementById('preview-foto-emp').style.display = 'block';
             document.getElementById('icon-camera-emp').style.display = 'none';
-            tempFotoBase64 = foto;
+            tempFotoBase64 = emp.foto;
         } else {
             document.getElementById('preview-foto-emp').style.display = 'none';
             document.getElementById('icon-camera-emp').style.display = 'block';
             tempFotoBase64 = "";
         }
+        
+        switchEmployeeTab('prof'); // Abre focado na primeira aba
         openModal('modalAddEmployee');
+    } catch(err) {
+        console.error("Erro ao carregar dados do funcionário:", err);
+        alert(err.message);
     }
-
-    async function abrirModuloDP() {
-    openModal('modalDP');
-    const container = document.getElementById('lista-dp-funcionarios');
-    container.innerHTML = "Buscando dados...";
-    
-    // Busca todos os campos da tabela funcionários
-    const { data } = await _supabase.from('funcionarios').select('*').order('nome');
-    container.innerHTML = "";
-
-    data?.forEach(emp => {
-        const div = document.createElement('div'); 
-        div.className = 'item-card';
-        div.id = `card-dp-${emp.id}`; // ID necessário para o PDF
-        div.style.borderLeft = "4px solid var(--primary-blue)";
-        
-        div.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <strong style="color:var(--primary-blue); font-size:1.1rem;">${emp.nome}</strong>
-                <div style="display:flex; gap:8px;">
-                    <button onclick="gerarPDF('${emp.id}')" style="background:#475569; border:none; color:white; padding:8px; border-radius:8px; cursor:pointer"><i class="fas fa-file-pdf"></i> PDF</button>
-                    <button onclick="enviarZapDPCompleto('${emp.id}')" style="background:#25d366; border:none; color:white; padding:8px; border-radius:8px; cursor:pointer"><i class="fab fa-whatsapp"></i> WhatsApp</button>
-                </div>
-            </div>
-
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; font-size:0.75rem;">
-                <div style="background:rgba(255,255,255,0.03); padding:8px; border-radius:8px;">
-                    <p style="margin:0 0 5px 0; color:var(--accent-orange)"><b>DOCUMENTOS</b></p>
-                    CPF: <input type="text" class="dp-input-small" value="${emp.cpf || ''}" onblur="atualizarValor('${emp.id}','cpf',this.value)">
-                    RG: <input type="text" class="dp-input-small" value="${emp.rg || ''}" onblur="atualizarValor('${emp.id}','rg',this.value)">
-                    CTPS: <input type="text" class="dp-input-small" value="${emp.ctps || ''}" onblur="atualizarValor('${emp.id}','ctps',this.value)">
-                </div>
-
-                <div style="background:rgba(255,255,255,0.03); padding:8px; border-radius:8px;">
-                    <p style="margin:0 0 5px 0; color:var(--accent-orange)"><b>LOCALIZAÇÃO</b></p>
-                    Rua: <input type="text" class="dp-input-small" value="${emp.endereco || ''}" onblur="atualizarValor('${emp.id}','endereco',this.value)">
-                    Bairro: <input type="text" class="dp-input-small" value="${emp.bairro || ''}" onblur="atualizarValor('${emp.id}','bairro',this.value)">
-                    Cidade: <input type="text" class="dp-input-small" value="${emp.cidade || ''}" onblur="atualizarValor('${emp.id}','cidade',this.value)">
-                </div>
-
-                <div style="background:rgba(255,255,255,0.03); padding:8px; border-radius:8px; grid-column: span 2;">
-                    <p style="margin:0 0 5px 0; color:var(--accent-green)"><b>STATUS DE CONTRATAÇÃO</b></p>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px;">
-                        <label><input type="checkbox" ${emp.check_docs?'checked':''} onchange="atualizarCheck('${emp.id}','check_docs',this.checked)"> Docs</label>
-                        <label><input type="checkbox" ${emp.check_contrato?'checked':''} onchange="atualizarCheck('${emp.id}','check_contrato',this.checked)"> Contrato</label>
-                        <label><input type="checkbox" ${emp.check_aso?'checked':''} onchange="atualizarCheck('${emp.id}','check_aso',this.checked)"> ASO</label>
-                        <label><input type="checkbox" ${emp.check_vt?'checked':''} onchange="atualizarCheck('${emp.id}','check_vt',this.checked)"> VT</label>
-                        <label><input type="checkbox" ${emp.check_cracha?'checked':''} onchange="atualizarCheck('${emp.id}','check_cracha',this.checked)"> Crachá</label>
-                    </div>
-                </div>
-            </div>
-        `;
-        container.appendChild(div);
-    });
 }
-    async function atualizarCheck(id, campo, valor) {
-        await _supabase.from('funcionarios').update({ [campo]: valor }).eq('id', id);
-    }
 
-    async function atualizarValor(id, campo, valor) {
-        await _supabase.from('funcionarios').update({ [campo]: valor }).eq('id', id);
-    }
+// Mantido apenas para compatibilidade caso o banco utilize em algum outro ponto antigo
+async function atualizarCheck(id, campo, valor) {
+    await _supabase.from('funcionarios').update({ [campo]: valor }).eq('id', id);
+}
 
-    async function enviarZapDPCompleto(id) {
+// Mantido apenas para compatibilidade caso o banco utilize em algum outro ponto antigo
+async function atualizarValor(id, campo, valor) {
+    await _supabase.from('funcionarios').update({ [campo]: valor }).eq('id', id);
+}
+
+// Mantido e atualizado para usar as novas colunas unificadas no WhatsApp caso queira disparar
+async function enviarZapDPCompleto(id) {
     try {
-        // Busca os dados do funcionário para garantir que a mensagem vá preenchida
         const { data: emp, error } = await _supabase.from('funcionarios').select('*').eq('id', id).single();
-        
         if (error || !emp) {
             alert("Erro ao localizar dados do funcionário para o WhatsApp.");
             return;
         }
 
-        const simOuNao = (v) => v ? '✅ Sim' : '❌ Não';
-
-        // Montagem da mensagem estruturada
-        const texto = `*GESTÃO D.P. - FICHA DE FUNCIONÁRIO*%0A%0A` +
+        const texto = `*FICHA COMPLETA DO FUNCIONÁRIO*%0A%0A` +
             `👤 *Nome:* ${emp.nome}%0A` +
-            `💳 *CPF:* ${emp.cpf || '---'}%0A` +
             `🏢 *Função:* ${emp.funcao || '---'}%0A` +
-            `📍 *Equipe:* ${emp.equipe || '---'}%0A%0A` +
-            `*STATUS DOCUMENTAÇÃO:*%0A` +
-            `📄 RG: ${simOuNao(emp.doc_rg)}%0A` +
-            `📜 CPF: ${simOuNao(emp.doc_cpf)}%0A` +
-            `📑 Contrato: ${simOuNao(emp.doc_contrato)}%0A` +
-            `🏥 ASO: ${simOuNao(emp.doc_aso)}%0A%0A` +
-            `📝 *ALINHAMENTOS:*%0A${emp.alinhamentos || 'Nenhum registro.'}`;
+            `⏰ *Horário:* ${emp.horario || '---'}%0A` +
+            `📍 *Equipe:* ${emp.equipe || '---'}%0A` +
+            `📅 *Admissão:* ${emp.data_admissa || '---'}%0A%0A` +
+            `*DADOS PESSOAIS:*%0A` +
+            `📱 *Celular:* ${emp.celular || '---'}%0A` +
+            `💳 *CPF:* ${emp.cpf || '---'}%0A` +
+            `🪪 *RG:* ${emp.rg || '---'}%0A` +
+            `🏠 *Endereço:* ${emp.endereco || '---'}, ${emp.bairro || '---'}%0A` +
+            `🏙️ *Cidade:* ${emp.cidade || '---'}-${emp.estado || '---'}%0A` +
+            `📦 *CEP:* ${emp.cep || '---'}`;
 
-        // Abre o WhatsApp (Substitua pelo seu número se quiser fixar um destinatário)
         window.open(`https://wa.me/?text=${texto}`, '_blank');
-        
     } catch (err) {
         console.error("Erro no Zap:", err);
         alert("Ocorreu um erro ao gerar a mensagem.");
     }
-                                   }
-                                                          
-    let eventosCache = [];
-    async function initCalendar() {
-        const agora = new Date();
-        const nomesMeses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-        const mesDiv = document.getElementById('mes-atual');
-        if(mesDiv) mesDiv.innerText = `${nomesMeses[agora.getMonth()]} ${agora.getFullYear()}`;
-        const { data } = await _supabase.from('eventos').select('*');
-        eventosCache = data || [];
-        renderizarCalendario(agora.getMonth(), agora.getFullYear());
+}
+let eventosCache = [];
+async function initCalendar() {
+    const agora = new Date();
+    const nomesMeses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    const mesDiv = document.getElementById('mes-atual');
+    if(mesDiv) mesDiv.innerText = `${nomesMeses[agora.getMonth()]} ${agora.getFullYear()}`;
+    const { data } = await _supabase.from('eventos').select('*');
+    eventosCache = data || [];
+    renderizarCalendario(agora.getMonth(), agora.getFullYear());
+}
+
+function renderizarCalendario(mes, ano) {
+    const grid = document.getElementById('calendario-dias');
+    if(!grid) return;
+    grid.innerHTML = "";
+    ["D", "S", "T", "Q", "Q", "S", "S"].forEach(d => grid.innerHTML += `<div style="font-size:0.7rem; color:var(--text-dim); padding-bottom:5px;">${d}</div>`);
+    const primeiroDia = new Date(ano, mes, 1).getDay();
+    const totalDias = new Date(ano, mes + 1, 0).getDate();
+    for(let i = 0; i < primeiroDia; i++) grid.innerHTML += `<div></div>`;
+    for(let dia = 1; dia <= totalDias; dia++) {
+        const dataISO = `${ano}-${String(mes+1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+        const temEvento = eventosCache.some(e => e.data_evento === dataISO);
+        grid.innerHTML += `<div class="calendar-day ${temEvento ? 'has-event' : ''}" onclick="verEventosDia('${dataISO}', ${dia})">${dia}</div>`;
     }
+}
 
-    function renderizarCalendario(mes, ano) {
-        const grid = document.getElementById('calendario-dias'); if(!grid) return;
-        grid.innerHTML = "";
-        ["D", "S", "T", "Q", "Q", "S", "S"].forEach(d => grid.innerHTML += `<div style="font-size:0.7rem; color:var(--text-dim); padding-bottom:5px;">${d}</div>`);
-        const primeiroDia = new Date(ano, mes, 1).getDay();
-        const totalDias = new Date(ano, mes + 1, 0).getDate();
-        for(let i = 0; i < primeiroDia; i++) grid.innerHTML += `<div></div>`;
-        for(let dia = 1; dia <= totalDias; dia++) {
-            const dataISO = `${ano}-${String(mes+1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-            const temEvento = eventosCache.some(e => e.data_evento === dataISO);
-            grid.innerHTML += `<div class="calendar-day ${temEvento ? 'has-event' : ''}" onclick="verEventosDia('${dataISO}', ${dia})">${dia}</div>`;
-        }
-    }
+function verEventosDia(dataISO, dia) {
+    const lista = document.getElementById('lista-eventos-dia');
+    const eventosDia = eventosCache.filter(e => e.data_evento === dataISO);
+    document.getElementById('panel-data').innerText = `Dia ${dia}`;
+    document.getElementById('event-panel').style.display = 'block';
+    lista.innerHTML = eventosDia.length ? "" : "<small>Sem compromissos.</small>";
+    eventosDia.forEach(e => {
+        lista.innerHTML += `<div style="padding:8px 0; border-bottom:1px solid #334155; display:flex; justify-content:space-between">
+            <span><b>${e.titulo}</b><br><small>${e.hora_evento}</small></span>
+            <i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('eventos','${e.id}',initCalendar)"></i>
+        </div>`;
+    });
+}
 
-    function verEventosDia(dataISO, dia) {
-        const lista = document.getElementById('lista-eventos-dia');
-        const eventosDia = eventosCache.filter(e => e.data_evento === dataISO);
-        document.getElementById('panel-data').innerText = `Dia ${dia}`;
-        document.getElementById('event-panel').style.display = 'block';
-        lista.innerHTML = eventosDia.length ? "" : "<small>Sem compromissos.</small>";
-        eventosDia.forEach(e => {
-            lista.innerHTML += `<div style="padding:8px 0; border-bottom:1px solid #334155; display:flex; justify-content:space-between">
-                <span><b>${e.titulo}</b><br><small>${e.hora_evento}</small></span>
-                <i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('eventos','${e.id}',initCalendar)"></i>
-            </div>`;
-        });
-    }
+async function salvarEvento() {
+    await _supabase.from('eventos').insert([{ 
+        titulo: document.getElementById('eventTitulo').value, 
+        data_evento: document.getElementById('eventData').value, 
+        hora_evento: document.getElementById('eventHora').value 
+    }]);
+    closeModal('modalEvento'); initCalendar();
+}
 
-    async function salvarEvento() {
-        await _supabase.from('eventos').insert([{ 
-            titulo: document.getElementById('eventTitulo').value, 
-            data_evento: document.getElementById('eventData').value, 
-            hora_evento: document.getElementById('eventHora').value 
-        }]);
-        closeModal('modalEvento'); initCalendar();
-    }
+async function listarAtas() {
+    const container = document.getElementById('lista-atas');
+    if(!container) return;
+    container.innerHTML = "";
+    const { data } = await _supabase.from('atas').select('*').order('created_at', {ascending: false});
+    data?.forEach(ata => {
+        const div = document.createElement('div'); div.className = 'item-card';
+        div.innerHTML = `<div onclick="abrirAta('${ata.link_drive}')" style="cursor:pointer; flex:1"><strong>${ata.nome}</strong><br><small>${ata.data_ata}</small></div>
+        <div style="display:flex; gap:10px;"><i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('atas','${ata.id}',listarAtas)"></i></div>`;
+        container.appendChild(div);
+    });
+}
 
-    async function listarAtas() {
-        const container = document.getElementById('lista-atas'); if(!container) return;
-        container.innerHTML = "";
-        const { data } = await _supabase.from('atas').select('*').order('created_at', {ascending: false});
-        data?.forEach(ata => {
-            const div = document.createElement('div'); div.className = 'item-card';
-            div.innerHTML = `<div onclick="abrirAta('${ata.link_drive}')" style="cursor:pointer; flex:1"><strong>${ata.nome}</strong><br><small>${ata.data_ata}</small></div>
-            <div style="display:flex; gap:10px;"><i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('atas','${ata.id}',listarAtas)"></i></div>`;
-            container.appendChild(div);
-        });
-    }
+async function salvarAta() {
+    await _supabase.from('atas').insert([{ 
+        nome: document.getElementById('newAtaName').value, 
+        data_ata: document.getElementById('newAtaDate').value, 
+        link_drive: document.getElementById('newAtaLink').value.replace('/view', '/preview') 
+    }]);
+    closeModal('modalAddAta'); listarAtas();
+}
 
-    async function salvarAta() {
-        await _supabase.from('atas').insert([{ 
-            nome: document.getElementById('newAtaName').value, 
-            data_ata: document.getElementById('newAtaDate').value, 
-            link_drive: document.getElementById('newAtaLink').value.replace('/view', '/preview') 
-        }]);
-        closeModal('modalAddAta'); listarAtas();
-    }
+function abrirAta(l) { 
+     const v = document.getElementById('ata-viewer');
+     v.src=l; v.style.display='block'; 
+     document.getElementById('btn-fechar-viewer').style.display='block'; 
+     document.getElementById('lista-atas').style.display='none'; 
+}
+function fecharViewer() { 
+     document.getElementById('ata-viewer').style.display='none';
+     document.getElementById('btn-fechar-viewer').style.display='none'; 
+     document.getElementById('lista-atas').style.display='block'; 
+}
 
-    function abrirAta(l) { 
-         const v = document.getElementById('ata-viewer'); v.src=l; v.style.display='block'; 
-         document.getElementById('btn-fechar-viewer').style.display='block'; 
-         document.getElementById('lista-atas').style.display='none'; 
-     }
-    function fecharViewer() { 
-         document.getElementById('ata-viewer').style.display='none'; 
-         document.getElementById('btn-fechar-viewer').style.display='none'; 
-         document.getElementById('lista-atas').style.display='block'; 
-     }
+function openPatrimonio() { openModal('modalPatrimonio'); listarPatri(); }
+async function listarPatri() {
+    const container = document.getElementById('itensCadastrados');
+    if(!container) return;
+    container.innerHTML = "";
+    const { data } = await _supabase.from('patrimonio').select('*').order('item');
+    data?.forEach(p => {
+        const div = document.createElement('div'); div.className = 'item-card';
+        div.innerHTML = `<div style="flex:1"><strong>${p.item} (${p.quantidade})</strong><br><small>${p.estado}</small></div>
+        <i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('patrimonio','${p.id}',listarPatri)"></i>`;
+        container.appendChild(div);
+    });
+}
+async function salvarPatrimonio() {
+    await _supabase.from('patrimonio').insert([{ item: document.getElementById('patItem').value, quantidade: document.getElementById('patQtd').value, estado: document.getElementById('patEstado').value }]);
+    listarPatri(); switchPatriTab('lista');
+}
+function switchPatriTab(t) { 
+     document.getElementById('patriForm').style.display = t==='novo'?'block':'none';
+     document.getElementById('patriLista').style.display = t==='lista'?'block':'none'; 
+}
 
-    function openPatrimonio() { openModal('modalPatrimonio'); listarPatri(); }
-    async function listarPatri() {
-        const container = document.getElementById('itensCadastrados'); if(!container) return;
-        container.innerHTML = "";
-        const { data } = await _supabase.from('patrimonio').select('*').order('item');
-        data?.forEach(p => {
-            const div = document.createElement('div'); div.className = 'item-card';
-            div.innerHTML = `<div style="flex:1"><strong>${p.item} (${p.quantidade})</strong><br><small>${p.estado}</small></div>
-            <i class="fas fa-trash" style="color:var(--accent-red); cursor:pointer" onclick="excluirItem('patrimonio','${p.id}',listarPatri)"></i>`;
-            container.appendChild(div);
-        });
-    }
-    async function salvarPatrimonio() {
-        await _supabase.from('patrimonio').insert([{ item: document.getElementById('patItem').value, quantidade: document.getElementById('patQtd').value, estado: document.getElementById('patEstado').value }]);
-        listarPatri(); switchPatriTab('lista');
-    }
-    function switchPatriTab(t) { 
-         document.getElementById('patriForm').style.display = t==='novo'?'block':'none'; 
-         document.getElementById('patriLista').style.display = t==='lista'?'block':'none'; 
-     }
+async function verHistorico(id, nome) {
+    document.getElementById('histNome').innerText = "Histórico: " + nome;
+    const { data } = await _supabase.from('funcionarios').select('alinhamentos, advertencias').eq('id', id).single();
+    document.getElementById('histConteudo').innerHTML = `
+        <small style="color:var(--primary-blue)"><b>ALINHAMENTOS:</b></small>
+        <div class="historico-box">${data.alinhamentos || 'Sem registros.'}</div>
+        <br><small style="color:var(--accent-red)"><b>ADVERTÊNCIAS:</b></small>
+        <div class="historico-box" style="border-left-color:var(--accent-red)">${data.advertencias || 'Sem registros.'}</div>`;
+    openModal('modalHistorico');
+}
 
-    async function verHistorico(id, nome) {
-        document.getElementById('histNome').innerText = "Histórico: " + nome;
-        const { data } = await _supabase.from('funcionarios').select('alinhamentos, advertencias').eq('id', id).single();
-        document.getElementById('histConteudo').innerHTML = `
-            <small style="color:var(--primary-blue)"><b>ALINHAMENTOS:</b></small>
-            <div class="historico-box">${data.alinhamentos || 'Sem registros.'}</div>
-            <br><small style="color:var(--accent-red)"><b>ADVERTÊNCIAS:</b></small>
-            <div class="historico-box" style="border-left-color:var(--accent-red)">${data.advertencias || 'Sem registros.'}</div>`;
-        openModal('modalHistorico');
-    }
+function abrirModalRegistro(id, tipo) {
+    document.getElementById('regEmpId').value = id;
+    document.getElementById('regTipo').value = tipo;
+    document.getElementById('regTexto').value = "";
+    document.getElementById('tituloRegistro').innerText = tipo === 'alinhamentos' ? "Novo Alinhamento" : "Nova Advertência";
+    openModal('modalRegistro');
+}
 
-    function abrirModalRegistro(id, tipo) {
-        document.getElementById('regEmpId').value = id;
-        document.getElementById('regTipo').value = tipo;
-        document.getElementById('regTexto').value = "";
-        document.getElementById('tituloRegistro').innerText = tipo === 'alinhamentos' ? "Novo Alinhamento" : "Nova Advertência";
-        openModal('modalRegistro');
-    }
+async function confirmarRegistro() {
+    const id = document.getElementById('regEmpId').value;
+    const tipo = document.getElementById('regTipo').value;
+    const textoNovo = document.getElementById('regTexto').value;
+    if(!textoNovo) return alert("Digite o motivo.");
+    const { data } = await _supabase.from('funcionarios').select(tipo).eq('id', id).single();
+    const novoHist = (data[tipo] || "") + `\n[${new Date().toLocaleDateString('pt-BR')}]: ${textoNovo}`;
+    await _supabase.from('funcionarios').update({ [tipo]: novoHist }).eq('id', id);
+    closeModal('modalRegistro'); listarEquipe();
+}
 
-    async function confirmarRegistro() {
-        const id = document.getElementById('regEmpId').value;
-        const tipo = document.getElementById('regTipo').value;
-        const textoNovo = document.getElementById('regTexto').value;
-        if(!textoNovo) return alert("Digite o motivo.");
-        const { data } = await _supabase.from('funcionarios').select(tipo).eq('id', id).single();
-        const novoHist = (data[tipo] || "") + `\n[${new Date().toLocaleDateString('pt-BR')}]: ${textoNovo}`;
-        await _supabase.from('funcionarios').update({ [tipo]: novoHist }).eq('id', id);
-        closeModal('modalRegistro'); listarEquipe();
-    }
+async function excluirItem(tab, id, cb) { 
+     if(confirm("Excluir definitivamente?")) { 
+         await _supabase.from(tab).delete().eq('id', id);
+         if(cb) cb(); 
+         if(tab === 'eventos') document.getElementById('event-panel').style.display = 'none';
+    } 
+}
 
-    async function excluirItem(tab, id, cb) { 
-         if(confirm("Excluir definitivamente?")) { 
-             await _supabase.from(tab).delete().eq('id', id); 
-             if(cb) cb(); 
-             if(tab === 'eventos') document.getElementById('event-panel').style.display = 'none';
-        } 
-     }
-
-   // ========================================================
-// DISPARO AO CARREGAR A PÁGINA (CONSOLIDADO)
+// ========================================================
+// DISPARO AO CARREGAR A PÁGINA (CONSOLIDADO E PROTEGIDO)
 // ========================================================
 window.onload = () => {
     const salva = localStorage.getItem('coord_img');
@@ -862,10 +984,9 @@ window.onload = () => {
         }
     }
     
-    // Dispara TODAS as atualizações iniciais do Dashboard de forma limpa
-    atualizarMiniListaFuncionarios();
-    atualizarMiniListaAtas();
-    atualizarContadoresAcolhidos(); 
+    if (typeof atualizarMiniListaFuncionarios === 'function') atualizarMiniListaFuncionarios();
+    if (typeof atualizarMiniListaAtas === 'function') atualizarMiniListaAtas();
+    if (typeof atualizarContadoresAcolhidos === 'function') atualizarContadoresAcolhidos(); 
 };
 
 // ========================================================
@@ -881,7 +1002,6 @@ async function atualizarMiniListaFuncionarios() {
             .select('nome, horario')
             .order('nome')
             .range(0, 3);
-
         if (error) throw error;
         if(!data || data.length === 0) {
             container.innerHTML = `<div style="font-size:0.7rem; color:var(--text-dim); text-align:center; width:100%; margin-top:10px;">Sem equipe salva</div>`;
@@ -908,28 +1028,24 @@ async function atualizarMiniListaAtas() {
     if (!container) return;
     
     try {
-        // Busca apenas as colunas necessárias limitando às 4 mais recentes
         const { data, error } = await _supabase
             .from('atas')
             .select('nome, data_ata')
-            .order('created_at', { ascending: false }) // Organiza pelas mais recentes
-            .range(0, 3); // Retorna os índices 0, 1, 2 e 3 (Total de 4)
+            .order('created_at', { ascending: false }) 
+            .range(0, 3);
 
         if (error) throw error;
-
         if (!data || data.length === 0) {
             container.innerHTML = `<div style="font-size:0.7rem; color:var(--text-dim); text-align:center; width:100%; margin-top:10px;">Sem atas salvas</div>`;
             return;
         }
 
-        // Constrói os elementos dinamicamente aproveitando o estilo CSS existente
         container.innerHTML = data.map(ata => `
             <div class="mini-item-emp" onclick="event.stopPropagation(); changeView('view-atas');">
                 <span style="font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%;">${ata.nome}</span>
                 <span style="color: var(--text-dim); font-size: 0.65rem !important;">${ata.data_ata || 'S/D'}</span>
             </div>
         `).join('');
-
     } catch (err) {
         console.error("Erro na mini-lista de atas:", err);
         container.innerHTML = `<div style="font-size:0.7rem; color:var(--accent-red); text-align:center; width:100%; margin-top:10px;">Erro ao carregar</div>`;
@@ -941,17 +1057,12 @@ async function atualizarMiniListaAtas() {
 // ========================================================
 async function atualizarContadoresAcolhidos() {
     try {
-        const { data, error } = await _supabase
-            .from('acolhidos')
-            .select('*');
-
+        const { data, error } = await _supabase.from('acolhidos').select('*');
         if (error) throw error;
 
         let totalAcolhidos = 0;
         let camasLivres = 0;
-
         if (data) {
-            // Filtra e conta quem de fato está acolhido (Ignora palavras 'Livre' ou 'Vago')
             totalAcolhidos = data.filter(item => 
                 item.nome && 
                 item.nome.toString().trim() !== "" && 
@@ -959,7 +1070,6 @@ async function atualizarContadoresAcolhidos() {
                 item.nome.toString().trim().toLowerCase() !== 'vago'
             ).length;
 
-            // Filtra e conta as camas vazias
             camasLivres = data.filter(item => 
                 !item.nome || 
                 item.nome.toString().trim() === "" || 
@@ -968,33 +1078,29 @@ async function atualizarContadoresAcolhidos() {
             ).length;
         }
 
-        // Atualiza os elementos visuais do Dashboard Principal (Card) se existirem
         const dashAcolhidos = document.getElementById('dash-total-acolhidos');
         const dashLivres = document.getElementById('dash-camas-livres');
         if (dashAcolhidos) dashAcolhidos.innerText = totalAcolhidos;
         if (dashLivres) dashLivres.innerText = camasLivres;
 
-        // Atualiza os contadores internos do Modal de Gestão
         const modalAcolhidos = document.getElementById('count-acolhidos');
         const modalLivres = document.getElementById('count-livres');
         if (modalAcolhidos) modalAcolhidos.innerText = totalAcolhidos;
         if (modalLivres) modalLivres.innerText = camasLivres;
-
     } catch (err) {
         console.error("Erro ao atualizar contadores de acolhidos:", err);
     }
 }
 
 function openAcolhidos() {
-    // Reset visual padrão do seu sistema
     const lista = document.getElementById('lista-acolhidos');
     const mapa = document.getElementById('mapa-quartos');
     if (lista) lista.style.display = 'block';
     if (mapa) mapa.style.display = 'none';
     
     openModal('modalAcolhidos');
-    renderizarAcolhidos(); // Renderiza la lista interna da gestão
-    atualizarContadoresAcolhidos(); // Atualiza os números globais
+    renderizarAcolhidos();
+    atualizarContadoresAcolhidos();
 }
 
 async function renderizarAcolhidos() {
@@ -1005,7 +1111,6 @@ async function renderizarAcolhidos() {
         const container = document.getElementById('lista-acolhidos');
         if (!container) return;
 
-        // Executa a contagem local da listagem
         const ocupados = data.filter(a => a.nome && a.nome.trim().toLowerCase() !== 'livre' && a.nome.trim().toLowerCase() !== 'vago');
         const livres = data.filter(a => !a.nome || a.nome.trim().toLowerCase() === 'livre' || a.nome.trim().toLowerCase() === 'vago');
 
@@ -1068,13 +1173,11 @@ function toggleMapaQuartos() {
 // ========================================================
 // RECURSOS DO MÓDULO FINANCEIRO
 // ========================================================
-let notasParaProcessar = [];
+if (!window.arquivosAtuais) window.arquivosAtuais = [];
 
 function openFinanceiro() {
     openModal('modalFinanceiro');
 }
-
-if (!window.arquivosAtuais) window.arquivosAtuais = [];
 
 function handleFinanceiroUpload(input) {
     const files = Array.from(input.files);
@@ -1097,53 +1200,57 @@ function handleFinanceiroUpload(input) {
 function renderizarListaFinanceiro() {
     const visor = document.getElementById('visor-notas');
     const formContainer = document.getElementById('form-notas-container');
-    const containerInterface = document.querySelector('.conferencia-grid-layout') || visor.parentElement;
+    const containerInterface = document.querySelector('.conferencia-grid-layout') || (visor ? visor.parentElement : null);
     
     if (!window.arquivosAtuais || window.arquivosAtuais.length === 0) {
         resetarInterfaceFinanceiro();
         return;
     }
 
-    containerInterface.classList.add('conferencia-grid-layout');
-    visor.innerHTML = ''; 
-    formContainer.innerHTML = '';
+    if(containerInterface) containerInterface.classList.add('conferencia-grid-layout');
+    if(visor) visor.innerHTML = ''; 
+    if(formContainer) formContainer.innerHTML = '';
 
     window.arquivosAtuais.forEach((item, index) => {
-        const imgDiv = document.createElement('div');
-        imgDiv.className = "imagem-nota-container";
-        imgDiv.id = `scroll-nota-${index}`;
-        imgDiv.innerHTML = ` <div style="background: #3b82f6; color: white; padding: 10px; border-radius: 8px 8px 0 0; font-size: 0.8rem; font-weight: bold; text-align: center; margin-bottom: -5px;"> NOTA FISCAL #${index + 1} </div> <img src="${item.src}" alt="Nota Fiscal ${index + 1}"> `;
-        visor.appendChild(imgDiv);
+        if(visor) {
+            const imgDiv = document.createElement('div');
+            imgDiv.className = "imagem-nota-container";
+            imgDiv.id = `scroll-nota-${index}`;
+            imgDiv.innerHTML = ` <div style="background: #3b82f6; color: white; padding: 10px; border-radius: 8px 8px 0 0; font-size: 0.8rem; font-weight: bold; text-align: center; margin-bottom: -5px;"> NOTA FISCAL #${index + 1} </div> <img src="${item.src}" alt="Nota Fiscal ${index + 1}"> `;
+            visor.appendChild(imgDiv);
+        }
 
-        const formDiv = document.createElement('div');
-        formDiv.className = 'item-card';
-        formDiv.style = "margin-bottom: 25px; border-left: 5px solid #f59e0b; padding: 15px; background: #1e293b; border-radius: 10px;";
-        formDiv.innerHTML = `
-            <strong style="color: #f59e0b; font-size: 0.9rem; display: block; margin-bottom: 12px;">CONFERÊNCIA DA NF #${index + 1}</strong>
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                <input type="text" class="codigo-nf-financeiro" placeholder="Número da Nota" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
-                <input type="date" class="data-financeiro" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
-                <input type="number" step="0.01" class="input-financeiro" placeholder="Valor Total R$" oninput="calcularTotalRemessa()" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
-                <select class="cat-financeiro" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
-                    <option value="">Selecione a Categoria...</option>
-                    <option>Gênero Alimentício</option><option>Material de Escritório</option><option>Material de Higiene e Limpeza</option>
-                    <option>Material de Copa e Cozinha</option><option>Material Didático</option><option>Conservação de Edifícios</option>
-                    <option>Conservação de Móveis, Máquinas e Equipamentos</option><option>Material de Sinalização Visual (placas)</option>
-                    <option>EPI</option><option>Medicamentos</option><option>Aluguel carro/combustível</option><option>Gás</option>
-                    <option>Controle de Pragas / Sanitização e Dedetização</option><option>Extintores de Incêndio</option>
-                    <option>Transporte para Usuários - Taxi- Ônibus- App</option><option>Serviços Gráficos</option>
-                    <option>Oficinas e Capacitações</option><option>Material de Cama-mesa e banho</option><option>Uniformes</option>
-                    <option>Materiais elétricos</option><option>Ferramentas</option><option>Material permanente - mesa e cadeira</option>
-                    <option>Material permanente - roupeiros</option><option>Material permanente - Ventilador de Parede</option>
-                    <option>Material permanente - Refrigerador industrial</option>
-                </select>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
-                <button type="button" onclick="removerNota(${index})" style="background:none; border:none; color:#ef4444; font-size:0.75rem; cursor:pointer;"> <i class="fas fa-trash"></i> Remover Nota </button>
-                <span style="font-size: 0.7rem; color: #64748b;">ID: ${index + 1}</span>
-            </div>
-        `;
-        formContainer.appendChild(formDiv);
+        if(formContainer) {
+            const formDiv = document.createElement('div');
+            formDiv.className = 'item-card';
+            formDiv.style = "margin-bottom: 25px; border-left: 5px solid #f59e0b; padding: 15px; background: #1e293b; border-radius: 10px;";
+            formDiv.innerHTML = `
+                <strong style="color: #f59e0b; font-size: 0.9rem; display: block; margin-bottom: 12px;">CONFERÊNCIA DA NF #${index + 1}</strong>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <input type="text" class="codigo-nf-financeiro" placeholder="Número da Nota" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
+                    <input type="date" class="data-financeiro" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
+                    <input type="number" step="0.01" class="input-financeiro" placeholder="Valor Total R$" oninput="calcularTotalRemessa()" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
+                    <select class="cat-financeiro" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
+                        <option value="">Selecione a Categoria...</option>
+                        <option>Gênero Alimentício</option><option>Material de Escritório</option><option>Material de Higiene e Limpeza</option>
+                        <option>Material de Copa e Cozinha</option><option>Material Didático</option><option>Conservação de Edifícios</option>
+                        <option>Conservação de Móveis, Máquinas e Equipamentos</option><option>Material de Sinalização Visual (placas)</option>
+                        <option>EPI</option><option>Medicamentos</option><option>Aluguel carro/combustível</option><option>Gás</option>
+                        <option>Controle de Pragas / Sanitização e Dedetização</option><option>Extintores de Incêndio</option>
+                        <option>Transporte para Usuários - Taxi- Ônibus- App</option><option>Serviços Gráficos</option>
+                        <option>Oficinas e Capacitações</option><option>Material de Cama-mesa e banho</option><option>Uniformes</option>
+                        <option>Materiais elétricos</option><option>Ferramentas</option><option>Material permanente - mesa e cadeira</option>
+                        <option>Material permanente - roupeiros</option><option>Material permanente - Ventilador de Parede</option>
+                        <option>Material permanente - Refrigerador industrial</option>
+                    </select>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                    <button type="button" onclick="removerNota(${index})" style="background:none; border:none; color:#ef4444; font-size:0.75rem; cursor:pointer;"> <i class="fas fa-trash"></i> Remover Nota </button>
+                    <span style="font-size: 0.7rem; color: #64748b;">ID: ${index + 1}</span>
+                </div>
+            `;
+            formContainer.appendChild(formDiv);
+        }
     });
     calcularTotalRemessa();
 }
@@ -1164,9 +1271,15 @@ function resetarInterfaceFinanceiro() {
     window.arquivosAtuais = [];
     const fileInput = document.getElementById('upload-lote');
     if(fileInput) fileInput.value = "";
-    document.getElementById('total-remessa').innerText = "R$ 0,00";
-    document.getElementById('form-notas-container').innerHTML = '<p style="color: #94a3b8; font-size: 0.8rem;">Selecione as notas para iniciar.</p>';
-    document.getElementById('visor-notas').innerHTML = ` <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8;"> <i class="fas fa-images fa-3x"></i><br><br> <button type="button" class="btn-save" onclick="document.getElementById('upload-lote').click()">Carregar Notas</button> </div> `;
+    
+    const totalElem = document.getElementById('total-remessa');
+    if(totalElem) totalElem.innerText = "R$ 0,00";
+    
+    const formCont = document.getElementById('form-notas-container');
+    if(formCont) formCont.innerHTML = '<p style="color: #94a3b8; font-size: 0.8rem;">Selecione as notas para iniciar.</p>';
+    
+    const visorCont = document.getElementById('visor-notas');
+    if(visorCont) visorCont.innerHTML = ` <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8;"> <i class="fas fa-images fa-3x"></i><br><br> <button type="button" class="btn-save" onclick="document.getElementById('upload-lote').click()">Carregar Notas</button> </div> `;
 }
 
 function enviarParaDP() {
@@ -1174,9 +1287,10 @@ function enviarParaDP() {
     const inputs = document.querySelectorAll('.input-financeiro');
     const datas = document.querySelectorAll('.data-financeiro');
     const categorias = document.querySelectorAll('.cat-financeiro');
-    const total = document.getElementById('total-remessa').innerText;
+    const totalElem = document.getElementById('total-remessa');
+    const total = totalElem ? totalElem.innerText : "R$ 0,00";
     
-    if (window.arquivosAtuais.length === 0) {
+    if (!window.arquivosAtuais || window.arquivosAtuais.length === 0) {
         alert("Adicione notas primeiro.");
         return;
     }
@@ -1202,7 +1316,98 @@ function calcularTotalRemessa() {
     const inputs = document.querySelectorAll('.input-financeiro');
     let total = 0;
     inputs.forEach(i => total += Number(i.value || 0));
-    document.getElementById('total-remessa').innerText = `R$ ${total.toFixed(2)}`;
+    const totalElem = document.getElementById('total-remessa');
+    if(totalElem) totalElem.innerText = `R$ ${total.toFixed(2)}`;
+}
+
+// ========================================================
+// SINCRONIZAÇÃO AUTOMÁTICA DA PLANILHA (RESTAURADA E LIMPA)
+// ========================================================
+async function sincronizarLinkDireto() {
+    const linkInput = prompt("Cole o link da planilha PUBLICADA como CSV:");
+    if (!linkInput) return;
+    
+    try {
+        let urlSinc = linkInput;
+        if (linkInput.includes('/edit')) {
+            const id = linkInput.split('/d/')[1].split('/')[0];
+            urlSinc = `https://docs.google.com/spreadsheets/d/${id}/export?format=csv`;
+        }
+
+        const res = await fetch(urlSinc);
+        const csvText = await res.text();
+        const linhas = csvText.split(/\r?\n/).map(l => l.trim()).filter(l => l !== "");
+        
+        if (linhas.length < 2) {
+            alert("A planilha parece estar vazia.");
+            return;
+        }
+
+        const separador = linhas[0].includes(';') ? ';' : ',';
+        const novosFuncionarios = linhas.slice(1).map((linha) => {
+            const regex = new RegExp(`${separador}(?=(?:(?:[^"]*"){2})*[^"]*$)`);
+            const col = linha.split(regex).map(c => (c || '').trim().replace(/^"|"$/g, ''));
+            
+            const formatarData = (v) => {
+                if (!v) return null;
+                if (v.includes('-') && v.split('-')[0].length === 4) return v;
+                if (v.includes('/')) {
+                    const p = v.split('/');
+                    if (p.length === 3) {
+                        return `${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`;
+                    }
+                }
+                return null;
+            };
+
+            const paraBoolean = (v) => {
+                if (!v) return false;
+                const check = v.toString().toUpperCase().trim();
+                return check === 'TRUE' || check === 'SIM' || check === '1';
+            };
+
+            return {
+                nome: col[0] || null,
+                endereco: col[1] || '',
+                bairro: col[2] || '',
+                cidade: col[3] || '',
+                estado: col[4] || '',
+                cep: col[5] || '',
+                nascimento: formatarData(col[6]),   
+                data_admissa: formatarData(col[12]), 
+                cpf: col[7] || '',
+                rg: col[8] || '',
+                titulo_eleitor: col[9] || '',
+                ctps: col[10] || '',
+                habilitacao: col[11] || '',
+                funcao: col[14] || '',                                
+                horario: col[13] || '',                                           
+                celular: col[15] || '',
+                qtde_horas_mes: col[16] || '',
+                equipe: col[17] || '',                                
+                alinhamentos: col[18] || '0',
+                advertencias: col[19] || '0',
+                foto: col[20] || '',                                
+                check_docs: paraBoolean(col[21]),
+                check_aso: paraBoolean(col[22]),
+                check_contrato: paraBoolean(col[23]),
+                check_uniforme: paraBoolean(col[24]),
+                check_epi: paraBoolean(col[25]),                                
+                tamanho_uniforme: col[26] || '',
+                codigo: col[27] || null
+            };
+        }).filter(f => f.nome && f.nome.toLowerCase() !== "nome");
+
+        const { data, error } = await _supabase.from('funcionarios').insert(novosFuncionarios).select();
+        if (error) throw error;
+
+        alert(`✅ Sincronização concluída com sucesso!`);
+        if (typeof listarEquipe === 'function') listarEquipe();
+        if (typeof atualizarMiniListaFuncionarios === 'function') atualizarMiniListaFuncionarios();
+            
+    } catch (e) {
+        alert("❌ Erro: " + e.message);
+    }
 }
 </script>
 </body>
