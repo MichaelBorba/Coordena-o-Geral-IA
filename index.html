@@ -307,9 +307,15 @@
         <div style="font-size: 0.7rem; color: var(--text-dim); text-align: center; width: 100%; margin-top: 15px;">Carregando...</div>
     </div>
 </div>
-            <div class="module-card" onclick="changeView('view-atas')">
-                <i class="far fa-file-alt icon-lightblue"></i>
-                <span>Atas</span>
+           <div class="module-card" onclick="changeView('view-atas')">
+    <div style="display: flex; align-items: center; gap: 10px; width: 100%; justify-content: center;">
+        <i class="far fa-file-alt icon-lightblue" style="font-size: 1.5rem; margin: 0;"></i>
+        <span style="font-size: 0.85rem;">Atas</span>
+    </div>
+    <div id="mini-lista-atas" class="mini-lista-emp">
+        <div style="font-size: 0.7rem; color: var(--text-dim); text-align: center; width: 100%; margin-top: 15px;">Carregando...</div>
+    </div>
+</div>
             </div>
             <div class="module-card"><i class="fas fa-chart-line icon-green"></i><span>Relatórios</span></div>
             <div class="module-card" onclick="abrirModuloDP()"><i class="far fa-id-badge icon-dp"></i><span>D.P.</span></div>
@@ -1437,10 +1443,11 @@ function calcularTotalRemessa() {
     html2pdf().set(options).from(relatorio).save();
 }
 
-    // ==========================================
+ // ==========================================
 // 1. O GATILHO (Roda assim que a página abre)
 // ==========================================
 window.onload = () => {
+    // Carrega a foto da coordenação do LocalStorage se existir
     const salva = localStorage.getItem('coord_img');
     if(salva) {
         const display = document.getElementById('foto-coord-display');
@@ -1454,11 +1461,16 @@ window.onload = () => {
     
     // Liga o motor para carregar a lista de funcionários no botão
     actualizarMiniListaFuncionarios();
+    
+    // Liga o motor para carregar a lista de atas no botão
+    atualizarMiniListaAtas();
 };
 
 // ==========================================
-// 2. O MOTOR (Busca os dados no Supabase)
+// 2. OS MOTORES (Busca os dados no Supabase)
 // ==========================================
+
+// Motor dos Funcionários
 async function actualizarMiniListaFuncionarios() {
     const container = document.getElementById('mini-lista-funcionarios');
     if(!container) return;
@@ -1478,7 +1490,7 @@ async function actualizarMiniListaFuncionarios() {
             return;
         }
 
-        // Constrói os elementos dinamicamente com links seguros e estáveis
+        // Constrói os elementos dinamicamente
         container.innerHTML = data.map(emp => `
             <div class="mini-item-emp" onclick="event.stopPropagation(); changeView('view-employees');">
                 <span style="font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%;">${emp.nome}</span>
@@ -1488,6 +1500,40 @@ async function actualizarMiniListaFuncionarios() {
 
     } catch (err) {
         console.error("Erro na mini-lista:", err);
+        container.innerHTML = `<div style="font-size:0.7rem; color:var(--accent-red); text-align:center; width:100%; margin-top:10px;">Erro ao carregar</div>`;
+    }
+}
+
+// Motor das Atas
+async function atualizarMiniListaAtas() {
+    const container = document.getElementById('mini-lista-atas');
+    if (!container) return;
+    
+    try {
+        // Busca apenas as colunas necessárias limitando às 4 mais recentes
+        const { data, error } = await _supabase
+            .from('atas')
+            .select('nome, data_ata')
+            .order('created_at', { ascending: false }) // Organiza pelas mais recentes
+            .range(0, 3); // Retorna os índices 0, 1, 2 e 3 (Total de 4)
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+            container.innerHTML = `<div style="font-size:0.7rem; color:var(--text-dim); text-align:center; width:100%; margin-top:10px;">Sem atas salvas</div>`;
+            return;
+        }
+
+        // Constrói os elementos dinamicamente aproveitando o estilo CSS existente
+        container.innerHTML = data.map(ata => `
+            <div class="mini-item-emp" onclick="event.stopPropagation(); changeView('view-atas');">
+                <span style="font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%;">${ata.nome}</span>
+                <span style="color: var(--text-dim); font-size: 0.65rem !important;">${ata.data_ata || 'S/D'}</span>
+            </div>
+        `).join('');
+
+    } catch (err) {
+        console.error("Erro na mini-lista de atas:", err);
         container.innerHTML = `<div style="font-size:0.7rem; color:var(--accent-red); text-align:center; width:100%; margin-top:10px;">Erro ao carregar</div>`;
     }
 }
