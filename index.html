@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -621,23 +622,58 @@ async function listarEquipe() {
 }
 
 async function salvarFuncionario() {
-    const id = document.getElementById('editEmpId').value;
-    const payload = { 
-        nome: document.getElementById('newEmpName').value, 
-        funcao: document.getElementById('newEmpRole').value, 
-        horario: document.getElementById('newEmpTime').value, 
+    const idElement = document.getElementById('editEmpId');
+    const id = idElement ? idElement.value : '';
+
+    // Coleta os dados respeitando EXATAMENTE as colunas do banco e da Ficha Completa
+    const dados = {
+        nome: document.getElementById('newEmpName').value,
+        funcao: document.getElementById('newEmpRole').value,
+        horario: document.getElementById('newEmpTime').value,
         equipe: document.getElementById('newEmpEquipe').value,
-        data_admissa: document.getElementById('newEmpAdm').value, 
-        foto: tempFotoBase64
+        data_admissa: document.getElementById('newEmpAdm').value, // emp.data_admissa
+        
+        // Dados Pessoais unificados com as propriedades que a Ficha lê
+        celular: document.getElementById('newEmpCel').value,       // emp.celular
+        cpf: document.getElementById('newEmpCPF').value,           // emp.cpf
+        rg: document.getElementById('newEmpRG').value,             // emp.rg
+        endereco: document.getElementById('newEmpEnd').value,       // emp.endereco
+        bairro: document.getElementById('newEmpBairro').value,     // emp.bairro
+        cidade: document.getElementById('newEmpCidade').value      // emp.cidade
     };
-    
-    if(id) {
-        await _supabase.from('funcionarios').update(payload).eq('id', id);
-    } else {
-        await _supabase.from('funcionarios').insert([payload]);
+
+    try {
+        let resultado;
+        
+        if (id) {
+            // Se o modal tem ID, atualiza o funcionário existente
+            resultado = await _supabase
+                .from('funcionarios')
+                .update(dados)
+                .eq('id', id);
+        } else {
+            // Se não tem ID, insere um novo registro
+            resultado = await _supabase
+                .from('funcionarios')
+                .insert([dados]);
+        }
+
+        if (resultado.error) {
+            console.error("Erro no Supabase:", resultado.error);
+            alert("Erro ao gravar dados no banco: " + resultado.error.message);
+            return;
+        }
+
+        alert("Dados gravados com sucesso!");
+        closeModal('modalAddEmployee');
+        
+        // Atualiza a tabela na tela de forma automática
+        if (typeof listarEquipe === 'function') listarEquipe();
+
+    } catch (err) {
+        console.error("Erro inesperado:", err);
+        alert("Erro ao processar salvamento.");
     }
-    closeModal('modalAddEmployee');
-    listarEquipe();
 }
 
 function prepararNovoEmp() {
