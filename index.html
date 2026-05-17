@@ -220,6 +220,64 @@
     border-radius: 8px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.6);
 }
+
+        .module-card { 
+    background: linear-gradient(145deg, #243147, #1a2333); 
+    padding: 20px 15px; /* Ajustado levemente para dar mais espaço ao conteúdo */
+    border-radius: 24px; 
+    text-align: center; 
+    cursor: pointer; 
+    transition: all 0.15s ease; 
+    border: 1px solid rgba(255, 255, 255, 0.08); 
+    box-shadow: 0 8px 0 var(--card-shadow), 0 15px 20px rgba(0, 0, 0, 0.4); 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Alinha o conteúdo a partir do topo */
+    gap: 10px;
+    min-height: 160px; /* Define uma altura mínima estável para acomodar a lista */
+    overflow: hidden; /* Mantém as bordas do card perfeitas */
+}
+
+/* Nova classe para controlar a mini-lista com scroll dentro do botão */
+.mini-lista-emp {
+    width: 100%;
+    max-height: 95px; /* Altura ideal para visualizar cerca de 3 a 4 linhas */
+    overflow-y: auto; /* Ativa o scroll vertical */
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-right: 4px;
+}
+
+/* Estilização sutil de cada linha de funcionário dentro do botão */
+.mini-item-emp {
+    background: rgba(15, 23, 42, 0.4);
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-left: 3px solid #60a5fa;
+}
+
+.mini-item-emp span {
+    text-transform: none !important; /* Evita que o nome e horário fiquem em caixa alta */
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+}
+
+/* Customização da barra de rolagem interna do botão para ficar discreta */
+.mini-lista-emp::-webkit-scrollbar {
+    width: 4px;
+}
+.mini-lista-emp::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 10px;
+}
+        
     </style>
 </head>
 <body>
@@ -239,10 +297,15 @@
         </header>
         
         <main class="grid-modules">
-            <div class="module-card" onclick="changeView('view-employees')">
-                <i class="fas fa-users icon-blue"></i>
-                <span>Funcionários</span>
-            </div>
+           <div class="module-card" onclick="changeView('view-employees')">
+    <div style="display: flex; align-items: center; gap: 10px; width: 100%; justify-content: center;">
+        <i class="fas fa-users icon-blue" style="font-size: 1.5rem; margin: 0;"></i>
+        <span style="font-size: 0.85rem;">Funcionários</span>
+    </div>
+    <div id="mini-lista-funcionarios" class="mini-lista-emp">
+        <div style="font-size: 0.7rem; color: var(--text-dim); text-align: center; width: 100%; margin-top: 15px;">Carregando...</div>
+    </div>
+</div>
             <div class="module-card" onclick="changeView('view-atas')">
                 <i class="far fa-file-alt icon-lightblue"></i>
                 <span>Atas</span>
@@ -849,18 +912,56 @@
         } 
      }
 
-    window.onload = () => {
-        const salva = localStorage.getItem('coord_img');
-        if(salva) {
-            const display = document.getElementById('foto-coord-display');
-            const icon = document.getElementById('icon-coord-padrao');
-            if(display && icon) {
-                display.src = salva;
-                display.style.display = 'block';
-                icon.style.display = 'none';
-            }
+    // CÓDIGO NOVO COM EXECUTOR DA MINI LISTA
+window.onload = () => {
+    const salva = localStorage.getItem('coord_img');
+    if(salva) {
+        const display = document.getElementById('foto-coord-display');
+        const icon = document.getElementById('icon-coord-padrao');
+        if(display && icon) {
+            display.src = salva;
+            display.style.display = 'block';
+            icon.style.display = 'none';
         }
-    };
+    }
+    
+    // Dispara a atualização dos funcionários no botão principal
+    atualizarMiniListaFuncionarios();
+};
+
+// Nova função que busca no Supabase e renderiza os 4 primeiros itens
+async function actualizarMiniListaFuncionarios() {
+    const container = document.getElementById('mini-lista-funcionarios');
+    if(!container) return;
+    
+    try {
+        // Busca apenas as colunas necessárias limitando aos 4 primeiros cadastrados
+        const { data, error } = await _supabase
+            .from('funcionarios')
+            .select('nome, horario')
+            .order('nome')
+            .range(0, 3); // Retorna os índices 0, 1, 2 e 3 (Total de 4)
+
+        if (error) throw error;
+
+        if(!data || data.length === 0) {
+            container.innerHTML = `<div style="font-size:0.7rem; color:var(--text-dim); text-align:center; width:100%; margin-top:10px;">Sem equipe salva</div>`;
+            return;
+        }
+
+        // Constrói os elementos dinamicamente
+        container.innerHTML = data.map(emp => `
+            <div class="mini-item-emp" onclick="event.stopPropagation(); changeView('view-employees');">
+                <span style="font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 60%;">${emp.nome}</span>
+                <span style="color: var(--text-dim); font-size: 0.65rem !important;">${emp.horario || 'S/H'}</span>
+            </div>
+        `).join('');
+
+    } catch (err) {
+        console.error("Erro na mini-lista:", err);
+        container.innerHTML = `<div style="font-size:0.7rem; color:var(--accent-red); text-align:center; width:100%; margin-top:10px;">Erro ao carregar</div>`;
+    }
+}
 // Garante a abertura correta do popup e limpa estados anteriores
 async function openAcolhidos() {
     // Reset de visualização: mostra a lista e esconde o mapa ao abrir
