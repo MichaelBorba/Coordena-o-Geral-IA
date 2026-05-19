@@ -1231,10 +1231,10 @@ function handleFinanceiroUpload(input) {
         };
         reader.readAsDataURL(file);
     });
-}
-
+} 
+    
 // ==========================================================================
-// MÓDULO FINANCEIRO - RECURSOS COMPLETOS (OCR + CATEGORIAS PERSONALIZADAS)
+// MÓDULO FINANCEIRO INTEGRAÇÃO COMPLETA (OCR + CATEGORIAS REAIS ATUALIZADAS)
 // ==========================================================================
 if (!window.arquivosAtuais) window.arquivosAtuais = [];
 
@@ -1246,6 +1246,7 @@ function handleFinanceiroUpload(input) {
     const files = Array.from(input.files);
     if (files.length === 0) return;
 
+    // Remove o placeholder vazio ao carregar
     const vazio = document.getElementById('conteudo-visor-vazio');
     if (vazio) vazio.style.display = 'none';
 
@@ -1306,10 +1307,10 @@ function renderizarListaFinanceiro() {
                 <strong style="color: #f59e0b; font-size: 0.85rem; display: block;">Nota #${index + 1}</strong>
                 
                 <label style="font-size: 0.7rem; color: #94a3b8; margin: 0;">Código da NF / Chave</label>
-                <input type="text" class="codigo-nf-financeiro" placeholder="Nº da nota ou Chave" style="padding: 6px; margin-bottom: 4px; font-size: 0.8rem; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 6px;">
+                <input type="text" class="codigo-nf-financeiro" placeholder="Nº da nota ou Chave" style="padding: 6px; margin-bottom: 4px; font-size: 0.8rem;">
 
                 <label style="font-size: 0.7rem; color: #94a3b8; margin: 0;">Data de Emissão</label>
-                <input type="date" class="data-financeiro" style="padding: 6px; margin-bottom: 4px; font-size: 0.8rem; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 6px;">
+                <input type="date" class="data-financeiro" style="padding: 6px; margin-bottom: 4px; font-size: 0.8rem;">
 
                 <label style="font-size: 0.7rem; color: #94a3b8; margin: 0;">Categoria</label>
                 <select class="cat-financeiro" style="width: 100%; padding: 6px; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 6px; margin-bottom: 4px; font-size: 0.8rem;">
@@ -1341,7 +1342,7 @@ function renderizarListaFinanceiro() {
                 </select>
 
                 <label style="font-size: 0.7rem; color: #4ade80; font-weight: bold; margin: 0;">Valor Total (R$)</label>
-                <input type="number" step="0.01" id="input-valor-nota-${index}" class="input-financeiro" placeholder="0.00" oninput="calcularTotalRemessa()" onfocus="focarNota(${index})" style="padding: 6px; margin-bottom: 4px; font-size: 0.8rem; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 6px;">
+                <input type="number" step="0.01" id="input-valor-nota-${index}" class="input-financeiro" placeholder="0.00" oninput="calcularTotalRemessa()" onfocus="focarNota(${index})" style="padding: 6px; margin-bottom: 4px; font-size: 0.8rem;">
 
                 <div style="display:flex; justify-content: space-between; align-items:center; margin-top: 5px;">
                     <button type="button" onclick="removerNota(${index})" style="background:none; border:none; color:#ef4444; font-size:0.7rem; cursor:pointer; padding:0;">
@@ -1429,60 +1430,25 @@ async function escanearTextoNota(imagemSrc, inputValorId) {
     if (!inputValor) return;
     
     inputValor.value = ""; 
-    inputValor.placeholder = "🔍 Buscando valor...";
+    inputValor.placeholder = "🔍 Buscando valor total...";
 
     try {
         const result = await Tesseract.recognize(imagemSrc, 'por');
-        let textoExtraido = result.data.text;
+        const textoExtraido = result.data.text;
         
         console.log("Texto OCR Processado para:", inputValorId, textoExtraido);
 
-        // Correção de falsos positivos comuns (O maiúsculo confundido com número 0)
-        textoExtraido = textoExtraido.replace(/(\d)[oO]/g, '$10').replace(/[oO](\d)/g, '0$1');
-
-        // Seu mapeamento cirúrgico de termos pesquisados
-        const regexMapeamento = /(valor\s+total\s*r\$|valor\s+a\s+pagar\s*r\$|valor\s+total\s+da\s+nf|valor\s+total|total\s+r\$|liquido).*?(\d{1,3}(?:[.,]\d{3})*[.,]\d{2})/i;
+        const regexMapeamento = /(valor\s+total\s*r\$|valor\s+a\s+pagar\s*r\$|valor\s+total\s+da\s+nf|valor\s+total).*?(\d{1,3}(\.\d{3})*[.,]\d{2})/i;
         const match = textoExtraido.match(regexMapeamento);
 
         if (match && match[2]) {
-            let valorCru = match[2];
-            let valorTratado;
-            
-            if (valorCru.includes(',') && valorCru.includes('.')) {
-                valorTratado = valorCru.replace(/\./g, '').replace(',', '.');
-            } else if (valorCru.includes(',')) {
-                valorTratado = valorCru.replace(',', '.');
-            } else {
-                valorTratado = valorCru;
-            }
-
-            let valorFinal = parseFloat(valorTratado);
-            if (!isNaN(valorFinal) && valorFinal > 0 && valorFinal < 100000) {
-                inputValor.value = valorFinal.toFixed(2);
-                inputValor.placeholder = "";
-                calcularTotalRemessa();
-                return;
-            }
+            let valorTratado = match[2].replace(/\./g, '').replace(',', '.');
+            inputValor.value = parseFloat(valorTratado).toFixed(2);
+            inputValor.placeholder = "";
+            calcularTotalRemessa();
+        } else {
+            inputValor.placeholder = "Não detectado. Digite.";
         }
-
-        // Regra secundária de fallback estatístico (Maior valor)
-        const valoresGerais = textoExtraido.match(/\d{1,3}(?:[.,]\d{3})*[.,]\d{2}/g);
-        if (valoresGerais && valoresGerais.length > 0) {
-            let maiorValor = 0;
-            valoresGerais.forEach(v => {
-                let n = parseFloat(v.replace(/\./g, '').replace(',', '.'));
-                if (n > maiorValor && n < 50000) maiorValor = n;
-            });
-            
-            if (maiorValor > 0) {
-                inputValor.value = maiorValor.toFixed(2);
-                inputValor.placeholder = "";
-                calcularTotalRemessa();
-                return;
-            }
-        }
-        
-        inputValor.placeholder = "Não detectado. Digite.";
     } catch (error) {
         console.error("Erro no processamento do OCR:", error);
         inputValor.placeholder = "Erro. Digite.";
