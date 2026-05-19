@@ -1236,11 +1236,18 @@ function handleFinanceiroUpload(input) {
 } 
     
 // ==========================================================================
-// MÓDULO FINANCEIRO - INTERFACE COMPLETA (QR CODE + OCR + CATEGORIAS REAIS)
+// MÓDULO FINANCEIRO - MULTI-LEITURA CORRIGIDA (QR CODE + OCR)
 // ==========================================================================
 if (!window.arquivosAtuais) window.arquivosAtuais = [];
 
 function openFinanceiro() {
+    // Garante a existência do motor invisível para o QR Code
+    if (!document.getElementById("leitor-qrcode-motor")) {
+        const motorDiv = document.createElement("div");
+        motorDiv.id = "leitor-qrcode-motor";
+        motorDiv.style.display = "none";
+        document.body.appendChild(motorDiv);
+    }
     openModal('modalFinanceiro');
 }
 
@@ -1251,7 +1258,10 @@ function handleFinanceiroUpload(input) {
     const vazio = document.getElementById('conteudo-visor-vazio');
     if (vazio) vazio.style.display = 'none';
 
-    files.forEach((file) => {
+    // Contador para mapear a posição exata de cada arquivo neste lote
+    let indiceBase = window.arquivosAtuais.length;
+
+    files.forEach((file, indexLote) => {
         const reader = new FileReader();
         reader.onload = (e) => {
             const idUnico = Date.now() + Math.random();
@@ -1262,15 +1272,20 @@ function handleFinanceiroUpload(input) {
             };
             window.arquivosAtuais.push(itemNota);
             
+            // Renderiza a lista atualizada na tela
             renderizarListaFinanceiro();
 
-            const indexAtual = window.arquivosAtuais.findIndex(item => item.id === idUnico);
-            if (indexAtual !== -1) {
-                processarScannerHibrido(e.target.result, `input-valor-nota-${indexAtual}`);
-            }
+            // CORREÇÃO: Calcula a posição real e imutável desta nota específica
+            const posicaoReal = indiceBase + indexLote;
+            
+            // Dispara a leitura passando o ID fixo e isolado desta nota
+            processarScannerHibrido(e.target.result, `input-valor-nota-${posicaoReal}`);
         };
         reader.readAsDataURL(file);
     });
+
+    // CORREÇÃO: Reseta o valor do input para permitir adicionar a mesma imagem se for excluída
+    input.value = "";
 }
 
 function renderizarListaFinanceiro() {
@@ -1426,12 +1441,10 @@ function calcularTotalRemessa() {
     if(totalElem) totalElem.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
 }
 
-// FUNÇÃO HÍBRIDA CORRIGIDA: LEITURA DE QR CODE (VIA MOTOR SEGURO) + TEXTO OCR
 async function processarScannerHibrido(imagemSrc, inputValorId) {
     const inputValor = document.getElementById(inputValorId);
     if (!inputValor) return;
     
-    // Encontra o card da nota atual para atualizar os campos específicos dela
     const cardPai = inputValor.closest('.item-card');
     const campoChave = cardPai ? cardPai.querySelector('.codigo-nf-financeiro') : null;
     
@@ -1440,35 +1453,28 @@ async function processarScannerHibrido(imagemSrc, inputValorId) {
 
     let qrCodeSucesso = false;
 
-    // --- PASSO 1: TENTAR LER QR CODE ---
+    // --- PASSO 1: SCANNER QR CODE ---
     try {
         if (typeof Html5Qrcode !== 'undefined') {
-            // Usa o motor invisível dedicado que adicionamos no HTML
             const html5QrCodeCpu = new Html5Qrcode("leitor-qrcode-motor");
-            
             const imgAux = new Image();
             imgAux.src = imagemSrc;
             await new Promise((resolve) => (imgAux.onload = resolve));
 
-            // Executa o escaneamento na imagem
             const qrCodeResult = await html5QrCodeCpu.scanFile(imgAux, false);
-            console.log("✅ QR Code detectado com sucesso:", qrCodeResult);
 
-            // 1. Extração Inteligente do VALOR da Nota na URL do QR Code
             const regexValorQR = /[?&](?:vNf|vTxt|valorTotal|vProd|vNF)=([0-9.,]+)/i;
             const matchQR = qrCodeResult.match(regexValorQR);
 
             if (matchQR && matchQR[1]) {
                 let valorTratado = matchQR[1].replace(/\./g, '').replace(',', '.');
                 let valorFinal = parseFloat(valorTratado);
-                
                 if (!isNaN(valorFinal) && valorFinal > 0) {
                     inputValor.value = valorFinal.toFixed(2);
                     inputValor.placeholder = "";
                 }
             }
 
-            // 2. Extração Opcional da CHAVE DE ACESSO (44 números da NF) na URL do QR Code
             if (campoChave) {
                 const regexChaveQR = /[?&]chNFe=(\d{44})/i;
                 const matchChave = qrCodeResult.match(regexChaveQR) || qrCodeResult.match(/\/p=(\d{44})/i);
@@ -1479,24 +1485,21 @@ async function processarScannerHibrido(imagemSrc, inputValorId) {
 
             calcularTotalRemessa();
             qrCodeSucesso = true;
-            return; // Sucesso absoluto! Finaliza aqui sem gastar processamento com o OCR.
+            return; 
         }
     } catch (qrError) {
-        console.log("ℹ️ QR Code não encontrado ou imagem sem código. Mudando para OCR por texto...");
+        console.log("QR Code não mapeado nesta imagem. Mudando para texto...");
     }
 
-    // --- PASSO 2: PLANO B - SE NÃO ACHAR QR CODE, LÊ O TEXTO DA NOTA (OCR) ---
+    // --- PASSO 2: SCANNER TEXTO OCR ---
     if (!qrCodeSucesso) {
         inputValor.placeholder = "🔍 Lendo texto impresso...";
         try {
             const result = await Tesseract.recognize(imagemSrc, 'por');
             let textoExtraido = result.data.text;
-            console.log("Texto OCR Extraído:", textoExtraido);
-
-            // Correção estatística de erros comuns de leitura (Trocar O por 0 em números)
+            
             textoExtraido = textoExtraido.replace(/(\d)[oO]/g, '$10').replace(/[oO](\d)/g, '0$1');
 
-            // Seu mapeamento cirúrgico exato de termos para notas fiscais brasileiras
             const regexMapeamento = /(valor\s+total\s*r\$|valor\s+a\s+pagar\s*r\$|valor\s+total\s+da\s+nf|valor\s+total|total\s+r\$|liquido).*?(\d{1,3}(?:[.,]\d{3})*[.,]\d{2})/i;
             const match = textoExtraido.match(regexMapeamento);
 
@@ -1515,7 +1518,6 @@ async function processarScannerHibrido(imagemSrc, inputValorId) {
                 }
             }
 
-            // Fallback secundário do OCR: Pega o maior número decimal impresso na folha (geralmente o Total)
             const valoresGerais = textoExtraido.match(/\d{1,3}(?:[.,]\d{3})*[.,]\d{2}/g);
             if (valoresGerais && valoresGerais.length > 0) {
                 let maiorValor = 0;
@@ -1523,7 +1525,6 @@ async function processarScannerHibrido(imagemSrc, inputValorId) {
                     let n = parseFloat(v.replace(/\./g, '').replace(',', '.'));
                     if (n > maiorValor && n < 50000) maiorValor = n;
                 });
-                
                 if (maiorValor > 0) {
                     inputValor.value = maiorValor.toFixed(2);
                     inputValor.placeholder = "";
@@ -1531,11 +1532,10 @@ async function processarScannerHibrido(imagemSrc, inputValorId) {
                     return;
                 }
             }
-
             inputValor.placeholder = "Não detectado. Digite.";
         } catch (ocrError) {
-            console.error("Erro no processamento do OCR:", ocrError);
-            inputValor.placeholder = "Erro na leitura. Digite.";
+            console.error(ocrError);
+            inputValor.placeholder = "Erro. Digite.";
         }
     }
 }
