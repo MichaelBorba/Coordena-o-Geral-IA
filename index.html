@@ -1543,52 +1543,74 @@ async function sincronizarLinkDireto() {
         alert("❌ Erro: " + e.message);
     }
 }
-    async function escanearTextoNota(imagemSrc, inputValorId) {
+
+ async function escanearTextoNota(imagemSrc, inputValorId) {
     const inputValor = document.getElementById(inputValorId);
+    if (!inputValor) return;
     
-    // Alerta visual amigável informando que o sistema está tentando ler a nota
-    if (inputValor) {
-        inputValor.value = ""; 
-        inputValor.placeholder = "🔍 Escaneando valor automaticamente...";
-    }
+    inputValor.value = ""; 
+    inputValor.placeholder = "🔍 Buscando valor total...";
 
     try {
-        // Inicia o reconhecimento de texto em português
+        // Inicia o Tesseract com suporte ao português
         const result = await Tesseract.recognize(imagemSrc, 'por');
-        const textoExtraido = result.data.text;
+        let textoExtraido = result.data.text;
         
-        console.log("Texto extraído da nota para conferência:", textoExtraido);
+        console.log("Texto OCR Processado para:", inputValorId, textoExtraido);
 
-        // O MAPEAMENTO QUE VOCÊ SUGERIU transformado em código:
-        // Procura por termos como 'Valor total R$', 'Valor a pagar R$', 'Valor total', 'Valor total da NF'
-        // Ignora maiúsculas/minúsculas (i) e pega o valor numérico padrão brasileiro após eles
-        const regexMapeamento = /(valor\s+total\s*r\$|valor\s+a\s+pagar\s*r\$|valor\s+total\s+da\s+nf|valor\s+total).*?(\d{1,3}(\.\d{3})*,\d{2})/i;
-        
+        // REGEX MELHORADA: Procura palavras-chave ignorando acentos, espaços e aceita tanto ponto quanto vírgula
+        const regexMapeamento = /(valor\s+total\s*r\$|valor\s+a\s+pagar\s*r\$|valor\s+total\s+da\s+nf|valor\s+total|total\s+r\$|liquido).*?(\d{1,3}(?:[.,]\d{3})*[.,]\d{2})/i;
         const match = textoExtraido.match(regexMapeamento);
 
         if (match && match[2]) {
-            // Se encontrar o valor mapeado, preenche o campo automaticamente!
-            inputValor.value = match[2];
+            let valorCru = match[2];
+            
+            // Tratamento inteligente de strings para converter qualquer formato de moeda para Float puro
+            let valorTratado;
+            if (valorCru.includes(',') && valorCru.includes('.')) {
+                // Formato brasileiro padrão: 1.250,50 -> remove o ponto e troca a vírgula por ponto
+                valorTratado = valorCru.replace(/\./g, '').replace(',', '.');
+            } else if (valorCru.includes(',')) {
+                // Formato apenas com vírgula: 250,50 -> troca por ponto
+                valorTratado = valorCru.replace(',', '.');
+            } else {
+                // Formato já em float ou americano: 250.50
+                valorTratado = valorCru;
+            }
+
+            // Preenche o input correspondente com o valor float ajustado
+            inputValor.value = parseFloat(valorTratado).toFixed(2);
             inputValor.placeholder = "";
             
-            // Dispara a função existente do seu painel para recalcular a remessa
-            if (typeof actualizarTotalRemessa === 'function') {
-                actualizarTotalRemessa();
-            } else if (typeof atualizarTotalRemessa === 'function') {
-                atualizarTotalRemessa();
+            // Chama a função real do seu arquivo para somar e atualizar o rodapé
+            if (typeof calcularTotalRemessa === 'function') {
+                calcularTotalRemessa();
             }
         } else {
-            // SE NÃO ENCONTRAR: Limpa o placeholder e deixa 100% liberado para digitação manual
-            inputValor.placeholder = "Valor não identificado. Digite manualmente.";
+            // Se falhar o mapeamento exato por texto, tenta uma busca secundária pelo maior valor encontrado na nota
+            const valoresGerais = textoExtraido.match(/\d{1,3}(?:[.,]\d{3})*[.,]\d{2}/g);
+            if (valoresGerais && valoresGerais.length > 0) {
+                // Converte todos os números para float e pega o maior (geralmente o total da nota fica no fim ou é o maior)
+                let maiorValor = 0;
+                valoresGerais.forEach(v => {
+                    let n = parseFloat(v.replace(/\./g, '').replace(',', '.'));
+                    if (n > maiorValor) maiorValor = n;
+                });
+                if (maiorValor > 0) {
+                    inputValor.value = maiorValor.toFixed(2);
+                    inputValor.placeholder = "";
+                    if (typeof calcularTotalRemessa === 'function') calcularTotalRemessa();
+                    return;
+                }
+            }
+            inputValor.placeholder = "Não detectado. Digite.";
         }
     } catch (error) {
         console.error("Erro no processamento do OCR:", error);
-        if (inputValor) {
-            inputValor.placeholder = "Erro na leitura. Digite o valor manualmente.";
-        }
+        inputValor.placeholder = "Erro na leitura. Digite.";
     }
-    }
-    
+}
+   
 </script>
 </body>
 </html>
