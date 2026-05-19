@@ -1233,18 +1233,53 @@ function handleFinanceiroUpload(input) {
     });
 }
 
+// ========================================================
+// RECURSOS DO MÓDULO FINANCEIRO (COM LEITURA OCR E CATEGORIAS PERSONALIZADAS)
+// ========================================================
+if (!window.arquivosAtuais) window.arquivosAtuais = [];
+
+function openFinanceiro() {
+    openModal('modalFinanceiro');
+}
+
+function handleFinanceiroUpload(input) {
+    const files = Array.from(input.files);
+    if (files.length === 0) return;
+
+    files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const idUnico = Date.now() + Math.random();
+            const itemNota = {
+                id: idUnico,
+                src: e.target.result,
+                file: file
+            };
+            window.arquivosAtuais.push(itemNota);
+            
+            renderizarListaFinanceiro();
+
+            const indexAtual = window.arquivosAtuais.findIndex(item => item.id === idUnico);
+            if (indexAtual !== -1) {
+                escanearTextoNota(e.target.result, `input-valor-nota-${indexAtual}`);
+            }
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
 function renderizarListaFinanceiro() {
     const visor = document.getElementById('visor-notas');
     const formContainer = document.getElementById('form-notas-container');
     const containerInterface = document.querySelector('.conferencia-grid-layout') || (visor ? visor.parentElement : null);
-    
+
     if (!window.arquivosAtuais || window.arquivosAtuais.length === 0) {
         resetarInterfaceFinanceiro();
         return;
     }
 
     if(containerInterface) containerInterface.classList.add('conferencia-grid-layout');
-    if(visor) visor.innerHTML = ''; 
+    if(visor) visor.innerHTML = '';
     if(formContainer) formContainer.innerHTML = '';
 
     window.arquivosAtuais.forEach((item, index) => {
@@ -1252,7 +1287,12 @@ function renderizarListaFinanceiro() {
             const imgDiv = document.createElement('div');
             imgDiv.className = "imagem-nota-container";
             imgDiv.id = `scroll-nota-${index}`;
-            imgDiv.innerHTML = ` <div style="background: #3b82f6; color: white; padding: 10px; border-radius: 8px 8px 0 0; font-size: 0.8rem; font-weight: bold; text-align: center; margin-bottom: -5px;"> NOTA FISCAL #${index + 1} </div> <img src="${item.src}" alt="Nota Fiscal ${index + 1}"> `;
+            imgDiv.innerHTML = `
+                <div style="background: #3b82f6; color: white; padding: 10px; border-radius: 8px 8px 0 0; font-size: 0.8rem; font-weight: bold; text-align: center; margin-bottom: -5px;">
+                    NOTA FISCAL #${index + 1}
+                </div>
+                <img src="${item.src}" alt="Nota Fiscal ${index + 1}">
+            `;
             visor.appendChild(imgDiv);
         }
 
@@ -1261,27 +1301,50 @@ function renderizarListaFinanceiro() {
             formDiv.className = 'item-card';
             formDiv.style = "margin-bottom: 25px; border-left: 5px solid #f59e0b; padding: 15px; background: #1e293b; border-radius: 10px;";
             formDiv.innerHTML = `
-                <strong style="color: #f59e0b; font-size: 0.9rem; display: block; margin-bottom: 12px;">CONFERÊNCIA DA NF #${index + 1}</strong>
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <input type="text" class="codigo-nf-financeiro" placeholder="Número da Nota" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
-                    <input type="date" class="data-financeiro" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
-                    <input type="number" step="0.01" class="input-financeiro" placeholder="Valor Total R$" oninput="calcularTotalRemessa()" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
-                    <select class="cat-financeiro" onfocus="focarNota(${index})" style="width:100%; background:#0f172a; border:1px solid #334155; color:white; padding:12px; border-radius:8px;">
-                        <option value="">Selecione a Categoria...</option>
-                        <option>Gênero Alimentício</option><option>Material de Escritório</option><option>Material de Higiene e Limpeza</option>
-                        <option>Material de Copa e Cozinha</option><option>Material Didático</option><option>Conservação de Edifícios</option>
-                        <option>Conservação de Móveis, Máquinas e Equipamentos</option><option>Material de Sinalização Visual (placas)</option>
-                        <option>EPI</option><option>Medicamentos</option><option>Aluguel carro/combustível</option><option>Gás</option>
-                        <option>Controle de Pragas / Sanitização e Dedetização</option><option>Extintores de Incêndio</option>
-                        <option>Transporte para Usuários - Taxi- Ônibus- App</option><option>Serviços Gráficos</option>
-                        <option>Oficinas e Capacitações</option><option>Material de Cama-mesa e banho</option><option>Uniformes</option>
-                        <option>Materiais elétricos</option><option>Ferramentas</option><option>Material permanente - mesa e cadeira</option>
-                        <option>Material permanente - roupeiros</option><option>Material permanente - Ventilador de Parede</option>
-                        <option>Material permanente - Refrigerador industrial</option>
-                    </select>
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
-                    <button type="button" onclick="removerNota(${index})" style="background:none; border:none; color:#ef4444; font-size:0.75rem; cursor:pointer;"> <i class="fas fa-trash"></i> Remover Nota </button>
+                <strong style="color: #f59e0b; font-size: 0.9rem; display: block; margin-bottom: 10px;">Nota #${index + 1}</strong>
+                
+                <label style="font-size: 0.75rem; color: #94a3b8;">Código da NF / Chave</label>
+                <input type="text" class="codigo-nf-financeiro" placeholder="Nº da nota ou Chave de acesso">
+
+                <label style="font-size: 0.75rem; color: #94a3b8;">Data de Emissão</label>
+                <input type="date" class="data-financeiro">
+
+                <label style="font-size: 0.75rem; color: #94a3b8;">Categoria</label>
+                <select class="cat-financeiro" style="width: 100%; padding: 8px; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 6px; margin-bottom: 10px; font-size: 0.85rem;">
+                    <option>Gênero Alimentício</option>
+                    <option>Material de Escritório</option>
+                    <option>Material de Higiene e Limpeza</option>
+                    <option>Material de Copa e Cozinha</option>
+                    <option>Material Didático</option>
+                    <option>Conservação de Edifícios</option>
+                    <option>Conservação de Móveis, Máquinas e Equipamentos</option>
+                    <option>Material de Sinalização Visual (placas)</option>
+                    <option>EPI</option>
+                    <option>Medicamentos</option>
+                    <option>Aluguel carro/combustível</option>
+                    <option>Gás</option>
+                    <option>Controle de Pragas / Sanitização e Dedetização</option>
+                    <option>Extintores de Incêndio</option>
+                    <option>Transporte para Usuários - Taxi- Ônibus- App</option>
+                    <option>Serviços Gráficos - confecção de impressos- folders e assemelhados</option>
+                    <option>Oficinas e Capacitações</option>
+                    <option>Material de Cama-mesa e banho</option>
+                    <option>Uniformes</option>
+                    <option>Materiais elétricos</option>
+                    <option>Ferramentas</option>
+                    <option>Material permanente - mesa e cadeira</option>
+                    <option>Material permanente - roupeiros</option>
+                    <option>Material permanente - Ventilador de Parede</option>
+                    <option>Material permanente - Refrigerador industrial</option>
+                </select>
+
+                <label style="font-size: 0.75rem; color: #4ade80; font-weight: bold;">Valor Total (R$)</label>
+                <input type="text" id="input-valor-nota-${index}" class="input-financeiro" placeholder="0.00" oninput="calcularTotalRemessa()" onfocus="focarNota(${index})">
+
+                <div style="display:flex; justify-content: space-between; align-items:center; margin-top: 10px;">
+                    <button type="button" onclick="removerNota(${index})" style="background:none; border:none; color:#ef4444; font-size:0.75rem; cursor:pointer;">
+                        <i class="fas fa-trash"></i> Remover Nota
+                    </button>
                     <span style="font-size: 0.7rem; color: #64748b;">ID: ${index + 1}</span>
                 </div>
             `;
@@ -1333,10 +1396,11 @@ function enviarParaDP() {
     
     let detalhamento = "";
     inputs.forEach((input, i) => {
-        const valor = parseFloat(input.value || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const valorOriginal = parseFloat(input.value || 0);
+        const valorFormatado = isNaN(valorOriginal) ? "R$ 0,00" : valorOriginal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         const dataNota = datas[i].value ? datas[i].value.split('-').reverse().join('/') : "S/ Data";
         const nf = codigosNF[i].value || "S/ Nº";
-        detalhamento += `🔹 *NF ${nf}:* ${valor} (${categorias[i].value}) - Data: ${dataNota}%0A`;
+        detalhamento += `🔹 *NF ${nf}:* ${valorFormatado} (${categorias[i].value}) - Data: ${dataNota}%0A`;
     });
     
     const msg = `🧾 *RESUMO FINANCEIRO*%0A%0A${detalhamento}%0A💰 *TOTAL: ${total}*`;
@@ -1351,10 +1415,44 @@ function enviarParaDP() {
 function calcularTotalRemessa() {
     const inputs = document.querySelectorAll('.input-financeiro');
     let total = 0;
-    inputs.forEach(i => total += Number(i.value || 0));
+    inputs.forEach(i => {
+        total += Number(i.value || 0);
+    });
     const totalElem = document.getElementById('total-remessa');
-    if(totalElem) totalElem.innerText = `R$ ${total.toFixed(2)}`;
+    if(totalElem) totalElem.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
 }
+
+async function escanearTextoNota(imagemSrc, inputValorId) {
+    const inputValor = document.getElementById(inputValorId);
+    if (!inputValor) return;
+    
+    inputValor.value = ""; 
+    inputValor.placeholder = "🔍 Escaneando valor...";
+
+    try {
+        const result = await Tesseract.recognize(imagemSrc, 'por');
+        const textoExtraido = result.data.text;
+        
+        console.log(`Texto extraído da nota para análise (${inputValorId}):`, textoExtraido);
+
+        // Seu mapeamento cirúrgico de termos
+        const regexMapeamento = /(valor\s+total\s*r\$|valor\s+a\s+pagar\s*r\$|valor\s+total\s+da\s+nf|valor\s+total).*?(\d{1,3}(\.\d{3})*[.,]\d{2})/i;
+        const match = textoExtraido.match(regexMapeamento);
+
+        if (match && match[2]) {
+            let valorTratado = match[2].replace(/\./g, '').replace(',', '.');
+            inputValor.value = parseFloat(valorTratado).toFixed(2);
+            inputValor.placeholder = "0.00";
+            calcularTotalRemessa();
+        } else {
+            inputValor.placeholder = "0.00";
+        }
+    } catch (error) {
+        console.error("Erro no processamento do OCR:", error);
+        inputValor.placeholder = "0.00";
+    }
+    }
+    
 
 // ========================================================
 // SINCRONIZAÇÃO AUTOMÁTICA DA PLANILHA (RESTAURADA E LIMPA)
