@@ -1234,14 +1234,14 @@ function handleFinanceiroUpload(input) {
         reader.readAsDataURL(file);
     });
 } 
-    
+
 // ==========================================================================
-// MÓDULO FINANCEIRO - MULTI-LEITURA CORRIGIDA (QR CODE + OCR)
+// MÓDULO FINANCEIRO - SISTEMA CORRIGIDO DE LEITURA EM LOTE (IDs ISOLADOS)
 // ==========================================================================
 if (!window.arquivosAtuais) window.arquivosAtuais = [];
 
 function openFinanceiro() {
-    // Garante a existência do motor invisível para o QR Code
+    // Garante a existência do motor invisível para o QR Code no corpo da página
     if (!document.getElementById("leitor-qrcode-motor")) {
         const motorDiv = document.createElement("div");
         motorDiv.id = "leitor-qrcode-motor";
@@ -1258,33 +1258,35 @@ function handleFinanceiroUpload(input) {
     const vazio = document.getElementById('conteudo-visor-vazio');
     if (vazio) vazio.style.display = 'none';
 
-    // Contador para mapear a posição exata de cada arquivo neste lote
-    let indiceBase = window.arquivosAtuais.length;
-
-    files.forEach((file, indexLote) => {
+    // Processa cada arquivo individualmente gerando um vínculo único imutável
+    files.forEach((file) => {
         const reader = new FileReader();
         reader.onload = (e) => {
-            const idUnico = Date.now() + Math.random();
+            // Gera um ID único baseado no timestamp + aleatório para esta nota
+            const idFixo = 'nota_' + Math.now() + '_' + Math.floor(Math.random() * 1000);
+            
             const itemNota = {
-                id: idUnico,
+                id: idFixo,
                 src: e.target.result,
-                file: file
+                file: file,
+                valor: "",
+                chave: "",
+                placeholder: "🔍 Buscando QR Code..."
             };
+            
             window.arquivosAtuais.push(itemNota);
             
-            // Renderiza a lista atualizada na tela
+            // Renderiza a estrutura visual imediatamente
             renderizarListaFinanceiro();
 
-            // CORREÇÃO: Calcula a posição real e imutável desta nota específica
-            const posicaoReal = indiceBase + indexLote;
-            
-            // Dispara a leitura passando o ID fixo e isolado desta nota
-            processarScannerHibrido(e.target.result, `input-valor-nota-${posicaoReal}`);
+            // Dispara a leitura assíncrona apontando diretamente para o ID fixo e isolado dela
+            processarScannerHibrido(itemNota.src, idFixo);
         };
         reader.readAsDataURL(file);
     });
 
-    // CORREÇÃO: Reseta o valor do input para permitir adicionar a mesma imagem se for excluída
+    // CORREÇÃO 1: Limpa o input imediatamente após a leitura dos arquivos
+    // Isso permite que o navegador detecte o mesmo arquivo caso ele seja excluído e adicionado de novo
     input.value = "";
 }
 
@@ -1304,7 +1306,7 @@ function renderizarListaFinanceiro() {
         if(visor) {
             const imgDiv = document.createElement('div');
             imgDiv.className = "imagem-nota-container";
-            imgDiv.id = `scroll-nota-${index}`;
+            imgDiv.id = `scroll-${item.id}`;
             imgDiv.style = "margin-bottom: 20px; border: 1px solid #334155; border-radius: 8px; overflow:hidden;";
             imgDiv.innerHTML = `
                 <div style="background: #3b82f6; color: white; padding: 8px; font-size: 0.75rem; font-weight: bold; text-align: center;">
@@ -1318,15 +1320,16 @@ function renderizarListaFinanceiro() {
         if(formContainer) {
             const formDiv = document.createElement('div');
             formDiv.className = 'item-card';
+            formDiv.id = `card-${item.id}`;
             formDiv.style = "margin-bottom: 20px; border-left: 5px solid #f59e0b; padding: 12px; background: #1e293b; border-radius: 10px; display: flex; flex-direction: column; gap: 6px;";
             formDiv.innerHTML = `
                 <strong style="color: #f59e0b; font-size: 0.85rem; display: block;">Nota #${index + 1}</strong>
                 
                 <label style="font-size: 0.7rem; color: #94a3b8; margin: 0;">Código da NF / Chave</label>
-                <input type="text" class="codigo-nf-financeiro" placeholder="Nº da nota ou Chave" style="padding: 6px; margin-bottom: 4px; font-size: 0.8rem; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 6px;">
+                <input type="text" id="chave-${item.id}" class="codigo-nf-financeiro" value="${item.chave}" placeholder="Nº da nota ou Chave" onchange="salvarDadosManuais('${item.id}')" style="padding: 6px; margin-bottom: 4px; font-size: 0.8rem; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 6px;">
 
                 <label style="font-size: 0.7rem; color: #94a3b8; margin: 0;">Data de Emissão</label>
-                <input type="date" class="data-financeiro" style="padding: 6px; margin-bottom: 4px; font-size: 0.8rem; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 6px;">
+                <input type="date" id="data-${item.id}" class="data-financeiro" style="padding: 6px; margin-bottom: 4px; font-size: 0.8rem; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 6px;">
 
                 <label style="font-size: 0.7rem; color: #94a3b8; margin: 0;">Categoria</label>
                 <select class="cat-financeiro" style="width: 100%; padding: 6px; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 6px; margin-bottom: 4px; font-size: 0.8rem;">
@@ -1358,10 +1361,10 @@ function renderizarListaFinanceiro() {
                 </select>
 
                 <label style="font-size: 0.7rem; color: #4ade80; font-weight: bold; margin: 0;">Valor Total (R$)</label>
-                <input type="number" step="0.01" id="input-valor-nota-${index}" class="input-financeiro" placeholder="0.00" oninput="calcularTotalRemessa()" onfocus="focarNota(${index})" style="padding: 6px; margin-bottom: 4px; font-size: 0.8rem; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 6px;">
+                <input type="number" step="0.01" id="valor-${item.id}" class="input-financeiro" value="${item.valor}" placeholder="${item.placeholder}" oninput="salvarDadosManuais('${item.id}')" onfocus="focarNota('${item.id}')" style="padding: 6px; margin-bottom: 4px; font-size: 0.8rem; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 6px;">
 
                 <div style="display:flex; justify-content: space-between; align-items:center; margin-top: 5px;">
-                    <button type="button" onclick="removerNota(${index})" style="background:none; border:none; color:#ef4444; font-size:0.7rem; cursor:pointer; padding:0;">
+                    <button type="button" onclick="removerNota('${item.id}')" style="background:none; border:none; color:#ef4444; font-size:0.7rem; cursor:pointer; padding:0;">
                         <i class="fas fa-trash"></i> Remover
                     </button>
                     <span style="font-size: 0.65rem; color: #64748b;">Ref ID: ${index + 1}</span>
@@ -1373,15 +1376,27 @@ function renderizarListaFinanceiro() {
     calcularTotalRemessa();
 }
 
-function focarNota(index) {
-    const elementoImg = document.getElementById(`scroll-nota-${index}`);
+// Memoriza o que o usuário digita manualmente para não perder ao redesenhar a tela
+function salvarDadosManuais(idFixo) {
+    const item = window.arquivosAtuais.find(n => n.id === idFixo);
+    if (item) {
+        const inputVal = document.getElementById(`valor-${idFixo}`);
+        const inputChave = document.getElementById(`chave-${idFixo}`);
+        if (inputVal) item.valor = inputVal.value;
+        if (inputChave) item.chave = inputChave.value;
+    }
+    calcularTotalRemessa();
+}
+
+function focarNota(idFixo) {
+    const elementoImg = document.getElementById(`scroll-${idFixo}`);
     if (elementoImg) {
         elementoImg.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 }
 
-function removerNota(index) {
-    window.arquivosAtuais.splice(index, 1);
+function removerNota(idFixo) {
+    window.arquivosAtuais = window.arquivosAtuais.filter(item => item.id !== idFixo);
     renderizarListaFinanceiro();
 }
 
@@ -1401,10 +1416,7 @@ function resetarInterfaceFinanceiro() {
 }
 
 function enviarParaDP() {
-    const codigosNF = document.querySelectorAll('.codigo-nf-financeiro');
     const inputs = document.querySelectorAll('.input-financeiro');
-    const datas = document.querySelectorAll('.data-financeiro');
-    const categorias = document.querySelectorAll('.cat-financeiro');
     const totalElem = document.getElementById('total-remessa');
     const total = totalElem ? totalElem.innerText : "R$ 0,00";
     
@@ -1414,12 +1426,19 @@ function enviarParaDP() {
     }
     
     let detalhamento = "";
-    inputs.forEach((input, i) => {
-        const valorVal = parseFloat(input.value || 0);
+    window.arquivosAtuais.forEach((item, i) => {
+        const valorVal = parseFloat(item.valor || 0);
         const valorFormatado = valorVal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        const dataNota = datas[i].value ? datas[i].value.split('-').reverse().join('/') : "S/ Data";
-        const nf = codigosNF[i].value || "S/ Nº";
-        detalhamento += `🔹 *NF ${nf}:* ${valorFormatado} (${categorias[i].value}) - Data: ${dataNota}%0A`;
+        
+        const card = document.getElementById(`card-${item.id}`);
+        const dataInput = card ? card.querySelector('.data-financeiro') : null;
+        const catSelect = card ? card.querySelector('.cat-financeiro') : null;
+        
+        const dataNota = (dataInput && dataInput.value) ? dataInput.value.split('-').reverse().join('/') : "S/ Data";
+        const categoria = catSelect ? catSelect.value : "Gênero Alimentício";
+        const nf = item.chave || "S/ Nº";
+        
+        detalhamento += `🔹 *NF ${nf}:* ${valorFormatado} (${categoria}) - Data: ${dataNota}%0A`;
     });
     
     const msg = `🧾 *RESUMO FINANCEIRO*%0A%0A${detalhamento}%0A💰 *TOTAL: ${total}*`;
@@ -1432,26 +1451,19 @@ function enviarParaDP() {
 }
 
 function calcularTotalRemessa() {
-    const inputs = document.querySelectorAll('.input-financeiro');
     let total = 0;
-    inputs.forEach(i => {
-        total += Number(i.value || 0);
+    window.arquivosAtuais.forEach(item => {
+        total += Number(item.valor || 0);
     });
     const totalElem = document.getElementById('total-remessa');
     if(totalElem) totalElem.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
 }
 
-async function processarScannerHibrido(imagemSrc, inputValorId) {
-    const inputValor = document.getElementById(inputValorId);
-    if (!inputValor) return;
-    
-    const cardPai = inputValor.closest('.item-card');
-    const campoChave = cardPai ? cardPai.querySelector('.codigo-nf-financeiro') : null;
-    
-    inputValor.value = ""; 
-    inputValor.placeholder = "🔍 Buscando QR Code...";
-
+// CORREÇÃO 2: PROCESSAMENTO ISOLADO POR ID ÚNICO E FIXO
+async function processarScannerHibrido(imagemSrc, idFixo) {
     let qrCodeSucesso = false;
+    let valorDetectado = "";
+    let chaveDetectada = "";
 
     // --- PASSO 1: SCANNER QR CODE ---
     try {
@@ -1470,30 +1482,31 @@ async function processarScannerHibrido(imagemSrc, inputValorId) {
                 let valorTratado = matchQR[1].replace(/\./g, '').replace(',', '.');
                 let valorFinal = parseFloat(valorTratado);
                 if (!isNaN(valorFinal) && valorFinal > 0) {
-                    inputValor.value = valorFinal.toFixed(2);
-                    inputValor.placeholder = "";
+                    valorDetectado = valorFinal.toFixed(2);
                 }
             }
 
-            if (campoChave) {
-                const regexChaveQR = /[?&]chNFe=(\d{44})/i;
-                const matchChave = qrCodeResult.match(regexChaveQR) || qrCodeResult.match(/\/p=(\d{44})/i);
-                if (matchChave && matchChave[1]) {
-                    campoChave.value = matchChave[1];
-                }
+            const regexChaveQR = /[?&]chNFe=(\d{44})/i;
+            const matchChave = qrCodeResult.match(regexChaveQR) || qrCodeResult.match(/\/p=(\d{44})/i);
+            if (matchChave && matchChave[1]) {
+                chaveDetectada = matchChave[1];
             }
 
-            calcularTotalRemessa();
             qrCodeSucesso = true;
-            return; 
         }
     } catch (qrError) {
-        console.log("QR Code não mapeado nesta imagem. Mudando para texto...");
+        console.log(`[${idFixo}] QR Code não mapeado. Tentando leitura por texto...`);
     }
 
     // --- PASSO 2: SCANNER TEXTO OCR ---
     if (!qrCodeSucesso) {
-        inputValor.placeholder = "🔍 Lendo texto impresso...";
+        // Atualiza dinamicamente o placeholder da nota informando o status do OCR
+        const inputVal = document.getElementById(`valor-${idFixo}`);
+        if(inputVal) inputVal.placeholder = "🔍 Lendo texto impresso...";
+        
+        const notaObjeto = window.arquivosAtuais.find(n => n.id === idFixo);
+        if(notaObjeto) notaObjeto.placeholder = "🔍 Lendo texto impresso...";
+
         try {
             const result = await Tesseract.recognize(imagemSrc, 'por');
             let textoExtraido = result.data.text;
@@ -1511,33 +1524,49 @@ async function processarScannerHibrido(imagemSrc, inputValorId) {
 
                 let valorFinal = parseFloat(valorTratado);
                 if (!isNaN(valorFinal) && valorFinal > 0 && valorFinal < 100000) {
-                    inputValor.value = valorFinal.toFixed(2);
-                    inputValor.placeholder = "";
-                    calcularTotalRemessa();
-                    return;
+                    valorDetectado = valorFinal.toFixed(2);
                 }
             }
 
-            const valoresGerais = textoExtraido.match(/\d{1,3}(?:[.,]\d{3})*[.,]\d{2}/g);
-            if (valoresGerais && valoresGerais.length > 0) {
-                let maiorValor = 0;
-                valoresGerais.forEach(v => {
-                    let n = parseFloat(v.replace(/\./g, '').replace(',', '.'));
-                    if (n > maiorValor && n < 50000) maiorValor = n;
-                });
-                if (maiorValor > 0) {
-                    inputValor.value = maiorValor.toFixed(2);
-                    inputValor.placeholder = "";
-                    calcularTotalRemessa();
-                    return;
+            if (!valorDetectado) {
+                const valoresGerais = textoExtraido.match(/\d{1,3}(?:[.,]\d{3})*[.,]\d{2}/g);
+                if (valoresGerais && valoresGerais.length > 0) {
+                    let maiorValor = 0;
+                    valoresGerais.forEach(v => {
+                        let n = parseFloat(v.replace(/\./g, '').replace(',', '.'));
+                        if (n > maiorValor && n < 50000) maiorValor = n;
+                    });
+                    if (maiorValor > 0) valorDetectado = maiorValor.toFixed(2);
                 }
             }
-            inputValor.placeholder = "Não detectado. Digite.";
         } catch (ocrError) {
             console.error(ocrError);
-            inputValor.placeholder = "Erro. Digite.";
         }
     }
+
+    // --- PASSO 3: ENTREGA DOS VALORES NO INPUT CORRETO ---
+    // Procura o objeto na lista global e salva os valores nele
+    const notaFinal = window.arquivosAtuais.find(n => n.id === idFixo);
+    if (notaFinal) {
+        notaFinal.valor = valorDetectado;
+        notaFinal.chave = chaveDetectada;
+        notaFinal.placeholder = valorDetectado ? "" : "Não detectado. Digite.";
+    }
+
+    // Atualiza o elemento físico na tela se ele ainda estiver aberto
+    const inputFisicoValor = document.getElementById(`valor-${idFixo}`);
+    const inputFisicaChave = document.getElementById(`chave-${idFixo}`);
+    
+    if (inputFisicoValor) {
+        inputFisicoValor.value = valorDetectado;
+        inputFisicoValor.placeholder = valorDetectado ? "" : "Não detectado. Digite.";
+    }
+    if (inputFisicaChave && chaveDetectada) {
+        inputFisicaChave.value = chaveDetectada;
+    }
+
+    // Recalcula o somatório geral do lote financeiro
+    calcularTotalRemessa();
 }
 
 // ========================================================
