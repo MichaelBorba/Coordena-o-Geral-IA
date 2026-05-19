@@ -9,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <div id="leitor-qrcode-motor" style="display: none;"></div>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         :root {
@@ -1425,28 +1426,35 @@ function calcularTotalRemessa() {
     if(totalElem) totalElem.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
 }
 
-// NOVA FUNÇÃO HÍBRIDA ROBUSTA: LEITURA COMPLETA QR CODE + TEXTO OCR
+// FUNÇÃO HÍBRIDA CORRIGIDA: LEITURA DE QR CODE (VIA MOTOR SEGURO) + TEXTO OCR
 async function processarScannerHibrido(imagemSrc, inputValorId) {
     const inputValor = document.getElementById(inputValorId);
     if (!inputValor) return;
     
+    // Encontra o card da nota atual para atualizar os campos específicos dela
+    const cardPai = inputValor.closest('.item-card');
+    const campoChave = cardPai ? cardPai.querySelector('.codigo-nf-financeiro') : null;
+    
     inputValor.value = ""; 
-    inputValor.placeholder = "🔍 Tentando ler QR Code...";
+    inputValor.placeholder = "🔍 Buscando QR Code...";
 
     let qrCodeSucesso = false;
 
     // --- PASSO 1: TENTAR LER QR CODE ---
     try {
         if (typeof Html5Qrcode !== 'undefined') {
-            const html5QrCodeCpu = new Html5Qrcode("upload-lote");
+            // Usa o motor invisível dedicado que adicionamos no HTML
+            const html5QrCodeCpu = new Html5Qrcode("leitor-qrcode-motor");
+            
             const imgAux = new Image();
             imgAux.src = imagemSrc;
             await new Promise((resolve) => (imgAux.onload = resolve));
 
+            // Executa o escaneamento na imagem
             const qrCodeResult = await html5QrCodeCpu.scanFile(imgAux, false);
-            console.log("QR Code detectado:", qrCodeResult);
+            console.log("✅ QR Code detectado com sucesso:", qrCodeResult);
 
-            // Filtros de parâmetros comuns em URLs da SEFAZ
+            // 1. Extração Inteligente do VALOR da Nota na URL do QR Code
             const regexValorQR = /[?&](?:vNf|vTxt|valorTotal|vProd|vNF)=([0-9.,]+)/i;
             const matchQR = qrCodeResult.match(regexValorQR);
 
@@ -1457,17 +1465,27 @@ async function processarScannerHibrido(imagemSrc, inputValorId) {
                 if (!isNaN(valorFinal) && valorFinal > 0) {
                     inputValor.value = valorFinal.toFixed(2);
                     inputValor.placeholder = "";
-                    calcularTotalRemessa();
-                    qrCodeSucesso = true;
-                    return; // Interrompe e não executa o OCR pesado
                 }
             }
+
+            // 2. Extração Opcional da CHAVE DE ACESSO (44 números da NF) na URL do QR Code
+            if (campoChave) {
+                const regexChaveQR = /[?&]chNFe=(\d{44})/i;
+                const matchChave = qrCodeResult.match(regexChaveQR) || qrCodeResult.match(/\/p=(\d{44})/i);
+                if (matchChave && matchChave[1]) {
+                    campoChave.value = matchChave[1];
+                }
+            }
+
+            calcularTotalRemessa();
+            qrCodeSucesso = true;
+            return; // Sucesso absoluto! Finaliza aqui sem gastar processamento com o OCR.
         }
     } catch (qrError) {
-        console.log("Nenhum QR Code legível encontrado. Mudando para OCR de texto...");
+        console.log("ℹ️ QR Code não encontrado ou imagem sem código. Mudando para OCR por texto...");
     }
 
-    // --- PASSO 2: PLANO B - SE FALHAR O QR CODE, ENTRA EM AÇÃO O TEXTO (OCR) ---
+    // --- PASSO 2: PLANO B - SE NÃO ACHAR QR CODE, LÊ O TEXTO DA NOTA (OCR) ---
     if (!qrCodeSucesso) {
         inputValor.placeholder = "🔍 Lendo texto impresso...";
         try {
