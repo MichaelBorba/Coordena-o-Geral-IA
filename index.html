@@ -1389,8 +1389,107 @@ function enviarParaDP() {
     const datas = document.querySelectorAll('.data-financeiro');
     const categorias = document.querySelectorAll('.cat-financeiro');
     const totalElem = document.getElementById('total-remessa');
+    const total = totalElem ? totalElem.innerText : "R$ 0,00";
     
+    if (!window.arquivosAtuais || window.arquivosAtuais.length === 0) {
+        alert("Adicione notas primeiro.");
+        return;
+    }
+    
+    let detalhamento = "";
+    inputs.forEach((input, i) => {
+        const valorVal = parseFloat(input.value || 0);
+        const valorFormatado = valorVal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const dataNota = datas[i].value ? datas[i].value.split('-').reverse().join('/') : "S/ Data";
+        const nf = codigosNF[i].value || "S/ Nº";
+        detalhamento += `🔹 *NF ${nf}:* ${valorFormatado} (${categorias[i].value}) - Data: ${dataNota}%0A`;
+    });
+    
+    const msg = `🧾 *RESUMO FINANCEIRO*%0A%0A${detalhamento}%0A💰 *TOTAL: ${total}*`;
+    window.open(`https://wa.me/?text=${msg}`);
+    setTimeout(() => {
+        if(confirm("Deseja limpar os dados deste envio?")) {
+            resetarInterfaceFinanceiro();
+        }
+    }, 1000);
+}
 
+function calcularTotalRemessa() {
+    const inputs = document.querySelectorAll('.input-financeiro');
+    let total = 0;
+    inputs.forEach(i => {
+        total += Number(i.value || 0);
+    });
+    const totalElem = document.getElementById('total-remessa');
+    if(totalElem) totalElem.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+}
+
+async function escanearTextoNota(imagemSrc, inputValorId) {
+    const inputValor = document.getElementById(inputValorId);
+    if (!inputValor) return;
+    
+    inputValor.value = ""; 
+    inputValor.placeholder = "🔍 Buscando valor...";
+
+    try {
+        const result = await Tesseract.recognize(imagemSrc, 'por');
+        let textoExtraido = result.data.text;
+        
+        console.log("Texto OCR Processado para:", inputValorId, textoExtraido);
+
+        // Correção de falsos positivos comuns (O maiúsculo confundido com número 0)
+        textoExtraido = textoExtraido.replace(/(\d)[oO]/g, '$10').replace(/[oO](\d)/g, '0$1');
+
+        // Seu mapeamento cirúrgico de termos pesquisados
+        const regexMapeamento = /(valor\s+total\s*r\$|valor\s+a\s+pagar\s*r\$|valor\s+total\s+da\s+nf|valor\s+total|total\s+r\$|liquido).*?(\d{1,3}(?:[.,]\d{3})*[.,]\d{2})/i;
+        const match = textoExtraido.match(regexMapeamento);
+
+        if (match && match[2]) {
+            let valorCru = match[2];
+            let valorTratado;
+            
+            if (valorCru.includes(',') && valorCru.includes('.')) {
+                valorTratado = valorCru.replace(/\./g, '').replace(',', '.');
+            } else if (valorCru.includes(',')) {
+                valorTratado = valorCru.replace(',', '.');
+            } else {
+                valorTratado = valorCru;
+            }
+
+            let valorFinal = parseFloat(valorTratado);
+            if (!isNaN(valorFinal) && valorFinal > 0 && valorFinal < 100000) {
+                inputValor.value = valorFinal.toFixed(2);
+                inputValor.placeholder = "";
+                calcularTotalRemessa();
+                return;
+            }
+        }
+
+        // Regra secundária de fallback estatístico (Maior valor)
+        const valoresGerais = textoExtraido.match(/\d{1,3}(?:[.,]\d{3})*[.,]\d{2}/g);
+        if (valoresGerais && valoresGerais.length > 0) {
+            let maiorValor = 0;
+            valoresGerais.forEach(v => {
+                let n = parseFloat(v.replace(/\./g, '').replace(',', '.'));
+                if (n > maiorValor && n < 50000) maiorValor = n;
+            });
+            
+            if (maiorValor > 0) {
+                inputValor.value = maiorValor.toFixed(2);
+                inputValor.placeholder = "";
+                calcularTotalRemessa();
+                return;
+            }
+        }
+        
+        inputValor.placeholder = "Não detectado. Digite.";
+    } catch (error) {
+        console.error("Erro no processamento do OCR:", error);
+        inputValor.placeholder = "Erro. Digite.";
+    }
+}
+
+    
 // ========================================================
 // SINCRONIZAÇÃO AUTOMÁTICA DA PLANILHA (RESTAURADA E LIMPA)
 // ========================================================
