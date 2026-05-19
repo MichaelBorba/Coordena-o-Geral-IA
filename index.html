@@ -1262,8 +1262,8 @@ function handleFinanceiroUpload(input) {
     files.forEach((file) => {
         const reader = new FileReader();
         reader.onload = (e) => {
-            // Gera um ID único baseado no timestamp + aleatório para esta nota
-            const idFixo = 'nota_' + Math.now() + '_' + Math.floor(Math.random() * 1000);
+            // CORREÇÃO AQUI: Mudado de Math.now() para Date.now()
+            const idFixo = 'nota_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
             
             const itemNota = {
                 id: idFixo,
@@ -1285,8 +1285,7 @@ function handleFinanceiroUpload(input) {
         reader.readAsDataURL(file);
     });
 
-    // CORREÇÃO 1: Limpa o input imediatamente após a leitura dos arquivos
-    // Isso permite que o navegador detecte o mesmo arquivo caso ele seja excluído e adicionado de novo
+    // Limpa o input imediatamente após a leitura dos arquivos
     input.value = "";
 }
 
