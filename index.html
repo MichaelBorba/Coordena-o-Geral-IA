@@ -1262,7 +1262,7 @@ function handleFinanceiroUpload(input) {
     files.forEach((file) => {
         const reader = new FileReader();
         reader.onload = (e) => {
-            // CORREÇÃO AQUI: Mudado de Math.now() para Date.now()
+            // ID único seguro e imutável baseado no tempo atual
             const idFixo = 'nota_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
             
             const itemNota = {
@@ -1279,16 +1279,52 @@ function handleFinanceiroUpload(input) {
             // Renderiza a estrutura visual imediatamente
             renderizarListaFinanceiro();
 
-            // Dispara a leitura assíncrona apontando diretamente para o ID fixo e isolado dela
+            // Dispara a leitura assíncrona apontando diretamente para o ID fixo dela
             processarScannerHibrido(itemNota.src, idFixo);
         };
         reader.readAsDataURL(file);
     });
 
-    // Limpa o input imediatamente após a leitura dos arquivos
+    // CORREÇÃO CRUCIAL: Libera o input de arquivos limpando o valor dele.
+    // Isso diz ao navegador que o campo está "vazio" e pronto para receber novas fotos,
+    // mesmo que sejam as mesmas que você acabou de excluir!
     input.value = "";
 }
 
+function removerNota(idFixo) {
+    // Remove apenas a nota clicada mantendo o resto intacto
+    window.arquivosAtuais = window.arquivosAtuais.filter(item => item.id !== idFixo);
+    
+    // Atualiza a tela. Se a lista zerar, o próprio renderizarListaFinanceiro vai tratar de forma segura
+    renderizarListaFinanceiro();
+}
+
+function resetarInterfaceFinanceiro() {
+    window.arquivosAtuais = [];
+    
+    // Limpa o input principal de upload de lote de forma segura
+    const fileInput = document.getElementById('upload-lote');
+    if(fileInput) fileInput.value = "";
+    
+    // Zera o painel de somatório
+    const totalElem = document.getElementById('total-remessa');
+    if(totalElem) totalElem.innerText = "R$ 0,00";
+    
+    // Restaura as mensagens iniciais sem quebrar os botões da tela
+    const formCont = document.getElementById('form-notas-container');
+    if(formCont) formCont.innerHTML = '<p style="color: #94a3b8; font-size: 0.8rem; text-align:center; margin-top:40px;">Selecione as notas para iniciar.</p>';
+    
+    const visorCont = document.getElementById('visor-notas');
+    if(visorCont) {
+        visorCont.innerHTML = `
+            <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8;">
+                <i class="fas fa-images fa-3x"></i><br><br>
+                <p style="font-size:0.85rem;">Nenhuma nota carregada no momento.</p>
+            </div>
+        `;
+    }
+    }
+    
 function renderizarListaFinanceiro() {
     const visor = document.getElementById('visor-notas');
     const formContainer = document.getElementById('form-notas-container');
