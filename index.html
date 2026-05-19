@@ -1235,7 +1235,7 @@ function handleFinanceiroUpload(input) {
 } 
     
 // ==========================================================================
-// MÓDULO FINANCEIRO INTEGRAÇÃO COMPLETA (OCR + CATEGORIAS REAIS ATUALIZADAS)
+// MÓDULO FINANCEIRO - INTERFACE COMPLETA (QR CODE + OCR + CATEGORIAS REAIS)
 // ==========================================================================
 if (!window.arquivosAtuais) window.arquivosAtuais = [];
 
@@ -1247,7 +1247,6 @@ function handleFinanceiroUpload(input) {
     const files = Array.from(input.files);
     if (files.length === 0) return;
 
-    // Remove o placeholder vazio ao carregar
     const vazio = document.getElementById('conteudo-visor-vazio');
     if (vazio) vazio.style.display = 'none';
 
@@ -1266,7 +1265,7 @@ function handleFinanceiroUpload(input) {
 
             const indexAtual = window.arquivosAtuais.findIndex(item => item.id === idUnico);
             if (indexAtual !== -1) {
-                escanearTextoNota(e.target.result, `input-valor-nota-${indexAtual}`);
+                processarScannerHibrido(e.target.result, `input-valor-nota-${indexAtual}`);
             }
         };
         reader.readAsDataURL(file);
@@ -1308,10 +1307,10 @@ function renderizarListaFinanceiro() {
                 <strong style="color: #f59e0b; font-size: 0.85rem; display: block;">Nota #${index + 1}</strong>
                 
                 <label style="font-size: 0.7rem; color: #94a3b8; margin: 0;">Código da NF / Chave</label>
-                <input type="text" class="codigo-nf-financeiro" placeholder="Nº da nota ou Chave" style="padding: 6px; margin-bottom: 4px; font-size: 0.8rem;">
+                <input type="text" class="codigo-nf-financeiro" placeholder="Nº da nota ou Chave" style="padding: 6px; margin-bottom: 4px; font-size: 0.8rem; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 6px;">
 
                 <label style="font-size: 0.7rem; color: #94a3b8; margin: 0;">Data de Emissão</label>
-                <input type="date" class="data-financeiro" style="padding: 6px; margin-bottom: 4px; font-size: 0.8rem;">
+                <input type="date" class="data-financeiro" style="padding: 6px; margin-bottom: 4px; font-size: 0.8rem; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 6px;">
 
                 <label style="font-size: 0.7rem; color: #94a3b8; margin: 0;">Categoria</label>
                 <select class="cat-financeiro" style="width: 100%; padding: 6px; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 6px; margin-bottom: 4px; font-size: 0.8rem;">
@@ -1343,7 +1342,7 @@ function renderizarListaFinanceiro() {
                 </select>
 
                 <label style="font-size: 0.7rem; color: #4ade80; font-weight: bold; margin: 0;">Valor Total (R$)</label>
-                <input type="number" step="0.01" id="input-valor-nota-${index}" class="input-financeiro" placeholder="0.00" oninput="calcularTotalRemessa()" onfocus="focarNota(${index})" style="padding: 6px; margin-bottom: 4px; font-size: 0.8rem;">
+                <input type="number" step="0.01" id="input-valor-nota-${index}" class="input-financeiro" placeholder="0.00" oninput="calcularTotalRemessa()" onfocus="focarNota(${index})" style="padding: 6px; margin-bottom: 4px; font-size: 0.8rem; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 6px;">
 
                 <div style="display:flex; justify-content: space-between; align-items:center; margin-top: 5px;">
                     <button type="button" onclick="removerNota(${index})" style="background:none; border:none; color:#ef4444; font-size:0.7rem; cursor:pointer; padding:0;">
@@ -1426,37 +1425,103 @@ function calcularTotalRemessa() {
     if(totalElem) totalElem.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
 }
 
-async function escanearTextoNota(imagemSrc, inputValorId) {
+// NOVA FUNÇÃO HÍBRIDA ROBUSTA: LEITURA COMPLETA QR CODE + TEXTO OCR
+async function processarScannerHibrido(imagemSrc, inputValorId) {
     const inputValor = document.getElementById(inputValorId);
     if (!inputValor) return;
     
     inputValor.value = ""; 
-    inputValor.placeholder = "🔍 Buscando valor total...";
+    inputValor.placeholder = "🔍 Tentando ler QR Code...";
 
+    let qrCodeSucesso = false;
+
+    // --- PASSO 1: TENTAR LER QR CODE ---
     try {
-        const result = await Tesseract.recognize(imagemSrc, 'por');
-        const textoExtraido = result.data.text;
-        
-        console.log("Texto OCR Processado para:", inputValorId, textoExtraido);
+        if (typeof Html5Qrcode !== 'undefined') {
+            const html5QrCodeCpu = new Html5Qrcode("upload-lote");
+            const imgAux = new Image();
+            imgAux.src = imagemSrc;
+            await new Promise((resolve) => (imgAux.onload = resolve));
 
-        const regexMapeamento = /(valor\s+total\s*r\$|valor\s+a\s+pagar\s*r\$|valor\s+total\s+da\s+nf|valor\s+total).*?(\d{1,3}(\.\d{3})*[.,]\d{2})/i;
-        const match = textoExtraido.match(regexMapeamento);
+            const qrCodeResult = await html5QrCodeCpu.scanFile(imgAux, false);
+            console.log("QR Code detectado:", qrCodeResult);
 
-        if (match && match[2]) {
-            let valorTratado = match[2].replace(/\./g, '').replace(',', '.');
-            inputValor.value = parseFloat(valorTratado).toFixed(2);
-            inputValor.placeholder = "";
-            calcularTotalRemessa();
-        } else {
-            inputValor.placeholder = "Não detectado. Digite.";
+            // Filtros de parâmetros comuns em URLs da SEFAZ
+            const regexValorQR = /[?&](?:vNf|vTxt|valorTotal|vProd|vNF)=([0-9.,]+)/i;
+            const matchQR = qrCodeResult.match(regexValorQR);
+
+            if (matchQR && matchQR[1]) {
+                let valorTratado = matchQR[1].replace(/\./g, '').replace(',', '.');
+                let valorFinal = parseFloat(valorTratado);
+                
+                if (!isNaN(valorFinal) && valorFinal > 0) {
+                    inputValor.value = valorFinal.toFixed(2);
+                    inputValor.placeholder = "";
+                    calcularTotalRemessa();
+                    qrCodeSucesso = true;
+                    return; // Interrompe e não executa o OCR pesado
+                }
+            }
         }
-    } catch (error) {
-        console.error("Erro no processamento do OCR:", error);
-        inputValor.placeholder = "Erro. Digite.";
+    } catch (qrError) {
+        console.log("Nenhum QR Code legível encontrado. Mudando para OCR de texto...");
+    }
+
+    // --- PASSO 2: PLANO B - SE FALHAR O QR CODE, ENTRA EM AÇÃO O TEXTO (OCR) ---
+    if (!qrCodeSucesso) {
+        inputValor.placeholder = "🔍 Lendo texto impresso...";
+        try {
+            const result = await Tesseract.recognize(imagemSrc, 'por');
+            let textoExtraido = result.data.text;
+            console.log("Texto OCR Extraído:", textoExtraido);
+
+            // Correção estatística de erros comuns de leitura (Trocar O por 0 em números)
+            textoExtraido = textoExtraido.replace(/(\d)[oO]/g, '$10').replace(/[oO](\d)/g, '0$1');
+
+            // Seu mapeamento cirúrgico exato de termos para notas fiscais brasileiras
+            const regexMapeamento = /(valor\s+total\s*r\$|valor\s+a\s+pagar\s*r\$|valor\s+total\s+da\s+nf|valor\s+total|total\s+r\$|liquido).*?(\d{1,3}(?:[.,]\d{3})*[.,]\d{2})/i;
+            const match = textoExtraido.match(regexMapeamento);
+
+            if (match && match[2]) {
+                let valorCru = match[2];
+                let valorTratado = valorCru.includes(',') && valorCru.includes('.') 
+                    ? valorCru.replace(/\./g, '').replace(',', '.') 
+                    : valorCru.replace(',', '.');
+
+                let valorFinal = parseFloat(valorTratado);
+                if (!isNaN(valorFinal) && valorFinal > 0 && valorFinal < 100000) {
+                    inputValor.value = valorFinal.toFixed(2);
+                    inputValor.placeholder = "";
+                    calcularTotalRemessa();
+                    return;
+                }
+            }
+
+            // Fallback secundário do OCR: Pega o maior número decimal impresso na folha (geralmente o Total)
+            const valoresGerais = textoExtraido.match(/\d{1,3}(?:[.,]\d{3})*[.,]\d{2}/g);
+            if (valoresGerais && valoresGerais.length > 0) {
+                let maiorValor = 0;
+                valoresGerais.forEach(v => {
+                    let n = parseFloat(v.replace(/\./g, '').replace(',', '.'));
+                    if (n > maiorValor && n < 50000) maiorValor = n;
+                });
+                
+                if (maiorValor > 0) {
+                    inputValor.value = maiorValor.toFixed(2);
+                    inputValor.placeholder = "";
+                    calcularTotalRemessa();
+                    return;
+                }
+            }
+
+            inputValor.placeholder = "Não detectado. Digite.";
+        } catch (ocrError) {
+            console.error("Erro no processamento do OCR:", ocrError);
+            inputValor.placeholder = "Erro na leitura. Digite.";
+        }
     }
 }
 
-    
 // ========================================================
 // SINCRONIZAÇÃO AUTOMÁTICA DA PLANILHA (RESTAURADA E LIMPA)
 // ========================================================
