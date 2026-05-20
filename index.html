@@ -1234,14 +1234,13 @@ function handleFinanceiroUpload(input) {
         reader.readAsDataURL(file);
     });
 } 
-
+                
 // ==========================================================================
-// MÓDULO FINANCEIRO - SISTEMA CORRIGIDO DE LEITURA EM LOTE (IDs ISOLADOS)
+// MÓDULO FINANCEIRO - CORREÇÃO DE INTERFACE E LIMPEZA SEGURA
 // ==========================================================================
 if (!window.arquivosAtuais) window.arquivosAtuais = [];
 
 function openFinanceiro() {
-    // Garante a existência do motor invisível para o QR Code no corpo da página
     if (!document.getElementById("leitor-qrcode-motor")) {
         const motorDiv = document.createElement("div");
         motorDiv.id = "leitor-qrcode-motor";
@@ -1258,11 +1257,9 @@ function handleFinanceiroUpload(input) {
     const vazio = document.getElementById('conteudo-visor-vazio');
     if (vazio) vazio.style.display = 'none';
 
-    // Processa cada arquivo individualmente gerando um vínculo único imutável
     files.forEach((file) => {
         const reader = new FileReader();
         reader.onload = (e) => {
-            // ID único seguro e imutável baseado no tempo atual
             const idFixo = 'nota_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
             
             const itemNota = {
@@ -1275,62 +1272,32 @@ function handleFinanceiroUpload(input) {
             };
             
             window.arquivosAtuais.push(itemNota);
-            
-            // Renderiza a estrutura visual imediatamente
             renderizarListaFinanceiro();
-
-            // Dispara a leitura assíncrona apontando diretamente para o ID fixo dela
             processarScannerHibrido(itemNota.src, idFixo);
         };
         reader.readAsDataURL(file);
     });
 
-    // CORREÇÃO CRUCIAL: Libera o input de arquivos limpando o valor dele.
-    // Isso diz ao navegador que o campo está "vazio" e pronto para receber novas fotos,
-    // mesmo que sejam as mesmas que você acabou de excluir!
+    // Limpa o valor para permitir re-upload do mesmo arquivo com segurança
     input.value = "";
 }
 
-function removerNota(idFixo) {
-    // Remove apenas a nota clicada mantendo o resto intacto
-    window.arquivosAtuais = window.arquivosAtuais.filter(item => item.id !== idFixo);
-    
-    // Atualiza a tela. Se a lista zerar, o próprio renderizarListaFinanceiro vai tratar de forma segura
-    renderizarListaFinanceiro();
-}
-
-function resetarInterfaceFinanceiro() {
-    window.arquivosAtuais = [];
-    
-    // Limpa o input principal de upload de lote de forma segura
-    const fileInput = document.getElementById('upload-lote');
-    if(fileInput) fileInput.value = "";
-    
-    // Zera o painel de somatório
-    const totalElem = document.getElementById('total-remessa');
-    if(totalElem) totalElem.innerText = "R$ 0,00";
-    
-    // Restaura as mensagens iniciais sem quebrar os botões da tela
-    const formCont = document.getElementById('form-notas-container');
-    if(formCont) formCont.innerHTML = '<p style="color: #94a3b8; font-size: 0.8rem; text-align:center; margin-top:40px;">Selecione as notas para iniciar.</p>';
-    
-    const visorCont = document.getElementById('visor-notas');
-    if(visorCont) {
-        visorCont.innerHTML = `
-            <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8;">
-                <i class="fas fa-images fa-3x"></i><br><br>
-                <p style="font-size:0.85rem;">Nenhuma nota carregada no momento.</p>
-            </div>
-        `;
-    }
-    }
-    
 function renderizarListaFinanceiro() {
     const visor = document.getElementById('visor-notas');
     const formContainer = document.getElementById('form-notas-container');
 
+    // SE A LISTA ESTIVER VAZIA: Trata a interface de forma segura sem destruir botões
     if (!window.arquivosAtuais || window.arquivosAtuais.length === 0) {
-        resetarInterfaceFinanceiro();
+        if(totalElem = document.getElementById('total-remessa')) totalElem.innerText = "R$ 0,00";
+        if(formContainer) formContainer.innerHTML = '<p style="color: #94a3b8; font-size: 0.8rem; text-align:center; margin-top:40px;">Selecione as notas para iniciar.</p>';
+        if(visor) {
+            visor.innerHTML = `
+                <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8;">
+                    <i class="fas fa-images fa-3x"></i><br><br>
+                    <p style="font-size:0.85rem;">Nenhuma nota carregada no momento.</p>
+                </div>
+            `;
+        }
         return;
     }
 
@@ -1411,32 +1378,17 @@ function renderizarListaFinanceiro() {
     calcularTotalRemessa();
 }
 
-// Memoriza o que o usuário digita manualmente para não perder ao redesenhar a tela
-function salvarDadosManuais(idFixo) {
-    const item = window.arquivosAtuais.find(n => n.id === idFixo);
-    if (item) {
-        const inputVal = document.getElementById(`valor-${idFixo}`);
-        const inputChave = document.getElementById(`chave-${idFixo}`);
-        if (inputVal) item.valor = inputVal.value;
-        if (inputChave) item.chave = inputChave.value;
-    }
-    calcularTotalRemessa();
-}
-
-function focarNota(idFixo) {
-    const elementoImg = document.getElementById(`scroll-${idFixo}`);
-    if (elementoImg) {
-        elementoImg.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-}
-
 function removerNota(idFixo) {
+    // Filtra o array removendo apenas o ID clicado
     window.arquivosAtuais = window.arquivosAtuais.filter(item => item.id !== idFixo);
+    
+    // Força a atualização limpa da tela
     renderizarListaFinanceiro();
 }
 
 function resetarInterfaceFinanceiro() {
     window.arquivosAtuais = [];
+    
     const fileInput = document.getElementById('upload-lote');
     if(fileInput) fileInput.value = "";
     
@@ -1447,161 +1399,14 @@ function resetarInterfaceFinanceiro() {
     if(formCont) formCont.innerHTML = '<p style="color: #94a3b8; font-size: 0.8rem; text-align:center; margin-top:40px;">Selecione as notas para iniciar.</p>';
     
     const visorCont = document.getElementById('visor-notas');
-    if(visorCont) visorCont.innerHTML = ` <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8;"> <i class="fas fa-images fa-3x"></i><br><br> <p style="font-size:0.85rem;">Nenhuma nota carregada no momento.</p> </div> `;
-}
-
-function enviarParaDP() {
-    const inputs = document.querySelectorAll('.input-financeiro');
-    const totalElem = document.getElementById('total-remessa');
-    const total = totalElem ? totalElem.innerText : "R$ 0,00";
-    
-    if (!window.arquivosAtuais || window.arquivosAtuais.length === 0) {
-        alert("Adicione notas primeiro.");
-        return;
+    if(visorCont) {
+        visorCont.innerHTML = `
+            <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8;">
+                <i class="fas fa-images fa-3x"></i><br><br>
+                <p style="font-size:0.85rem;">Nenhuma nota carregada no momento.</p>
+            </div>
+        `;
     }
-    
-    let detalhamento = "";
-    window.arquivosAtuais.forEach((item, i) => {
-        const valorVal = parseFloat(item.valor || 0);
-        const valorFormatado = valorVal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        
-        const card = document.getElementById(`card-${item.id}`);
-        const dataInput = card ? card.querySelector('.data-financeiro') : null;
-        const catSelect = card ? card.querySelector('.cat-financeiro') : null;
-        
-        const dataNota = (dataInput && dataInput.value) ? dataInput.value.split('-').reverse().join('/') : "S/ Data";
-        const categoria = catSelect ? catSelect.value : "Gênero Alimentício";
-        const nf = item.chave || "S/ Nº";
-        
-        detalhamento += `🔹 *NF ${nf}:* ${valorFormatado} (${categoria}) - Data: ${dataNota}%0A`;
-    });
-    
-    const msg = `🧾 *RESUMO FINANCEIRO*%0A%0A${detalhamento}%0A💰 *TOTAL: ${total}*`;
-    window.open(`https://wa.me/?text=${msg}`);
-    setTimeout(() => {
-        if(confirm("Deseja limpar os dados deste envio?")) {
-            resetarInterfaceFinanceiro();
-        }
-    }, 1000);
-}
-
-function calcularTotalRemessa() {
-    let total = 0;
-    window.arquivosAtuais.forEach(item => {
-        total += Number(item.valor || 0);
-    });
-    const totalElem = document.getElementById('total-remessa');
-    if(totalElem) totalElem.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
-}
-
-// CORREÇÃO 2: PROCESSAMENTO ISOLADO POR ID ÚNICO E FIXO
-async function processarScannerHibrido(imagemSrc, idFixo) {
-    let qrCodeSucesso = false;
-    let valorDetectado = "";
-    let chaveDetectada = "";
-
-    // --- PASSO 1: SCANNER QR CODE ---
-    try {
-        if (typeof Html5Qrcode !== 'undefined') {
-            const html5QrCodeCpu = new Html5Qrcode("leitor-qrcode-motor");
-            const imgAux = new Image();
-            imgAux.src = imagemSrc;
-            await new Promise((resolve) => (imgAux.onload = resolve));
-
-            const qrCodeResult = await html5QrCodeCpu.scanFile(imgAux, false);
-
-            const regexValorQR = /[?&](?:vNf|vTxt|valorTotal|vProd|vNF)=([0-9.,]+)/i;
-            const matchQR = qrCodeResult.match(regexValorQR);
-
-            if (matchQR && matchQR[1]) {
-                let valorTratado = matchQR[1].replace(/\./g, '').replace(',', '.');
-                let valorFinal = parseFloat(valorTratado);
-                if (!isNaN(valorFinal) && valorFinal > 0) {
-                    valorDetectado = valorFinal.toFixed(2);
-                }
-            }
-
-            const regexChaveQR = /[?&]chNFe=(\d{44})/i;
-            const matchChave = qrCodeResult.match(regexChaveQR) || qrCodeResult.match(/\/p=(\d{44})/i);
-            if (matchChave && matchChave[1]) {
-                chaveDetectada = matchChave[1];
-            }
-
-            qrCodeSucesso = true;
-        }
-    } catch (qrError) {
-        console.log(`[${idFixo}] QR Code não mapeado. Tentando leitura por texto...`);
-    }
-
-    // --- PASSO 2: SCANNER TEXTO OCR ---
-    if (!qrCodeSucesso) {
-        // Atualiza dinamicamente o placeholder da nota informando o status do OCR
-        const inputVal = document.getElementById(`valor-${idFixo}`);
-        if(inputVal) inputVal.placeholder = "🔍 Lendo texto impresso...";
-        
-        const notaObjeto = window.arquivosAtuais.find(n => n.id === idFixo);
-        if(notaObjeto) notaObjeto.placeholder = "🔍 Lendo texto impresso...";
-
-        try {
-            const result = await Tesseract.recognize(imagemSrc, 'por');
-            let textoExtraido = result.data.text;
-            
-            textoExtraido = textoExtraido.replace(/(\d)[oO]/g, '$10').replace(/[oO](\d)/g, '0$1');
-
-            const regexMapeamento = /(valor\s+total\s*r\$|valor\s+a\s+pagar\s*r\$|valor\s+total\s+da\s+nf|valor\s+total|total\s+r\$|liquido).*?(\d{1,3}(?:[.,]\d{3})*[.,]\d{2})/i;
-            const match = textoExtraido.match(regexMapeamento);
-
-            if (match && match[2]) {
-                let valorCru = match[2];
-                let valorTratado = valorCru.includes(',') && valorCru.includes('.') 
-                    ? valorCru.replace(/\./g, '').replace(',', '.') 
-                    : valorCru.replace(',', '.');
-
-                let valorFinal = parseFloat(valorTratado);
-                if (!isNaN(valorFinal) && valorFinal > 0 && valorFinal < 100000) {
-                    valorDetectado = valorFinal.toFixed(2);
-                }
-            }
-
-            if (!valorDetectado) {
-                const valoresGerais = textoExtraido.match(/\d{1,3}(?:[.,]\d{3})*[.,]\d{2}/g);
-                if (valoresGerais && valoresGerais.length > 0) {
-                    let maiorValor = 0;
-                    valoresGerais.forEach(v => {
-                        let n = parseFloat(v.replace(/\./g, '').replace(',', '.'));
-                        if (n > maiorValor && n < 50000) maiorValor = n;
-                    });
-                    if (maiorValor > 0) valorDetectado = maiorValor.toFixed(2);
-                }
-            }
-        } catch (ocrError) {
-            console.error(ocrError);
-        }
-    }
-
-    // --- PASSO 3: ENTREGA DOS VALORES NO INPUT CORRETO ---
-    // Procura o objeto na lista global e salva os valores nele
-    const notaFinal = window.arquivosAtuais.find(n => n.id === idFixo);
-    if (notaFinal) {
-        notaFinal.valor = valorDetectado;
-        notaFinal.chave = chaveDetectada;
-        notaFinal.placeholder = valorDetectado ? "" : "Não detectado. Digite.";
-    }
-
-    // Atualiza o elemento físico na tela se ele ainda estiver aberto
-    const inputFisicoValor = document.getElementById(`valor-${idFixo}`);
-    const inputFisicaChave = document.getElementById(`chave-${idFixo}`);
-    
-    if (inputFisicoValor) {
-        inputFisicoValor.value = valorDetectado;
-        inputFisicoValor.placeholder = valorDetectado ? "" : "Não detectado. Digite.";
-    }
-    if (inputFisicaChave && chaveDetectada) {
-        inputFisicaChave.value = chaveDetectada;
-    }
-
-    // Recalcula o somatório geral do lote financeiro
-    calcularTotalRemessa();
 }
 
 // ========================================================
