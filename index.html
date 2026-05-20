@@ -1518,30 +1518,41 @@ async function sincronizarLinkDireto() {
     }
 }
 
- async function escanearTextoNota(imagemSrc, inputValorId) {
-    const inputValor = document.getElementById(inputValorId);
-    if (!inputValor) return;
+ // ==========================================================================
+// FUNÇÃO HÍBRIDA DE LEITURA (QR CODE + OCR) - TOTALMENTE CORRIGIDA
+// ==========================================================================
+async function processarScannerHibrido(imagemSrc, idFixo) {
+    // Busca os elementos dinamicamente na tela usando o ID único da nota atual
+    const inputValor = document.getElementById(`valor-${idFixo}`);
+    const campoChave = document.getElementById(`chave-${idFixo}`);
+    
+    if (!inputValor) {
+        console.error("Campo de valor não encontrado no HTML para o ID: " + idFixo);
+        return;
+    }
     
     inputValor.value = ""; 
     inputValor.placeholder = "🔍 Buscando QR Code...";
 
-    try {
-        // --- ETAPA 1: TENTAR LER QR CODE ---
-        const html5QrCode = new Html5QrcodeScanner("upload-lote", { fps: 10, qrbid: true }); 
-        const html5QrCodeCpu = new Html5Qrcode(""); 
+    let qrCodeSucesso = false;
+    let valorDetectado = "";
+    let chaveDetectada = "";
 
-        try {
-            // Cria um elemento invisível de imagem para o leitor de QR Code analisar
+    // --- ETAPA 1: TENTAR LER QR CODE ---
+    try {
+        if (typeof Html5Qrcode !== 'undefined') {
+            // Inicializa o motor apontando para a div invisível do sistema
+            const html5QrCodeCpu = new Html5Qrcode("leitor-qrcode-motor");
+            
             const imgAux = new Image();
             imgAux.src = imagemSrc;
             await new Promise((resolve) => (imgAux.onload = resolve));
 
-            // Executa a varredura do QR Code na imagem carregada
+            // Executa a varredura do QR Code
             const qrCodeResult = await html5QrCodeCpu.scanFile(imgAux, false);
-            
-            console.log("QR Code detectado com sucesso:", qrCodeResult);
+            console.log("✅ QR Code detectado com sucesso:", qrCodeResult);
 
-            // Tenta capturar o valor na URL da SEFAZ (ex: vTxt=150.00 ou vNF=150.00 ou valorTotal=150,00)
+            // Tenta capturar o valor na URL da SEFAZ
             const regexValorQR = /[?&](?:vNf|vTxt|valorTotal|vProd|vNF)=([0-9.,]+)/i;
             const matchQR = qrCodeResult.match(regexValorQR);
 
@@ -1550,70 +1561,99 @@ async function sincronizarLinkDireto() {
                 let valorFinal = parseFloat(valorTratado);
                 
                 if (!isNaN(valorFinal) && valorFinal > 0) {
-                    inputValor.value = valorFinal.toFixed(2);
-                    inputValor.placeholder = "";
-                    if (typeof calcularTotalRemessa === 'function') calcularTotalRemessa();
-                    return; // Sucesso com QR Code! Encerra aqui.
+                    valorDetectado = valorFinal.toFixed(2);
                 }
             }
-        } catch (qrError) {
-            console.log("QR Code não encontrado nesta nota, mudando para leitura de texto...");
-        }
 
-        // --- ETAPA 2: PLANO B - LEITURA DE TEXTO (OCR) ---
-        inputValor.placeholder = "🔍 QR Code não achado. Lendo texto...";
-        
-        const result = await Tesseract.recognize(imagemSrc, 'por');
-        let textoExtraido = result.data.text;
-        
-        console.log("Texto OCR Processado para:", inputValorId, textoExtraido);
-
-        // Correção de falsos positivos comuns (O maiúsculo confundido com número 0)
-        textoExtraido = textoExtraido.replace(/(\d)[oO]/g, '$10').replace(/[oO](\d)/g, '0$1');
-
-        // Seu mapeamento cirúrgico de termos pesquisados
-        const regexMapeamento = /(valor\s+total\s*r\$|valor\s+a\s+pagar\s*r\$|valor\s+total\s+da\s+nf|valor\s+total|total\s+r\$|liquido).*?(\d{1,3}(?:[.,]\d{3})*[.,]\d{2})/i;
-        const match = textoExtraido.match(regexMapeamento);
-
-        if (match && match[2]) {
-            let valorCru = match[2];
-            let valorTratado = valorCru.includes(',') && valorCru.includes('.') 
-                ? valorCru.replace(/\./g, '').replace(',', '.') 
-                : valorCru.replace(',', '.');
-
-            let valorFinal = parseFloat(valorTratado);
-            if (!isNaN(valorFinal) && valorFinal > 0 && valorFinal < 100000) {
-                inputValor.value = valorFinal.toFixed(2);
-                inputValor.placeholder = "";
-                if (typeof calcularTotalRemessa === 'function') calcularTotalRemessa();
-                return;
+            // Tenta extrair a Chave de Acesso de 44 dígitos da URL do QR Code
+            const regexChaveQR = /[?&]chNFe=(\d{44})/i;
+            const matchChave = qrCodeResult.match(regexChaveQR) || qrCodeResult.match(/\/p=(\d{44})/i);
+            if (matchChave && matchChave[1]) {
+                chaveDetectada = matchChave[1];
             }
-        }
 
-        // Regra secundária de fallback estatístico (Maior valor)
-        const valoresGerais = textoExtraido.match(/\d{1,3}(?:[.,]\d{3})*[.,]\d{2}/g);
-        if (valoresGerais && valoresGerais.length > 0) {
-            let maiorValor = 0;
-            valoresGerais.forEach(v => {
-                let n = parseFloat(v.replace(/\./g, '').replace(',', '.'));
-                if (n > maiorValor && n < 50000) maiorValor = n;
-            });
-            
-            if (maiorValor > 0) {
-                inputValor.value = maiorValor.toFixed(2);
-                inputValor.placeholder = "";
-                if (typeof calcularTotalRemessa === 'function') calcularTotalRemessa();
-                return;
-            }
+            qrCodeSucesso = true;
         }
-        
-        inputValor.placeholder = "Não detectado. Digite.";
-    } catch (error) {
-        console.error("Erro geral no processamento do scanner:", error);
-        inputValor.placeholder = "Erro. Digite.";
+    } catch (qrError) {
+        console.log(`[${idFixo}] QR Code não legível ou sem margem branca. Ativando OCR de texto...`);
     }
- }
-    
+
+    // --- ETAPA 2: PLANO B - LEITURA DE TEXTO IMPRESSO (OCR) ---
+    if (!qrCodeSucesso) {
+        inputValor.placeholder = "🔍 Lendo texto impresso...";
+        
+        // Atualiza temporariamente o status na memória para não se perder nos cliques
+        const notaObjetoPlaceholder = window.arquivosAtuais.find(n => n.id === idFixo);
+        if (notaObjetoPlaceholder) notaObjetoPlaceholder.placeholder = "🔍 Lendo texto impresso...";
+
+        try {
+            const result = await Tesseract.recognize(imagemSrc, 'por');
+            let textoExtraido = result.data.text;
+            console.log("Texto OCR Extraído:", textoExtraido);
+
+            // Correção de falsos positivos comuns (O maiúsculo confundido com número 0)
+            textoExtraido = textoExtraido.replace(/(\d)[oO]/g, '$10').replace(/[oO](\d)/g, '0$1');
+
+            // Mapeamento cirúrgico de termos pesquisados na nota
+            const regexMapeamento = /(valor\s+total\s*r\$|valor\s+a\s+pagar\s*r\$|valor\s+total\s+da\s+nf|valor\s+total|total\s+r\$|liquido).*?(\d{1,3}(?:[.,]\d{3})*[.,]\d{2})/i;
+            const match = textoExtraido.match(regexMapeamento);
+
+            if (match && match[2]) {
+                let valorCru = match[2];
+                let valorTratado = valorCru.includes(',') && valorCru.includes('.') 
+                    ? valorCru.replace(/\./g, '').replace(',', '.') 
+                    : valorCru.replace(',', '.');
+
+                let valorFinal = parseFloat(valorTratado);
+                if (!isNaN(valorFinal) && valorFinal > 0 && valorFinal < 100000) {
+                    valorDetectado = valorFinal.toFixed(2);
+                }
+            }
+
+            // Regra secundária de fallback estatístico (Maior valor da nota)
+            if (!valorDetectado) {
+                const valoresGerais = textoExtraido.match(/\d{1,3}(?:[.,]\d{3})*[.,]\d{2}/g);
+                if (valoresGerais && valoresGerais.length > 0) {
+                    let maiorValor = 0;
+                    valoresGerais.forEach(v => {
+                        let n = parseFloat(v.replace(/\./g, '').replace(',', '.'));
+                        if (n > maiorValor && n < 50000) maiorValor = n;
+                    });
+                    
+                    if (maiorValor > 0) {
+                        valorDetectado = maiorValor.toFixed(2);
+                    }
+                }
+            }
+        } catch (ocrError) {
+            console.error("Erro no processamento do Tesseract OCR:", ocrError);
+        }
+    }
+
+    // --- ETAPA 3: SALVAR DADOS NA MEMÓRIA E ATUALIZAR TELA ---
+    // Atualiza a lista na memória do JavaScript
+    const notaObjeto = window.arquivosAtuais.find(n => n.id === idFixo);
+    if (notaObjeto) {
+        notaObjeto.valor = valorDetectado;
+        notaObjeto.chave = chaveDetectada;
+        notaObjeto.placeholder = valorDetectado ? "" : "Não detectado. Digite.";
+    }
+
+    // Aplica as informações direto nas caixas de texto físicas da tela
+    if (inputValor) {
+        inputValor.value = valorDetectado;
+        inputValor.placeholder = valorDetectado ? "" : "Não detectado. Digite.";
+    }
+    if (campoChave && chaveDetectada) {
+        campoChave.value = chaveDetectada;
+    }
+
+    // Atualiza o valor do somatório total no rodapé
+    if (typeof calcularTotalRemessa === 'function') {
+        calcularTotalRemessa();
+    }
+}
+
 </script>
 </body>
 </html>
