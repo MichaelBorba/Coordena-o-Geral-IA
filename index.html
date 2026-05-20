@@ -1235,9 +1235,9 @@ function handleFinanceiroUpload(input) {
     });
 } 
                 
-// ==========================================================================
-// MÓDULO FINANCEIRO - CORREÇÃO DE INTERFACE E LIMPEZA SEGURA
-// ==========================================================================
+// ========================================================
+// RECURSOS DO MÓDULO FINANCEIRO (CORRIGIDO E SEGURO)
+// ========================================================
 if (!window.arquivosAtuais) window.arquivosAtuais = [];
 
 function openFinanceiro() {
@@ -1254,6 +1254,8 @@ function handleFinanceiroUpload(input) {
     const files = Array.from(input.files);
     if (files.length === 0) return;
 
+    // Remove apenas a mensagem de texto inicial, mas não mexe nos botões
+    const visor = document.getElementById('visor-notas');
     const vazio = document.getElementById('conteudo-visor-vazio');
     if (vazio) vazio.style.display = 'none';
 
@@ -1273,39 +1275,57 @@ function handleFinanceiroUpload(input) {
             
             window.arquivosAtuais.push(itemNota);
             renderizarListaFinanceiro();
-            processarScannerHibrido(itemNota.src, idFixo);
+            
+            // Dispara o scanner hibrido (leitura do QR Code / OCR)
+            if (typeof processarScannerHibrido === 'function') {
+                processarScannerHibrido(itemNota.src, idFixo);
+            }
         };
         reader.readAsDataURL(file);
     });
 
-    // Limpa o valor para permitir re-upload do mesmo arquivo com segurança
+    // Limpa o input para permitir que você selecione o mesmo arquivo se quiser
     input.value = "";
 }
 
 function renderizarListaFinanceiro() {
     const visor = document.getElementById('visor-notas');
     const formContainer = document.getElementById('form-notas-container');
-
-    // SE A LISTA ESTIVER VAZIA: Trata a interface de forma segura sem destruir botões
+    
+    // Verifica se já existe o container das imagens para não apagar o botão de carregar notas
+    let listaImagensContainer = document.getElementById('container-fotos-lista');
+    
+    // Se a lista estiver vazia, restaura o estado inicial seguro sem quebrar o HTML
     if (!window.arquivosAtuais || window.arquivosAtuais.length === 0) {
-        if(totalElem = document.getElementById('total-remessa')) totalElem.innerText = "R$ 0,00";
-        if(formContainer) formContainer.innerHTML = '<p style="color: #94a3b8; font-size: 0.8rem; text-align:center; margin-top:40px;">Selecione as notas para iniciar.</p>';
-        if(visor) {
-            visor.innerHTML = `
-                <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8;">
-                    <i class="fas fa-images fa-3x"></i><br><br>
-                    <p style="font-size:0.85rem;">Nenhuma nota carregada no momento.</p>
-                </div>
-            `;
-        }
+        const totalElem = document.getElementById('total-remessa');
+        if (totalElem) totalElem.innerText = "R$ 0,00";
+        
+        if (formContainer) formContainer.innerHTML = '<p style="color: #94a3b8; font-size: 0.8rem; text-align:center; margin-top:40px;">Selecione as notas para iniciar.</p>';
+        
+        const vazio = document.getElementById('conteudo-visor-vazio');
+        if (vazio) vazio.style.display = 'flex'; // Torna o botão de carregar visível de novo
+        
+        if (listaImagensContainer) listaImagensContainer.innerHTML = '';
         return;
     }
 
-    if(visor) visor.innerHTML = '';
-    if(formContainer) formContainer.innerHTML = '';
+    // Se houver notas, esconde o botão padrão do centro e gerencia o container de fotos
+    const vazio = document.getElementById('conteudo-visor-vazio');
+    if (vazio) vazio.style.display = 'none';
+
+    if (!listaImagensContainer && visor) {
+        listaImagensContainer = document.createElement('div');
+        listaImagensContainer.id = 'container-fotos-lista';
+        listaImagensContainer.style.width = '100%';
+        visor.appendChild(listaImagensContainer);
+    }
+
+    if (listaImagensContainer) listaImagensContainer.innerHTML = '';
+    if (formContainer) formContainer.innerHTML = '';
 
     window.arquivosAtuais.forEach((item, index) => {
-        if(visor) {
+        // Renderiza a imagem no visor esquerdo
+        if (listaImagensContainer) {
             const imgDiv = document.createElement('div');
             imgDiv.className = "imagem-nota-container";
             imgDiv.id = `scroll-${item.id}`;
@@ -1316,10 +1336,11 @@ function renderizarListaFinanceiro() {
                 </div>
                 <img src="${item.src}" style="width: 100%; height: auto; display: block; background: #000;">
             `;
-            visor.appendChild(imgDiv);
+            listaImagensContainer.appendChild(imgDiv);
         }
 
-        if(formContainer) {
+        // Renderiza o formulário correspondente na direita
+        if (formContainer) {
             const formDiv = document.createElement('div');
             formDiv.className = 'item-card';
             formDiv.id = `card-${item.id}`;
@@ -1375,14 +1396,15 @@ function renderizarListaFinanceiro() {
             formContainer.appendChild(formDiv);
         }
     });
-    calcularTotalRemessa();
+    
+    if (typeof calcularTotalRemessa === 'function') calcularTotalRemessa();
 }
 
 function removerNota(idFixo) {
-    // Filtra o array removendo apenas o ID clicado
+    // Filtra o array removendo apenas o documento selecionado
     window.arquivosAtuais = window.arquivosAtuais.filter(item => item.id !== idFixo);
     
-    // Força a atualização limpa da tela
+    // Redesenha a lista com segurança
     renderizarListaFinanceiro();
 }
 
@@ -1390,24 +1412,21 @@ function resetarInterfaceFinanceiro() {
     window.arquivosAtuais = [];
     
     const fileInput = document.getElementById('upload-lote');
-    if(fileInput) fileInput.value = "";
+    if (fileInput) fileInput.value = "";
     
     const totalElem = document.getElementById('total-remessa');
-    if(totalElem) totalElem.innerText = "R$ 0,00";
+    if (totalElem) totalElem.innerText = "R$ 0,00";
     
     const formCont = document.getElementById('form-notas-container');
-    if(formCont) formCont.innerHTML = '<p style="color: #94a3b8; font-size: 0.8rem; text-align:center; margin-top:40px;">Selecione as notas para iniciar.</p>';
+    if (formCont) formCont.innerHTML = '<p style="color: #94a3b8; font-size: 0.8rem; text-align:center; margin-top:40px;">Selecione as notas para iniciar.</p>';
     
-    const visorCont = document.getElementById('visor-notas');
-    if(visorCont) {
-        visorCont.innerHTML = `
-            <div id="conteudo-visor-vazio" style="margin: auto; text-align: center; color: #94a3b8;">
-                <i class="fas fa-images fa-3x"></i><br><br>
-                <p style="font-size:0.85rem;">Nenhuma nota carregada no momento.</p>
-            </div>
-        `;
-    }
+    const listaImagensContainer = document.getElementById('container-fotos-lista');
+    if (listaImagensContainer) listaImagensContainer.innerHTML = '';
+    
+    const vazio = document.getElementById('conteudo-visor-vazio');
+    if (vazio) vazio.style.display = 'flex';
 }
+
 
 // ========================================================
 // SINCRONIZAÇÃO AUTOMÁTICA DA PLANILHA (RESTAURADA E LIMPA)
