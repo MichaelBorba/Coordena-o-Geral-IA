@@ -1427,8 +1427,51 @@ function resetarInterfaceFinanceiro() {
     if (vazio) vazio.style.display = 'flex';
 }
 
+// COLOQUE O CÓDIGO NOVO EXATAMENTE DAQUI PARA BAIXO:
+// ==========================================================================
+// FUNÇÕES DE CÁLCULO E CAPTURA DE DADOS MANUAIS (CORRIGIDAS)
+// ==========================================================================
 
-// ========================================================
+function calcularTotalRemessa() {
+    let total = 0;
+    
+    // Varre a lista oficial de notas guardadas na memória
+    if (window.arquivosAtuais && window.arquivosAtuais.length > 0) {
+        window.arquivosAtuais.forEach(item => {
+            // Converte o valor para número. Se estiver vazio ou inválido, assume 0
+            const valorNumerico = parseFloat(item.valor) || 0;
+            total += valorNumerico;
+        });
+    }
+    
+    // Atualiza o texto do somatório no rodapé da página
+    const totalElem = document.getElementById('total-remessa');
+    if (totalElem) {
+        totalElem.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    }
+}
+
+function salvarDadosManuais(idFixo) {
+    // Procura a nota específica no array global através do ID único
+    const item = window.arquivosAtuais.find(n => n.id === idFixo);
+    
+    if (item) {
+        const inputVal = document.getElementById(`valor-${idFixo}`);
+        const inputChave = document.getElementById(`chave-${idFixo}`);
+        
+        // Atualiza a memória com o que o usuário digitou
+        if (inputVal) {
+            item.valor = inputVal.value;
+        }
+        if (inputChave) {
+            item.chave = inputChave.value;
+        }
+    }
+    
+    // Força o recalculo do total imediatamente após a digitação
+    calcularTotalRemessa();
+}
+    // ========================================================
 // SINCRONIZAÇÃO AUTOMÁTICA DA PLANILHA (RESTAURADA E LIMPA)
 // ========================================================
 async function sincronizarLinkDireto() {
