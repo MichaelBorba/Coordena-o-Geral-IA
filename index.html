@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -1462,31 +1463,12 @@ function handleFinanceiroUpload(input) {
     }
 
     // ENVIAR PARA O DP TOTALMENTE RECONSTRUÍDO E CONECTADO À MEMÓRIA DO LOTE
-   async function enviarParaDP() {
+    function enviarParaDP() {
         if (!window.arquivosAtuais || window.arquivosAtuais.length === 0) {
             alert("Nenhuma nota fiscal foi carregada para envio.");
             return;
         }
-
-        // 1. SALVAR NO SUPABASE
-        for (const item of window.arquivosAtuais) {
-            const { error } = await supabase
-                .from('financeiro') // Certifique-se que o nome da tabela é esse
-                .insert([{
-                    valor: parseFloat(item.valor) || 0,
-                    categoria: item.categoria,
-                    codigo_nf: item.chave || 'SEM_CHAVE',
-                    data_emissao: item.dataEmissao || new Date().toISOString().split('T')[0]
-                }]);
-
-            if (error) {
-                console.error("Erro ao salvar nota:", item.id, error);
-                alert("Erro ao salvar nota no banco: " + error.message);
-                return; // Para o processo se der erro
-            }
-        }
-
-        // 2. DISPARAR WHATSAPP (Lógica original mantida)
+        
         let detalhamento = "";
         let totalAcumulado = 0;
 
@@ -1494,18 +1476,23 @@ function handleFinanceiroUpload(input) {
             const valNum = parseFloat(item.valor) || 0;
             totalAcumulado += valNum;
             const valorFormatado = valNum.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            const dataNota = item.dataEmissao ? item.dataEmissao.split('-').reverse().join('/') : "---";
-            detalhamento += `🔹 *NF ${i + 1}:* ${valorFormatado}%0A   • Cat: ${item.categoria}%0A   • Data: ${dataNota}%0A   • Chave: ${item.chave || '---'}%0A%0A`;
+            
+            const dataNota = item.dataEmissao ? item.dataEmissao.split('-').reverse().join('/') : "Não informada";
+            const nf = item.chave || "Nº não inserido";
+            
+            detalhamento += `🔹 *NF ${i + 1}:* ${valorFormatado}%0A   • Categoria: ${item.categoria}%0A   • Data: ${dataNota}%0A   • Doc/Chave: ${nf}%0A%0A`;
         });
         
         const totalFormatadoGeral = totalAcumulado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        const msg = `🧾 *FINANCEIRO - LOTE SALVO NO BANCO*%0A%0A${detalhamento}💰 *TOTAL: ${totalFormatadoGeral}*`;
+        const msg = `🧾 *RESUMO DE REMESSA FINANCEIRA*%0A%0A${detalhamento}💰 *TOTAL DO LOTE: ${totalFormatadoGeral}*`;
         
         window.open(`https://wa.me/?text=${msg}`);
         
-        if(confirm("Lote salvo no Supabase com sucesso! Deseja limpar o painel?")) {
-            resetarInterfaceFinanceiro();
-        }
+        setTimeout(() => {
+            if(confirm("Deseja limpar o painel do financeiro agora que o lote foi enviado?")) {
+                resetarInterfaceFinanceiro();
+            }
+        }, 1200);
     }
 
     // SCANNER HÍBRIDO ADAPTADO E SINCRONIZADO COM IDS FIXOS
@@ -1835,25 +1822,7 @@ async function processarScannerHibrido(imagemSrc, idFixo) {
         calcularTotalRemessa();
     }
 }
-async function salvarNoSupabase(dados) {
-    const { data, error } = await supabase
-        .from('financeiro') // Nome da sua tabela
-        .insert([
-            { 
-                valor: dados.valor, 
-                categoria: dados.categoria, 
-                codigo_nf: dados.chave, // Ajuste conforme o nome da coluna no seu banco
-                data_emissao: new Date().toISOString() // Ou capture do input de data
-            },
-        ]);
 
-    if (error) {
-        console.error("Erro ao salvar no Supabase:", error);
-        alert("Erro ao salvar no banco, mas o WhatsApp será aberto.");
-    } else {
-        console.log("Salvo com sucesso!", data);
-    }
-}
 </script>
 </body>
 </html>
